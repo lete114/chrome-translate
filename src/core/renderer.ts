@@ -39,19 +39,18 @@ export class Renderer {
       if (node.translate) {
         return
       }
-      if (this.translateCache.has(node.text)) {
-        const text = this.translateCache.get(node.text)
+      const key = `${from}->${to}:${node.text}`
+
+      if (this.translateCache.has(key)) {
+        const text = this.translateCache.get(key)
         node.translate = text
         return
       }
       node.translate = node.originalText
       if (!isExcludedElement(node.parent)) {
-        const translation = await this.translator.translate({
-          text: node.text,
-          from,
-          to,
-        })
-        this.translateCache.set(node.text, translation)
+        const options = { text: node.text, from, to }
+        const translation = await this.translator.translate(options)
+        this.translateCache.set(key, translation)
         node.translate = translation
         node.translate = applySpaces(node.spaces, node.translate)
       }
@@ -61,8 +60,9 @@ export class Renderer {
   }
 
   async translateHTML({ from, to, map, text }: ITranslateOptions & { map: TCombinedTextMap, text: string }) {
-    if (this.translateCache.has(text)) {
-      return this.translateCache.get(text)!
+      const key = `${from}->${to}:${text}`
+    if (this.translateCache.has(key)) {
+      return this.translateCache.get(key)!
     }
     const translate = await this.translator.translate({ text, from, to })
     const innerHTML = this.textExtractor.parseTextWithInlineTags(translate, map)
@@ -74,7 +74,6 @@ export class Renderer {
       return
     }
     this.language = { from, to }
-    this.start()
   }
 
   clear() {
