@@ -265,6 +265,7 @@ export class Renderer {
   createParagraphBilingualWrapper(textParagraph: ITextParagraph) {
     const wrap: HTMLElement = document.createElement('div')
     wrap.classList.add(BILINGUAL_PARAGRAPH)
+    wrap.style.margin = '8px 0'
     this.translateElements.push(wrap)
 
     const container = textParagraph.container
