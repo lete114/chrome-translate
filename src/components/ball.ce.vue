@@ -47,6 +47,10 @@ onMounted(() => {
     ballEl.style.setProperty('--y', y)
   }
   ballEl.setAttribute('data-side', config.side)
+
+  // force reflow
+  ballEl.getBoundingClientRect()
+  ballEl.style.transition = 'all 0.3s ease'
 })
 
 function onMouseDown(event: MouseEvent) {
@@ -191,7 +195,6 @@ function onOpenSetting() {
     user-select: none;
     touch-action: none;
     transform: translate(var(--x), var(--y));
-    transition: all 0.3s ease;
 
     &.ct-moving {
       border-radius: 50%;
