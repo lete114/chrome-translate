@@ -56,6 +56,35 @@ export function getScrollbarPosition() {
   } as const
 }
 
+export function watchScrollbarChange(callback: (info: ReturnType<typeof getScrollbarInfo>) => void) {
+  let lastInfo = getScrollbarInfo()
+
+  const check = debounce(() => {
+    const newInfo = getScrollbarInfo()
+    if (
+      newInfo.width !== lastInfo.width ||
+      newInfo.height !== lastInfo.height ||
+      newInfo.vertical !== lastInfo.vertical ||
+      newInfo.horizontal !== lastInfo.horizontal
+    ) {
+      lastInfo = newInfo
+      callback(newInfo)
+    }
+  }, 100)
+
+  window.addEventListener('resize', check)
+
+  const resizeObserver = new ResizeObserver(check)
+  resizeObserver.observe(document.documentElement)
+  resizeObserver.observe(document.body)
+
+  return () => {
+    resizeObserver.disconnect()
+    window.removeEventListener('resize', check)
+    check.cancel()
+  }
+}
+
 export function clamp(v: number, min: number, max: number) {
   return Math.min(Math.max(v, min), max)
 }
