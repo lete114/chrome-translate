@@ -62,10 +62,10 @@ export function watchScrollbarChange(callback: (info: ReturnType<typeof getScrol
   const check = debounce(() => {
     const newInfo = getScrollbarInfo()
     if (
-      newInfo.width !== lastInfo.width ||
-      newInfo.height !== lastInfo.height ||
-      newInfo.vertical !== lastInfo.vertical ||
-      newInfo.horizontal !== lastInfo.horizontal
+      newInfo.width !== lastInfo.width
+      || newInfo.height !== lastInfo.height
+      || newInfo.vertical !== lastInfo.vertical
+      || newInfo.horizontal !== lastInfo.horizontal
     ) {
       lastInfo = newInfo
       callback(newInfo)
@@ -276,4 +276,16 @@ export function formatSize(bytes: number): string {
     return `${(bytes / 1024).toFixed(2)} KB`
   }
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+}
+
+/**
+ * FNV (Fowler–Noll–Vo) Hash
+ */
+export function fnv1aHash(text: string) {
+  let hash = 0x811C9DC5 // Offset base number
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24)
+  }
+  return (`0000000${(hash >>> 0).toString(16)}`).slice(-8)
 }

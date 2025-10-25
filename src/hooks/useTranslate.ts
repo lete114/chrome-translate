@@ -1,3 +1,4 @@
+import type { ITranslateOptions } from '../core/translator'
 import { Progress } from '../core/progress'
 import { Renderer } from '../core/renderer'
 import { TextExtractor } from '../core/textExtractor'
@@ -11,7 +12,7 @@ const cache = new LFUCache()
 
 let rendererInstance: Renderer | null = null
 
-export async function useTranslate(): Promise<{ instance: Renderer, isTranslating: () => boolean, start: () => void, stop: () => void }> {
+export async function useTranslate(options: Partial<ITranslateOptions> = {}): Promise<{ instance: Renderer, isTranslating: () => boolean, start: () => void, stop: () => void }> {
   if (rendererInstance) {
     return {
       instance: rendererInstance,
@@ -21,15 +22,19 @@ export async function useTranslate(): Promise<{ instance: Renderer, isTranslatin
     }
   }
 
-  const from = await translatorInstance.detectPageLanguage()
-  const to = navigator.languages[0]
+  if (!options.from) {
+    options.from = await translatorInstance.detectPageLanguage()
+  }
+  if (!options.to) {
+    options.to = navigator.languages[0]
+  }
 
   rendererInstance = new Renderer({
     textExtractor: textExtractorInstance,
     translator: translatorInstance,
     LFUCache: cache,
-    from,
-    to,
+    from: options.from,
+    to: options.to,
   })
 
   const start = () => {

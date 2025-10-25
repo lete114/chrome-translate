@@ -3,4 +3,6 @@ import ball from './components/ball.ce.vue'
 
 customElements.define('chrome-translate-ball', defineCustomElement(ball))
 
-document.documentElement.append(document.createElement('chrome-translate-ball'))
+const ballEl = document.createElement('chrome-translate-ball')
+
+document.documentElement.appendChild(ballEl)

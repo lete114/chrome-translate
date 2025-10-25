@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WaDialogProps } from '@awesome.me/webawesome/dist/custom-elements-jsx.d.ts'
 import { GM_getValue, GM_setValue } from '$'
 import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'
 import checkIcon from '../components/icon/check.vue'
@@ -6,22 +7,55 @@ import languageIcon from '../components/icon/language.vue'
 import settingIcon from '../components/icon/setting.vue'
 import { useTranslate } from '../hooks/useTranslate'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
+import { LANGUAGES } from '../utils/languages'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
+import '@awesome.me/webawesome/dist/styles/themes/default.css'
+import '@awesome.me/webawesome/dist/components/dialog/dialog.js'
+import '@awesome.me/webawesome/dist/components/button/button.js'
+import '@awesome.me/webawesome/dist/components/icon/icon.js'
+import '@awesome.me/webawesome/dist/components/select/select.js'
+import '@awesome.me/webawesome/dist/components/option/option.js'
 
 const rootRef = useTemplateRef('root')
 const ballRef = useTemplateRef('ball')
+const dialogRef = useTemplateRef<WaDialogProps>('dialog')
 
 const config = GM_getValue(STORAGE_CONFIG_KEY, {
   position: { x: '', y: '' },
   side: 'right',
+  language: { from: 'auto', to: '' },
 })
 
 const states = reactive({
   moving: false,
   isTranslating: false,
+  language: config.language || { from: 'auto', to: '' },
 })
 
+let translate: Awaited<ReturnType<typeof useTranslate>>
+const translateOptions = { ...config.language }
+if (translateOptions.from === 'auto') {
+  Reflect.deleteProperty(translateOptions, 'from')
+}
+
+useTranslate(translateOptions).then(async (t) => {
+  translate = t
+  const from = await getFrom()
+  const to = states.language.to
+  if (to) {
+    translate.instance.setLanguage({ from, to })
+    return
+  }
+  states.language.to = t.instance.language.to
+})
+async function getFrom() {
+  return states.language.from === 'auto' ? await translate.instance.translator.detectPageLanguage() : states.language.from
+}
+
 let dragging = false
+let isAllowedTranslate = true
+let startX: number | null, startY: number | null
+const threshold = 5
 
 function setScrollbarPrroperty(el: HTMLElement) {
   el.style.setProperty('--scrollbar-width', `${SCROLLBAR_INFO.width}px`)
@@ -63,14 +97,16 @@ function onMouseDown(event: MouseEvent) {
   if (event.button !== 0) {
     return
   }
+  startX = event.clientX
+  startY = event.clientY
 
   states.moving = false
-  dragging = true
 
   ballEl.style.transition = 'none'
 }
 
 function onMouseUp(_event: MouseEvent) {
+  startX = startY = null
   const ballEl = ballRef.value
   if (!ballEl) {
     return
@@ -79,6 +115,8 @@ function onMouseUp(_event: MouseEvent) {
     return
   }
   dragging = false
+  isAllowedTranslate = false
+  states.moving = false
 
   ballEl.style.transition = 'all 0.3s ease'
   ballEl.style.cursor = 'pointer'
@@ -94,25 +132,20 @@ function onMouseUp(_event: MouseEvent) {
   ballEl.style.removeProperty('--x')
 
   GM_setValue(STORAGE_CONFIG_KEY, { ...config, position: { x, y }, side })
-
-  // Prevent the event from bubbling up
-  if (states.moving) {
-    const stopClick = (event: MouseEvent) => {
-      event.stopImmediatePropagation()
-      event.preventDefault()
-      ballEl.addEventListener('transitionend', () => {
-        states.moving = false
-      }, { once: true })
-      window.removeEventListener('click', stopClick, true)
-    }
-    window.addEventListener('click', stopClick, true)
-  }
 }
 
 function onMouseMove(event: MouseEvent) {
   const ballEl = ballRef.value
   if (!ballEl) {
     return
+  }
+  if (startX && startY) {
+    const dx = event.clientX - startX
+    const dy = event.clientY - startY
+    const distance = Math.sqrt(dx * dx + dy * dy)
+    if (distance > threshold) {
+      dragging = true
+    }
   }
   if (!dragging) {
     return
@@ -135,8 +168,15 @@ onBeforeUnmount(() => {
 })
 
 async function onTranslate() {
-  const translate = await useTranslate()
-
+  if (!isAllowedTranslate) {
+    isAllowedTranslate = true
+    return
+  }
+  const { from, to } = translate.instance.language
+  if (from === to) {
+    console.warn('Translation from and to are the same.')
+    return
+  }
   if (translate.isTranslating()) {
     // translate.stop()
     translate.instance.clearElements()
@@ -149,24 +189,60 @@ async function onTranslate() {
 const onTranslateDebounced = debounce(onTranslate, 500, true)
 
 function onOpenSetting() {
-  console.log('open setting')
+  if (dialogRef.value) {
+    dialogRef.value.open = true
+  }
+}
+
+async function onSelected() {
+  const from = await getFrom()
+  translate.instance.setLanguage({ from, to: states.language.to })
+  GM_setValue(STORAGE_CONFIG_KEY, { ...config, language: states.language })
 }
 </script>
 
 <template>
   <div ref="root" class="ct-root">
-    <div ref="ball" class="ct-ball" :class="{ 'ct-moving': states.moving }" @click.stop.prevent="onTranslateDebounced" @mousedown.stop.prevent="onMouseDown" @mouseup.stop.prevent="onMouseUp" @contextmenu="$event.preventDefault()">
+    <div
+      ref="ball" class="ct-ball" :class="{ 'ct-moving': states.moving }" @click.stop.prevent="onTranslateDebounced"
+      @mousedown.stop.prevent="onMouseDown" @mouseup.stop.prevent="onMouseUp" @contextmenu="$event.preventDefault()"
+    >
+      <!-- icon -->
       <div class="ct-icon">
         <language-icon class="ct-language-icon" />
         <check-icon v-if="states.isTranslating" class="ct-check-icon" />
       </div>
 
-      <div class="ct-setting-wrap" @click.stop.prevent="() => {}">
+      <!-- setting -->
+      <div class="ct-setting-wrap" @click.stop.prevent="() => { }">
         <div class="ct-setting" @click.stop.prevent="onOpenSetting">
           <setting-icon class="ct-setting-icon" />
         </div>
       </div>
     </div>
+
+    <!-- setting dialog -->
+    <wa-dialog ref="dialog" label="Setting" light-dismiss>
+      <div class="ct-setting-dialog">
+        <div class="ct-setting-dialog-from">
+          <wa-select v-model="states.language.from" appearance="filled" @change="onSelected">
+            <wa-option v-for="lang in [{ label: 'Auto', value: 'auto' }, ...LANGUAGES]" :key="lang.value" :value="lang.value">
+              {{ lang.label }}
+            </wa-option>
+          </wa-select>
+        </div>
+        <div class="ct-setting-dialgo-icon">
+          <wa-icon name="arrow-right" label="Awesome" />
+        </div>
+        <div class="ct-setting-dialog-to">
+          <wa-select v-model="states.language.to" appearance="filled" @change="onSelected">
+            <wa-option v-for="lang in LANGUAGES" :key="lang.value" :value="lang.value">
+              {{ lang.label }}
+            </wa-option>
+          </wa-select>
+        </div>
+      </div>
+    </wa-dialog>
   </div>
 </template>
 
@@ -241,6 +317,7 @@ function onOpenSetting() {
         left: 6px;
       }
     }
+
     &[data-side="right"] .ct-setting-wrap {
       right: calc(var(--size) * -1);
 
@@ -248,6 +325,7 @@ function onOpenSetting() {
         right: 6px;
       }
     }
+
     .ct-setting-wrap {
       --x: 0px;
       --y: calc(50vh - var(--size)/2);
@@ -260,20 +338,20 @@ function onOpenSetting() {
       color: #000;
 
       & .ct-setting {
-      width: calc(var(--size) - 4px);
-      height: calc(var(--size) - 4px);
-      background-color: var(--bg);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, .25);
-      border-radius: 20px;
+        width: calc(var(--size) - 4px);
+        height: calc(var(--size) - 4px);
+        background-color: var(--bg);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, .25);
+        border-radius: 20px;
 
-      & .ct-setting-icon {
-        width: 20px;
-        height: 20px;
-      }
+        & .ct-setting-icon {
+          width: 20px;
+          height: 20px;
+        }
 
       }
     }
@@ -316,5 +394,28 @@ function onOpenSetting() {
     }
   }
 
+  .ct-setting-dialog {
+    display: flex;
+
+    .ct-setting-dialgo-icon {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+    }
+
+    .ct-setting-dialog-from,
+    .ct-setting-dialog-to {
+      flex: 1;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #eee;
+      border-radius: 10px;
+    }
+
+  }
 }
 </style>
