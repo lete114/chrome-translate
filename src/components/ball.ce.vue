@@ -6,6 +6,7 @@ import checkIcon from '../components/icon/check.vue'
 import languageIcon from '../components/icon/language.vue'
 import settingIcon from '../components/icon/setting.vue'
 import { useTranslate } from '../hooks/useTranslate'
+import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
 import { LANGUAGES } from '../utils/languages'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
@@ -178,7 +179,7 @@ async function onTranslate() {
     return
   }
   if (translate.isTranslating()) {
-    // translate.stop()
+    translate.stop()
     translate.instance.clearElements()
     states.isTranslating = translate.isTranslating()
     return
@@ -199,6 +200,13 @@ async function onSelected() {
   translate.instance.setLanguage({ from, to: states.language.to })
   GM_setValue(STORAGE_CONFIG_KEY, { ...config, language: states.language })
 }
+
+useWatchUrlChange((newUrl, oldUrl) => {
+  if (newUrl !== oldUrl) {
+    translate.instance.clearElements()
+    translate.start()
+  }
+})
 </script>
 
 <template>

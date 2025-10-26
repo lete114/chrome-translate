@@ -24,7 +24,6 @@ export class Renderer {
   translateElements: HTMLElement[] = []
   translateContainers: HTMLElement[] = []
   translateLoadingElements: HTMLElement[] = []
-  currentUrl = location.href
   constructor(options: IRendererOptions) {
     this.textExtractor = options.textExtractor
     this.translator = options.translator
@@ -94,8 +93,6 @@ export class Renderer {
   }
 
   clearElements() {
-    this.stop()
-
     this.translateElements.forEach((el) => {
       el.remove()
     })
@@ -112,16 +109,6 @@ export class Renderer {
     return this.textExtractor.groupTextNodesByParagraph(
       this.textExtractor.extractTextNodes(rootElement),
     )
-  }
-
-  hasUrlChanged() {
-    const current = window.location.href || ''
-    const currentWithoutHash = current.split('#')[0]
-    const previousWithoutHash = this.currentUrl.split('#')[0]
-
-    this.currentUrl = current
-
-    return currentWithoutHash !== previousWithoutHash
   }
 
   stop() {
@@ -191,12 +178,6 @@ export class Renderer {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
-            const hasUrlChanged = this.hasUrlChanged()
-            if (hasUrlChanged) {
-              groupedNodes.forEach(group => this.observer?.unobserve(group.container))
-              groupedNodes.clear()
-            }
-
             this.getGroupTextNodesByParagraph(this.el).forEach((group) => {
               if (!groupedNodes.has(group.container)) {
                 groupedNodes.set(group.container, group)
