@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chrome-translate
 // @namespace    lete114/chrome-translate
-// @version      0.0.2
+// @version      0.0.3
 // @author       Lete114 <me@imlete.cn>
 // @license      MIT
 // @icon         https://github.com/lete114/chrome-translate/blob/main/src/assets/logo.svg?raw=true
@@ -527,7 +527,6 @@
     translateElements = [];
     translateContainers = [];
     translateLoadingElements = [];
-    currentUrl = location.href;
     constructor(options) {
       this.textExtractor = options.textExtractor;
       this.translator = options.translator;
@@ -589,7 +588,6 @@
       this.translateLoadingElements = [];
     }
     clearElements() {
-      this.stop();
       this.translateElements.forEach((el) => {
         el.remove();
       });
@@ -605,13 +603,6 @@
       return this.textExtractor.groupTextNodesByParagraph(
         this.textExtractor.extractTextNodes(rootElement)
       );
-    }
-    hasUrlChanged() {
-      const current = window.location.href || "";
-      const currentWithoutHash = current.split("#")[0];
-      const previousWithoutHash = this.currentUrl.split("#")[0];
-      this.currentUrl = current;
-      return currentWithoutHash !== previousWithoutHash;
     }
     stop() {
       this.isRunning = false;
@@ -672,11 +663,6 @@
         mutations.forEach((mutation) => {
           mutation.addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              const hasUrlChanged = this.hasUrlChanged();
-              if (hasUrlChanged) {
-                groupedNodes.forEach((group) => this.observer?.unobserve(group.container));
-                groupedNodes.clear();
-              }
               this.getGroupTextNodesByParagraph(this.el).forEach((group) => {
                 if (!groupedNodes.has(group.container)) {
                   groupedNodes.set(group.container, group);
@@ -1424,6 +1410,20 @@ info() {
       isTranslating: () => !!rendererInstance?.isRunning,
       start,
       stop: () => rendererInstance?.stop?.()
+    };
+  }
+  function useWatchUrlChange(callback, interval = 500) {
+    let lastUrl = location.href;
+    const timer = window.setInterval(() => {
+      const currentUrl = location.href;
+      if (currentUrl !== lastUrl) {
+        const oldUrl = lastUrl;
+        lastUrl = currentUrl;
+        callback(currentUrl, oldUrl);
+      }
+    }, interval);
+    return function stopWatching() {
+      clearInterval(timer);
     };
   }
   const LANGUAGES = [
@@ -6810,6 +6810,7 @@ fallbackPlacements: this.flipFallbackPlacements,
           return;
         }
         if (translate.isTranslating()) {
+          translate.stop();
           translate.instance.clearElements();
           states.isTranslating = translate.isTranslating();
           return;
@@ -6828,6 +6829,12 @@ fallbackPlacements: this.flipFallbackPlacements,
         translate.instance.setLanguage({ from, to: states.language.to });
         _GM_setValue(STORAGE_CONFIG_KEY, { ...config, language: states.language });
       }
+      useWatchUrlChange((newUrl, oldUrl) => {
+        if (newUrl !== oldUrl) {
+          translate.instance.clearElements();
+          translate.start();
+        }
+      });
       return (_ctx, _cache) => {
         return vue.openBlock(), vue.createElementBlock("div", _hoisted_1, [
           vue.createElementVNode("div", {
@@ -6907,8 +6914,8 @@ fallbackPlacements: this.flipFallbackPlacements,
       };
     }
   });
-  const _style_0 = ".ct-root[data-v-08021a92]{--size: 40px;--bg: #fff;-webkit-user-select:none;user-select:none;touch-action:none}.ct-root .ct-ball[data-v-08021a92]{--x: 0px;--y: calc(50vh - var(--size)/2);position:fixed;z-index:999999999;top:0;width:var(--size);height:var(--size);background-color:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:none;transform:translate(var(--x),var(--y))}.ct-root .ct-ball.ct-moving[data-v-08021a92]{border-radius:50%;padding:unset!important}.ct-root .ct-ball.ct-moving .ct-setting-wrap[data-v-08021a92]{display:none}.ct-root .ct-ball .ct-icon[data-v-08021a92]{--size: 28px;width:var(--size);height:var(--size);position:relative;display:flex;align-items:center;justify-content:center;border-radius:50%;background-color:#00c4b6}.ct-root .ct-ball .ct-icon .ct-language-icon[data-v-08021a92]{width:20px;height:20px}.ct-root .ct-ball .ct-icon .ct-check-icon[data-v-08021a92]{position:absolute;bottom:-2px;right:0;width:10px;height:10px;border-radius:50%;background-color:#00c800cc;color:#fff}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-08021a92]{left:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-08021a92]:hover{left:6px}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-08021a92]{right:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-08021a92]:hover{right:6px}.ct-root .ct-ball .ct-setting-wrap[data-v-08021a92]{--x: 0px;--y: calc(50vh - var(--size)/2);position:absolute;-webkit-user-select:none;user-select:none;touch-action:none;transition:all .3s ease;top:calc(var(--size));padding-top:10px;color:#000}.ct-root .ct-ball .ct-setting-wrap .ct-setting[data-v-08021a92]{width:calc(var(--size) - 4px);height:calc(var(--size) - 4px);background-color:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;border-radius:20px}.ct-root .ct-ball .ct-setting-wrap .ct-setting .ct-setting-icon[data-v-08021a92]{width:20px;height:20px}.ct-root .ct-ball[data-side=left][data-v-08021a92]{border-top-right-radius:20px;border-bottom-right-radius:20px}.ct-root .ct-ball[data-side=left]:hover[data-v-08021a92]{--x: 0;padding-left:10px}.ct-root .ct-ball[data-side=left]:hover .ct-setting-wrap[data-v-08021a92]{left:6px}.ct-root .ct-ball[data-side=right][data-v-08021a92]{--x: calc(100vw - var(--size) - var(--scrollbar-width));--offset: calc(var(--scrollbar-width) + 10px);border-top-left-radius:20px;border-bottom-left-radius:20px;padding-right:var(--offset)}.ct-root .ct-ball[data-side=right]:hover[data-v-08021a92]{--x: calc(100vw - var(--size) - var(--offset))}.ct-root .ct-ball[data-side=right]:hover .ct-setting-wrap[data-v-08021a92]{right:calc(var(--scrollbar-width) + 6px)}.ct-root .ct-ball[data-side=right] .ct-icon .ct-check-icon[data-v-08021a92]{left:0;right:unset}.ct-root .ct-setting-dialog[data-v-08021a92]{display:flex}.ct-root .ct-setting-dialog .ct-setting-dialgo-icon[data-v-08021a92]{width:40px;display:flex;align-items:center;justify-content:center;color:#999}.ct-root .ct-setting-dialog .ct-setting-dialog-from[data-v-08021a92],.ct-root .ct-setting-dialog .ct-setting-dialog-to[data-v-08021a92]{flex:1;height:40px;display:flex;align-items:center;justify-content:center;background-color:#eee;border-radius:10px}";
-  const ball = _export_sfc(_sfc_main, [["styles", [_style_0]], ["__scopeId", "data-v-08021a92"]]);
+  const _style_0 = ".ct-root[data-v-3b5da4e9]{--size: 40px;--bg: #fff;-webkit-user-select:none;user-select:none;touch-action:none}.ct-root .ct-ball[data-v-3b5da4e9]{--x: 0px;--y: calc(50vh - var(--size)/2);position:fixed;z-index:999999999;top:0;width:var(--size);height:var(--size);background-color:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:none;transform:translate(var(--x),var(--y))}.ct-root .ct-ball.ct-moving[data-v-3b5da4e9]{border-radius:50%;padding:unset!important}.ct-root .ct-ball.ct-moving .ct-setting-wrap[data-v-3b5da4e9]{display:none}.ct-root .ct-ball .ct-icon[data-v-3b5da4e9]{--size: 28px;width:var(--size);height:var(--size);position:relative;display:flex;align-items:center;justify-content:center;border-radius:50%;background-color:#00c4b6}.ct-root .ct-ball .ct-icon .ct-language-icon[data-v-3b5da4e9]{width:20px;height:20px}.ct-root .ct-ball .ct-icon .ct-check-icon[data-v-3b5da4e9]{position:absolute;bottom:-2px;right:0;width:10px;height:10px;border-radius:50%;background-color:#00c800cc;color:#fff}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-3b5da4e9]{left:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-3b5da4e9]:hover{left:6px}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-3b5da4e9]{right:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-3b5da4e9]:hover{right:6px}.ct-root .ct-ball .ct-setting-wrap[data-v-3b5da4e9]{--x: 0px;--y: calc(50vh - var(--size)/2);position:absolute;-webkit-user-select:none;user-select:none;touch-action:none;transition:all .3s ease;top:calc(var(--size));padding-top:10px;color:#000}.ct-root .ct-ball .ct-setting-wrap .ct-setting[data-v-3b5da4e9]{width:calc(var(--size) - 4px);height:calc(var(--size) - 4px);background-color:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;border-radius:20px}.ct-root .ct-ball .ct-setting-wrap .ct-setting .ct-setting-icon[data-v-3b5da4e9]{width:20px;height:20px}.ct-root .ct-ball[data-side=left][data-v-3b5da4e9]{border-top-right-radius:20px;border-bottom-right-radius:20px}.ct-root .ct-ball[data-side=left]:hover[data-v-3b5da4e9]{--x: 0;padding-left:10px}.ct-root .ct-ball[data-side=left]:hover .ct-setting-wrap[data-v-3b5da4e9]{left:6px}.ct-root .ct-ball[data-side=right][data-v-3b5da4e9]{--x: calc(100vw - var(--size) - var(--scrollbar-width));--offset: calc(var(--scrollbar-width) + 10px);border-top-left-radius:20px;border-bottom-left-radius:20px;padding-right:var(--offset)}.ct-root .ct-ball[data-side=right]:hover[data-v-3b5da4e9]{--x: calc(100vw - var(--size) - var(--offset))}.ct-root .ct-ball[data-side=right]:hover .ct-setting-wrap[data-v-3b5da4e9]{right:calc(var(--scrollbar-width) + 6px)}.ct-root .ct-ball[data-side=right] .ct-icon .ct-check-icon[data-v-3b5da4e9]{left:0;right:unset}.ct-root .ct-setting-dialog[data-v-3b5da4e9]{display:flex}.ct-root .ct-setting-dialog .ct-setting-dialgo-icon[data-v-3b5da4e9]{width:40px;display:flex;align-items:center;justify-content:center;color:#999}.ct-root .ct-setting-dialog .ct-setting-dialog-from[data-v-3b5da4e9],.ct-root .ct-setting-dialog .ct-setting-dialog-to[data-v-3b5da4e9]{flex:1;height:40px;display:flex;align-items:center;justify-content:center;background-color:#eee;border-radius:10px}";
+  const ball = _export_sfc(_sfc_main, [["styles", [_style_0]], ["__scopeId", "data-v-3b5da4e9"]]);
   customElements.define("chrome-translate-ball", vue.defineCustomElement(ball));
   const ballEl = document.createElement("chrome-translate-ball");
   document.documentElement.appendChild(ballEl);
