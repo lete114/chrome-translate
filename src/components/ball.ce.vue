@@ -202,7 +202,7 @@ async function onSelected() {
 }
 
 useWatchUrlChange((newUrl, oldUrl) => {
-  if (newUrl !== oldUrl) {
+  if (states.isTranslating && newUrl !== oldUrl) {
     translate.instance.clearElements()
     translate.start()
   }
