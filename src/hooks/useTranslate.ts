@@ -1,5 +1,6 @@
 import type { ITranslateOptions } from '../core/translator'
 import { Progress } from '../core/progress'
+import { ChromeTranslator } from '../core/provider/chrome'
 import { Renderer } from '../core/renderer'
 import { TextExtractor } from '../core/textExtractor'
 import { Translator } from '../core/translator'
@@ -7,7 +8,8 @@ import { LFUCache } from '../utils/LFUCache'
 
 const textExtractorInstance = new TextExtractor()
 const progressInstance = new Progress()
-const translatorInstance = new Translator({ progress: progressInstance })
+const translatorInstance = new Translator()
+translatorInstance.registerProvider('chrome', new ChromeTranslator({ progress: progressInstance }))
 const cache = new LFUCache()
 
 let rendererInstance: Renderer | null = null

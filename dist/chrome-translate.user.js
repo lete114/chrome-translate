@@ -17,6 +17,8 @@
 (function () {
   'use strict';
 
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
   /**
    * @license
    * Copyright 2019 Google LLC
@@ -655,11 +657,70 @@
       return T;
     }
   });
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  const languageIcon = b`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
-  const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
-  const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
+  class OpenAITranslator {
+    constructor() {
+      this.config = {
+        apiKey: "",
+        baseUrl: "https://api.openai.com/v1",
+        model: "gpt-4o-mini",
+        prompt: ""
+      };
+    }
+    updateConfig(config) {
+      if (config.apiKey !== void 0) {
+        this.config.apiKey = config.apiKey;
+      }
+      if (config.baseUrl !== void 0) {
+        this.config.baseUrl = config.baseUrl;
+      }
+      if (config.model !== void 0) {
+        this.config.model = config.model;
+      }
+      if (config.prompt !== void 0) {
+        this.config.prompt = config.prompt;
+      }
+    }
+    get ready() {
+      return this.config.apiKey.length > 0;
+    }
+    async translate(options) {
+      const { text, from, to } = options;
+      const response = await fetch(`${this.config.baseUrl.replace(/\/+$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${this.config.apiKey}`
+        },
+        body: JSON.stringify({
+          model: this.config.model,
+          messages: [
+            {
+              role: "system",
+              content: this.config.prompt || `You are a professional translator. Translate the following text from ${from} to ${to}. Return only the translated text, no explanation, no notes.`
+            },
+            {
+              role: "user",
+              content: text
+            }
+          ],
+          temperature: 0.3
+        })
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        throw new Error(`OpenAI API error ${response.status}: ${body}`);
+      }
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content === void 0 || content === null) {
+        throw new Error("OpenAI API returned empty response");
+      }
+      return content.trim();
+    }
+    detectPageLanguage() {
+      return document.documentElement.lang || "en";
+    }
+  }
   class Progress {
     constructor(options = {}) {
       this.progessElements = new Set();
@@ -789,6 +850,57 @@
         el.style.zIndex = (this.zIndex + i3).toString();
         el.style.bottom = `${this.offset + prevOffset}px`;
       }
+    }
+  }
+  class ChromeTranslator {
+    constructor(options = {}) {
+      this.translatorCacheMap = new Map();
+      this.progress = options.progress;
+    }
+    async translate(options) {
+      const translator = await this.getTranslator({ from: options.from, to: options.to });
+      return translator.translate(options.text);
+    }
+    async createTranslator(options) {
+      const languages = {
+        sourceLanguage: options.from,
+        targetLanguage: options.to
+      };
+      const availability = await window.Translator.availability(languages);
+      if (availability === "unavailable") {
+        console.warn("Translation not supported; try a different language combination.");
+        return void 0;
+      } else if (availability === "available") {
+        return window.Translator.create(languages);
+      }
+      return window.Translator.create({
+        ...languages,
+        monitor: (monitor) => {
+          const progess = this.progress?.createProgressElement({ title: "Downloading Translator..." });
+          monitor.addEventListener("downloadprogress", (e2) => {
+            const percentage = Math.floor(e2.loaded * 100);
+            progess?.showProgress(percentage);
+          });
+        }
+      });
+    }
+    async getTranslator(options) {
+      const key = Object.values(options).join("-");
+      let translatorPromise = this.translatorCacheMap.get(key);
+      if (!translatorPromise) {
+        translatorPromise = this.createTranslator(options).then((translator) => {
+          if (!translator) {
+            this.translatorCacheMap.delete(key);
+            throw new Error("Translator creation failed");
+          }
+          return translator;
+        }).catch((err) => {
+          this.translatorCacheMap.delete(key);
+          console.error("Error creating translator:", err);
+        });
+        this.translatorCacheMap.set(key, translatorPromise);
+      }
+      return translatorPromise;
     }
   }
   function getScrollbarInfo() {
@@ -1756,67 +1868,46 @@ isStrictlyExcludedElement(element, excludeSelectors = []) {
     }
   }
   class Translator {
-    constructor(options = {}) {
-      this.translatorCacheMap = new Map();
-      this.progress = options.progress;
+    constructor() {
+      this.providers = new Map();
+      this.current = "chrome";
+    }
+    registerProvider(name, provider) {
+      this.providers.set(name, provider);
+    }
+    setProvider(name) {
+      if (!this.providers.has(name)) {
+        throw new Error(`Provider "${name}" not registered`);
+      }
+      this.current = name;
+    }
+    get providerName() {
+      return this.current;
+    }
+    getProvider(name) {
+      return this.providers.get(name);
+    }
+    get currentProvider() {
+      const provider = this.providers.get(this.current);
+      if (!provider) {
+        throw new Error(`Current provider "${this.current}" not found`);
+      }
+      return provider;
     }
     async translate(options) {
-      const translator = await this.getTranslator({ from: options.from, to: options.to });
-      return translator.translate(options.text);
-    }
-    async createTranslator(options) {
-      const languages = {
-        sourceLanguage: options.from,
-        targetLanguage: options.to
-      };
-      const availability = await window.Translator.availability(
-        languages
-      );
-      if (availability === "unavailable") {
-        console.warn(
-          `Translation not supported; try a different language combination.`
-        );
-        return void 0;
-      } else if (availability === "available") {
-        return window.Translator.create(languages);
-      }
-      return window.Translator.create({
-        ...languages,
-        monitor: (monitor) => {
-          const progess = this.progress?.createProgressElement({ title: "Downloading Translator..." });
-          monitor.addEventListener("downloadprogress", (e2) => {
-            const percentage = Math.floor(e2.loaded * 100);
-            progess?.showProgress(percentage);
-          });
-        }
-      });
-    }
-    async getTranslator(options) {
-      const key = Object.values(options).join("-");
-      let translatorPromise = this.translatorCacheMap.get(key);
-      if (!translatorPromise) {
-        translatorPromise = this.createTranslator(options).then((translator) => {
-          if (!translator) {
-            this.translatorCacheMap.delete(key);
-            throw new Error("Translator creation failed");
-          }
-          return translator;
-        }).catch((err) => {
-          this.translatorCacheMap.delete(key);
-          console.error("Error creating translator:", err);
-        });
-        this.translatorCacheMap.set(key, translatorPromise);
-      }
-      return translatorPromise;
+      return this.currentProvider.translate(options);
     }
     async detectLanguage(text) {
       const detector = await window.LanguageDetector.create({
         monitor: (monitor) => {
-          const progress = this.progress?.createProgressElement({ title: "Downloading LanguageDetector..." });
-          monitor.addEventListener("downloadprogress", (e2) => {
-            const percentage = Math.floor(e2.loaded * 100);
-            progress?.showProgress(percentage);
-          });
+          const progress = this.providers.get("chrome")?.progress;
+          if (progress) {
+            const p2 = progress.createProgressElement({ title: "Downloading LanguageDetector..." });
+            monitor.addEventListener("downloadprogress", (e2) => {
+              const percentage = Math.floor(e2.loaded * 100);
+              p2?.showProgress(percentage);
+            });
+          }
         }
       });
       const langs = await detector.detect(text);
@@ -1951,7 +2042,8 @@ info() {
   }
   const textExtractorInstance = new TextExtractor();
   const progressInstance = new Progress();
-  const translatorInstance = new Translator({ progress: progressInstance });
+  const translatorInstance = new Translator();
+  translatorInstance.registerProvider("chrome", new ChromeTranslator({ progress: progressInstance }));
   const cache = new LFUCache();
   let rendererInstance = null;
   async function useTranslate(options = {}) {
@@ -2067,6 +2159,9 @@ info() {
     { label: "KK", value: "kk" },
     { label: "MN", value: "mn" }
   ];
+  const languageIcon = b`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
+  const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
+  const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __decorateClass = (decorators, target, key, kind) => {
@@ -2077,17 +2172,31 @@ info() {
     if (kind && result) __defProp(target, key, result);
     return result;
   };
+  const DEFAULT_CONFIG = {
+    position: { x: "", y: "" },
+    side: "right",
+    language: { from: "auto", to: "" },
+    provider: "chrome",
+    openai: {
+      apiKey: "",
+      baseUrl: "https://api.openai.com/v1",
+      model: "gpt-4o-mini",
+      prompt: ""
+    }
+  };
   let ChromeTranslateBall = class extends i$1 {
     constructor() {
       super(...arguments);
       this.moving = false;
       this.isTranslating = false;
       this.activeDropdown = null;
-      this.config = _GM_getValue(STORAGE_CONFIG_KEY, {
-        position: { x: "", y: "" },
-        side: "right",
-        language: { from: "auto", to: "" }
-      });
+      this.provider = "chrome";
+      this.openaiApiKey = "";
+      this.openaiBaseUrl = "https://api.openai.com/v1";
+      this.openaiModel = "gpt-4o-mini";
+      this.openaiPrompt = "";
+      this.config = _GM_getValue(STORAGE_CONFIG_KEY, DEFAULT_CONFIG);
+      this.openaiProvider = new OpenAITranslator();
       this.dragging = false;
       this.isAllowedTranslate = true;
       this.startX = null;
@@ -2168,7 +2277,19 @@ info() {
     }
     connectedCallback() {
       super.connectedCallback();
+      this.config = {
+        ...DEFAULT_CONFIG,
+        ...this.config,
+        language: { ...DEFAULT_CONFIG.language, ...this.config.language },
+        openai: { ...DEFAULT_CONFIG.openai, ...this.config.openai }
+      };
       this.language = { ...this.config.language };
+      this.provider = this.config.provider;
+      this.openaiApiKey = this.config.openai.apiKey;
+      this.openaiBaseUrl = this.config.openai.baseUrl;
+      this.openaiModel = this.config.openai.model;
+      this.openaiPrompt = this.config.openai.prompt;
+      this.openaiProvider.updateConfig(this.config.openai);
       this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
       document.addEventListener("mousemove", this.throttledMouseMove);
       document.addEventListener("mouseup", this.onMouseUp);
@@ -2216,10 +2337,15 @@ info() {
       }
       const t2 = await useTranslate(options);
       this.rendererCtrl = t2;
+      const translator = t2.instance.translator;
+      translator.registerProvider("openai", this.openaiProvider);
+      if (this.provider === "openai") {
+        translator.setProvider("openai");
+      }
       const to = this.config.language.to;
       if (to) {
         this.language = { ...this.language, to };
-        const from = this.language.from === "auto" ? await t2.instance.translator.detectPageLanguage() : this.language.from;
+        const from = this.language.from === "auto" ? await translator.detectPageLanguage() : this.language.from;
         t2.instance.setLanguage({ from, to });
       } else {
         this.language = { ...this.language, to: t2.instance.language.to };
@@ -2271,6 +2397,31 @@ info() {
       _GM_setValue(STORAGE_CONFIG_KEY, {
         ...this.config,
         language: this.language
+      });
+    }
+    onProviderChange(value) {
+      this.provider = value;
+      this.rendererCtrl?.instance.translator.setProvider(value);
+      _GM_setValue(STORAGE_CONFIG_KEY, {
+        ...this.config,
+        provider: value
+      });
+    }
+    onOpenAIConfigChange(field, value) {
+      this.openaiApiKey = field === "apiKey" ? value : this.openaiApiKey;
+      this.openaiBaseUrl = field === "baseUrl" ? value : this.openaiBaseUrl;
+      this.openaiModel = field === "model" ? value : this.openaiModel;
+      this.openaiPrompt = field === "prompt" ? value : this.openaiPrompt;
+      const openai = {
+        apiKey: this.openaiApiKey,
+        baseUrl: this.openaiBaseUrl,
+        model: this.openaiModel,
+        prompt: this.openaiPrompt
+      };
+      this.openaiProvider.updateConfig(openai);
+      _GM_setValue(STORAGE_CONFIG_KEY, {
+        ...this.config,
+        openai
       });
     }
     renderSelect(target) {
@@ -2329,10 +2480,51 @@ info() {
             <span>Setting</span>
             <button class="ct-dialog-close" @click=${() => this.dialogEl?.close()}>✕</button>
           </div>
-          <div class="ct-setting-dialog">
-            <div class="ct-setting-dialog-from">${this.renderSelect("from")}</div>
-            <span class="ct-arrow-icon">→</span>
-            <div class="ct-setting-dialog-to">${this.renderSelect("to")}</div>
+          <div class="ct-dialog-body">
+            <div class="ct-setting-dialog">
+              <div class="ct-setting-dialog-from">${this.renderSelect("from")}</div>
+              <span class="ct-arrow-icon">→</span>
+              <div class="ct-setting-dialog-to">${this.renderSelect("to")}</div>
+            </div>
+
+            <div class="ct-section-divider"></div>
+
+            <div class="ct-provider-section">
+              <div class="ct-section-label">Translation Provider</div>
+              <div class="ct-provider-options">
+                <label class="ct-radio ${this.provider === "chrome" ? "ct-radio-active" : ""}">
+                  <input type="radio" name="provider" value="chrome" ?checked=${this.provider === "chrome"} @change=${() => this.onProviderChange("chrome")}>
+                  <span>Chrome AI</span>
+                </label>
+                <label class="ct-radio ${this.provider === "openai" ? "ct-radio-active" : ""}">
+                  <input type="radio" name="provider" value="openai" ?checked=${this.provider === "openai"} @change=${() => this.onProviderChange("openai")}>
+                  <span>OpenAI API</span>
+                </label>
+              </div>
+            </div>
+
+            ${this.provider === "openai" ? x`
+              <div class="ct-section-divider"></div>
+              <div class="ct-openai-section">
+                <div class="ct-section-label">OpenAI Configuration</div>
+                <label class="ct-field">
+                  <span class="ct-field-label">API Key</span>
+                  <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e2) => this.onOpenAIConfigChange("apiKey", e2.target.value)} placeholder="sk-...">
+                </label>
+                <label class="ct-field">
+                  <span class="ct-field-label">Base URL</span>
+                  <input type="text" class="ct-input" .value=${this.openaiBaseUrl} @change=${(e2) => this.onOpenAIConfigChange("baseUrl", e2.target.value)}>
+                </label>
+                <label class="ct-field">
+                  <span class="ct-field-label">Model</span>
+                  <input type="text" class="ct-input" .value=${this.openaiModel} @change=${(e2) => this.onOpenAIConfigChange("model", e2.target.value)}>
+                </label>
+                <label class="ct-field">
+                  <span class="ct-field-label">System Prompt</span>
+                  <textarea class="ct-textarea" .value=${this.openaiPrompt} @change=${(e2) => this.onOpenAIConfigChange("prompt", e2.target.value)} placeholder="Optional: custom system prompt for translation"></textarea>
+                </label>
+              </div>
+            ` : E}
           </div>
         </dialog>
       </div>
@@ -2506,12 +2698,12 @@ info() {
     }
 
     dialog {
-      overflow: visible; 
+      overflow: visible;
       padding: 0;
       border: none;
       border-radius: 12px;
       box-shadow: 0 16px 48px rgba(0, 0, 0, .2);
-      min-width: 320px;
+      width: min(90vw, 500px);
       max-width: 90vw;
     }
 
@@ -2552,7 +2744,6 @@ info() {
     .ct-setting-dialog {
       display: flex;
       align-items: center;
-      padding: 20px;
       gap: 12px;
     }
 
@@ -2628,6 +2819,114 @@ info() {
       font-weight: 600;
       background: #f0fdfb;
     }
+
+    .ct-dialog-body {
+      padding: 20px;
+    }
+
+    .ct-section-divider {
+      height: 1px;
+      background: #eee;
+      margin: 16px 0;
+    }
+
+    .ct-section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .ct-provider-options {
+      display: flex;
+      gap: 12px;
+    }
+
+    .ct-radio {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #555;
+      transition: all 0.2s;
+    }
+
+    .ct-radio:hover {
+      border-color: #00c4b6;
+    }
+
+    .ct-radio.ct-radio-active {
+      border-color: #00c4b6;
+      background: #f0fdfb;
+      color: #00c4b6;
+      font-weight: 600;
+    }
+
+    .ct-radio input {
+      display: none;
+    }
+
+    .ct-openai-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ct-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ct-field-label {
+      font-size: 12px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    .ct-input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .ct-input:focus {
+      border-color: #00c4b6;
+      background: #fff;
+    }
+
+    .ct-textarea {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      min-height: 80px;
+      box-sizing: border-box;
+      resize: none;
+      font-family: inherit;
+    }
+
+    .ct-textarea:focus {
+      border-color: #00c4b6;
+      background: #fff;
+    }
   `;
   __decorateClass([
     r()
@@ -2641,6 +2940,21 @@ info() {
   __decorateClass([
     r()
   ], ChromeTranslateBall.prototype, "activeDropdown", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "provider", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiApiKey", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiBaseUrl", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiModel", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiPrompt", 2);
   __decorateClass([
     e$2(".ct-ball")
   ], ChromeTranslateBall.prototype, "ballEl", 2);

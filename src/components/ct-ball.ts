@@ -3,6 +3,7 @@ import { GM_getValue, GM_setValue } from '$'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { OpenAITranslator } from '../core/provider/openai'
 import { useTranslate } from '../hooks/useTranslate'
 import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
@@ -14,6 +15,26 @@ interface Config {
   position: { x: string, y: string }
   side: 'left' | 'right'
   language: { from: string, to: string }
+  provider: 'chrome' | 'openai'
+  openai: {
+    apiKey: string
+    baseUrl: string
+    model: string
+    prompt: string
+  }
+}
+
+const DEFAULT_CONFIG: Config = {
+  position: { x: '', y: '' },
+  side: 'right',
+  language: { from: 'auto', to: '' },
+  provider: 'chrome',
+  openai: {
+    apiKey: '',
+    baseUrl: 'https://api.openai.com/v1',
+    model: 'gpt-4o-mini',
+    prompt: '',
+  },
 }
 
 @customElement('chrome-translate-ball')
@@ -190,7 +211,7 @@ export class ChromeTranslateBall extends LitElement {
       border: none;
       border-radius: 12px;
       box-shadow: 0 16px 48px rgba(0, 0, 0, .2);
-      min-width: 320px;
+      width: min(90vw, 500px);
       max-width: 90vw;
     }
 
@@ -231,7 +252,6 @@ export class ChromeTranslateBall extends LitElement {
     .ct-setting-dialog {
       display: flex;
       align-items: center;
-      padding: 20px;
       gap: 12px;
     }
 
@@ -307,21 +327,131 @@ export class ChromeTranslateBall extends LitElement {
       font-weight: 600;
       background: #f0fdfb;
     }
+
+    .ct-dialog-body {
+      padding: 20px;
+    }
+
+    .ct-section-divider {
+      height: 1px;
+      background: #eee;
+      margin: 16px 0;
+    }
+
+    .ct-section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .ct-provider-options {
+      display: flex;
+      gap: 12px;
+    }
+
+    .ct-radio {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #555;
+      transition: all 0.2s;
+    }
+
+    .ct-radio:hover {
+      border-color: #00c4b6;
+    }
+
+    .ct-radio.ct-radio-active {
+      border-color: #00c4b6;
+      background: #f0fdfb;
+      color: #00c4b6;
+      font-weight: 600;
+    }
+
+    .ct-radio input {
+      display: none;
+    }
+
+    .ct-openai-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ct-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ct-field-label {
+      font-size: 12px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    .ct-input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .ct-input:focus {
+      border-color: #00c4b6;
+      background: #fff;
+    }
+
+    .ct-textarea {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #333;
+      background: #fafafa;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      min-height: 80px;
+      box-sizing: border-box;
+      resize: none;
+      font-family: inherit;
+    }
+
+    .ct-textarea:focus {
+      border-color: #00c4b6;
+      background: #fff;
+    }
   `
 
   @state() private moving = false
   @state() private isTranslating = false
   @state() private language!: { from: string, to: string }
   @state() private activeDropdown: 'from' | 'to' | null = null
+  @state() private provider: 'chrome' | 'openai' = 'chrome'
+  @state() private openaiApiKey = ''
+  @state() private openaiBaseUrl = 'https://api.openai.com/v1'
+  @state() private openaiModel = 'gpt-4o-mini'
+  @state() private openaiPrompt = ''
 
   @query('.ct-ball') private ballEl!: HTMLElement
   @query('dialog') private dialogEl!: HTMLDialogElement
 
-  private config = GM_getValue<Config>(STORAGE_CONFIG_KEY, {
-    position: { x: '', y: '' },
-    side: 'right',
-    language: { from: 'auto', to: '' },
-  })
+  private config = GM_getValue<Config>(STORAGE_CONFIG_KEY, DEFAULT_CONFIG)
+  private openaiProvider = new OpenAITranslator()
 
   private rendererCtrl?: Awaited<ReturnType<typeof useTranslate>>
   private dragging = false
@@ -334,7 +464,19 @@ export class ChromeTranslateBall extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
+    this.config = {
+      ...DEFAULT_CONFIG,
+      ...this.config,
+      language: { ...DEFAULT_CONFIG.language, ...this.config.language },
+      openai: { ...DEFAULT_CONFIG.openai, ...this.config.openai },
+    }
     this.language = { ...this.config.language }
+    this.provider = this.config.provider
+    this.openaiApiKey = this.config.openai.apiKey
+    this.openaiBaseUrl = this.config.openai.baseUrl
+    this.openaiModel = this.config.openai.model
+    this.openaiPrompt = this.config.openai.prompt
+    this.openaiProvider.updateConfig(this.config.openai)
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16)
     document.addEventListener('mousemove', this.throttledMouseMove)
     document.addEventListener('mouseup', this.onMouseUp)
@@ -391,11 +533,17 @@ export class ChromeTranslateBall extends LitElement {
     const t = await useTranslate(options)
     this.rendererCtrl = t
 
+    const translator = t.instance.translator
+    translator.registerProvider('openai', this.openaiProvider)
+    if (this.provider === 'openai') {
+      translator.setProvider('openai')
+    }
+
     const to = this.config.language.to
     if (to) {
       this.language = { ...this.language, to }
       const from = this.language.from === 'auto'
-        ? await t.instance.translator.detectPageLanguage()
+        ? await translator.detectPageLanguage()
         : this.language.from
       t.instance.setLanguage({ from, to })
     }
@@ -552,6 +700,34 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
+  private onProviderChange(value: 'chrome' | 'openai'): void {
+    this.provider = value
+    this.rendererCtrl?.instance.translator.setProvider(value)
+    GM_setValue(STORAGE_CONFIG_KEY, {
+      ...this.config,
+      provider: value,
+    })
+  }
+
+  private onOpenAIConfigChange(field: 'apiKey' | 'baseUrl' | 'model' | 'prompt', value: string): void {
+    this.openaiApiKey = field === 'apiKey' ? value : this.openaiApiKey
+    this.openaiBaseUrl = field === 'baseUrl' ? value : this.openaiBaseUrl
+    this.openaiModel = field === 'model' ? value : this.openaiModel
+    this.openaiPrompt = field === 'prompt' ? value : this.openaiPrompt
+
+    const openai = {
+      apiKey: this.openaiApiKey,
+      baseUrl: this.openaiBaseUrl,
+      model: this.openaiModel,
+      prompt: this.openaiPrompt,
+    }
+    this.openaiProvider.updateConfig(openai)
+    GM_setValue(STORAGE_CONFIG_KEY, {
+      ...this.config,
+      openai,
+    })
+  }
+
   private renderSelect(target: 'from' | 'to') {
     const options = target === 'from'
       ? [{ label: 'Auto', value: 'auto' }, ...LANGUAGES]
@@ -612,10 +788,53 @@ export class ChromeTranslateBall extends LitElement {
             <span>Setting</span>
             <button class="ct-dialog-close" @click=${() => this.dialogEl?.close()}>✕</button>
           </div>
-          <div class="ct-setting-dialog">
-            <div class="ct-setting-dialog-from">${this.renderSelect('from')}</div>
-            <span class="ct-arrow-icon">→</span>
-            <div class="ct-setting-dialog-to">${this.renderSelect('to')}</div>
+          <div class="ct-dialog-body">
+            <div class="ct-setting-dialog">
+              <div class="ct-setting-dialog-from">${this.renderSelect('from')}</div>
+              <span class="ct-arrow-icon">→</span>
+              <div class="ct-setting-dialog-to">${this.renderSelect('to')}</div>
+            </div>
+
+            <div class="ct-section-divider"></div>
+
+            <div class="ct-provider-section">
+              <div class="ct-section-label">Translation Provider</div>
+              <div class="ct-provider-options">
+                <label class="ct-radio ${this.provider === 'chrome' ? 'ct-radio-active' : ''}">
+                  <input type="radio" name="provider" value="chrome" ?checked=${this.provider === 'chrome'} @change=${() => this.onProviderChange('chrome')}>
+                  <span>Chrome AI</span>
+                </label>
+                <label class="ct-radio ${this.provider === 'openai' ? 'ct-radio-active' : ''}">
+                  <input type="radio" name="provider" value="openai" ?checked=${this.provider === 'openai'} @change=${() => this.onProviderChange('openai')}>
+                  <span>OpenAI API</span>
+                </label>
+              </div>
+            </div>
+
+            ${this.provider === 'openai'
+              ? html`
+              <div class="ct-section-divider"></div>
+              <div class="ct-openai-section">
+                <div class="ct-section-label">OpenAI Configuration</div>
+                <label class="ct-field">
+                  <span class="ct-field-label">API Key</span>
+                  <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e: Event) => this.onOpenAIConfigChange('apiKey', (e.target as HTMLInputElement).value)} placeholder="sk-...">
+                </label>
+                <label class="ct-field">
+                  <span class="ct-field-label">Base URL</span>
+                  <input type="text" class="ct-input" .value=${this.openaiBaseUrl} @change=${(e: Event) => this.onOpenAIConfigChange('baseUrl', (e.target as HTMLInputElement).value)}>
+                </label>
+                <label class="ct-field">
+                  <span class="ct-field-label">Model</span>
+                  <input type="text" class="ct-input" .value=${this.openaiModel} @change=${(e: Event) => this.onOpenAIConfigChange('model', (e.target as HTMLInputElement).value)}>
+                </label>
+                <label class="ct-field">
+                  <span class="ct-field-label">System Prompt</span>
+                  <textarea class="ct-textarea" .value=${this.openaiPrompt} @change=${(e: Event) => this.onOpenAIConfigChange('prompt', (e.target as HTMLInputElement).value)} placeholder="Optional: custom system prompt for translation"></textarea>
+                </label>
+              </div>
+            `
+              : nothing}
           </div>
         </dialog>
       </div>

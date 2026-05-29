@@ -1,89 +1,58 @@
-import type { Progress } from './progress'
-
 export interface ITranslateOptions {
   from: string
   to: string
 }
-export interface ITranslatorOptions {
-  progress?: Progress
+
+export interface ITranslationProvider {
+  translate: (options: ITranslateOptions & { text: string }) => Promise<string>
 }
+
 export class Translator {
-  translatorCacheMap = new Map<string, any>()
-  progress?: Progress
-  constructor(options: ITranslatorOptions = {}) {
-    this.progress = options.progress
+  private providers = new Map<string, ITranslationProvider>()
+  private current = 'chrome'
+
+  registerProvider(name: string, provider: ITranslationProvider): void {
+    this.providers.set(name, provider)
   }
 
-  async translate(
-    options: ITranslateOptions & { text: string },
-  ): Promise<string> {
-    const translator = await this.getTranslator({ from: options.from, to: options.to })
-    return translator.translate(options.text)
+  setProvider(name: string): void {
+    if (!this.providers.has(name)) {
+      throw new Error(`Provider "${name}" not registered`)
+    }
+    this.current = name
   }
 
-  async createTranslator(options: ITranslateOptions) {
-    const languages = {
-      sourceLanguage: options.from,
-      targetLanguage: options.to,
-    }
-
-    const availability = await (window as any).Translator.availability(
-      languages,
-    )
-
-    if (availability === 'unavailable') {
-      console.warn(
-        `Translation not supported; try a different language combination.`,
-      )
-      return undefined
-    }
-    else if (availability === 'available') {
-      return (window as any).Translator.create(languages)
-    }
-    return (window as any).Translator.create({
-      ...languages,
-      monitor: (monitor: any) => {
-        const progess = this.progress?.createProgressElement({ title: 'Downloading Translator...' })
-        monitor.addEventListener('downloadprogress', (e: any) => {
-          const percentage = Math.floor(e.loaded * 100)
-          progess?.showProgress(percentage)
-          // console.log(`Downloaded Translator: ${percentage}%`)
-        })
-      },
-    })
+  get providerName(): string {
+    return this.current
   }
 
-  async getTranslator(options: ITranslateOptions) {
-    const key = Object.values(options).join('-')
-    let translatorPromise = this.translatorCacheMap.get(key)
-
-    if (!translatorPromise) {
-      translatorPromise = this.createTranslator(options).then((translator) => {
-        // 如果 translator 创建失败，移除缓存，避免下次继续用坏的 Promise
-        if (!translator) {
-          this.translatorCacheMap.delete(key)
-          throw new Error('Translator creation failed')
-        }
-        return translator
-      }).catch((err) => {
-        this.translatorCacheMap.delete(key)
-        console.error('Error creating translator:', err)
-      })
-      this.translatorCacheMap.set(key, translatorPromise)
-    }
-
-    return translatorPromise
+  getProvider(name: string): ITranslationProvider | undefined {
+    return this.providers.get(name)
   }
 
-  async detectLanguage(text: string) {
+  private get currentProvider(): ITranslationProvider {
+    const provider = this.providers.get(this.current)
+    if (!provider) {
+      throw new Error(`Current provider "${this.current}" not found`)
+    }
+    return provider
+  }
+
+  async translate(options: ITranslateOptions & { text: string }): Promise<string> {
+    return this.currentProvider.translate(options)
+  }
+
+  async detectLanguage(text: string): Promise<string> {
     const detector = await (window as any).LanguageDetector.create({
       monitor: (monitor: any) => {
-        const progress = this.progress?.createProgressElement({ title: 'Downloading LanguageDetector...' })
-        monitor.addEventListener('downloadprogress', (e: any) => {
-          const percentage = Math.floor(e.loaded * 100)
-          progress?.showProgress(percentage)
-          // console.log(`Download LanguageDetector: ${percentage}`)
-        })
+        const progress = (this.providers.get('chrome') as any)?.progress
+        if (progress) {
+          const p = progress.createProgressElement({ title: 'Downloading LanguageDetector...' })
+          monitor.addEventListener('downloadprogress', (e: any) => {
+            const percentage = Math.floor(e.loaded * 100)
+            p?.showProgress(percentage)
+          })
+        }
       },
     })
 
@@ -94,7 +63,7 @@ export class Translator {
     return langs[0].detectedLanguage
   }
 
-  async detectPageLanguage() {
+  async detectPageLanguage(): Promise<string> {
     const lang = document.documentElement.lang
     if (lang) {
       return lang
