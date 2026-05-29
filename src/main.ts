@@ -1,7 +1,4 @@
-import { defineCustomElement } from 'vue'
-import ball from './components/ball.ce.vue'
-
-customElements.define('chrome-translate-ball', defineCustomElement(ball))
+import './components/ct-ball'
 
 const ballEl = document.createElement('chrome-translate-ball')
 

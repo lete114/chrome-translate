@@ -59,7 +59,7 @@ export class Renderer {
   }
 
   async translateHTML({ from, to, map, text }: ITranslateOptions & { map: TCombinedTextMap, text: string }) {
-      const key = `${from}->${to}:${text}`
+    const key = `${from}->${to}:${text}`
     if (this.translateCache.has(key)) {
       return this.translateCache.get(key)!
     }
