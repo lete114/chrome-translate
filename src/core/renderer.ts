@@ -4,6 +4,11 @@ import type { ITranslateOptions, Translator } from './translator'
 import { BILINGUAL_CONTAINER, BILINGUAL_PARAGRAPH, DOM_SELECTORS, TRANSLATE_ATTR } from '../utils/constant'
 import { applySpaces, debounce, isExcludedElement } from '../utils/public'
 
+interface QueueItem {
+  textParagraph: ITextParagraph
+  cancelLoading: () => void
+}
+
 export interface IRendererOptions extends ITranslateOptions {
   el?: HTMLElement
   useHTML?: boolean
@@ -19,6 +24,9 @@ export class Renderer {
   el: HTMLElement
   useHTML = false
   isRunning = false
+  batchSize = 6
+  private activeCount = 0
+  private pendingQueue: QueueItem[] = []
   observer: IntersectionObserver | undefined
   mutationObserver: MutationObserver | undefined
   translateElements: HTMLElement[] = []
@@ -113,6 +121,8 @@ export class Renderer {
 
   stop() {
     this.isRunning = false
+    this.pendingQueue = []
+    this.activeCount = 0
 
     this.observer?.disconnect()
     this.mutationObserver?.disconnect()
@@ -144,25 +154,8 @@ export class Renderer {
           }
 
           node.setAttribute(TRANSLATE_ATTR, '')
-          const cancelLoding = this.createLodingDisplay(node)
-
-          try {
-            if (this.useHTML) {
-              const translateOptions = { from: this.language.from, to: this.language.to, map: textParagraph.combinedTextMap, text: textParagraph.combinedText }
-              textParagraph.translate = await this.translateHTML(translateOptions)
-              cancelLoding()
-              this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph)
-            }
-            else {
-              const translateOptions = { textNodes: textParagraph.textNodes, from: this.language.from, to: this.language.to }
-              textParagraph.textNodes = await this.translate(translateOptions)
-              cancelLoding()
-              this.isRunning && this.createParagraphBilingualDisplay(textParagraph)
-            }
-          }
-          catch (error) {
-            console.error('Translation error:', error)
-          }
+          const cancelLoading = this.createLodingDisplay(node)
+          this.enqueueTranslation({ textParagraph, cancelLoading })
           observer.unobserve(node)
         }
       })
@@ -189,6 +182,45 @@ export class Renderer {
     }
     this.mutationObserver = new MutationObserver(debounce(mutationCallback, 500))
     this.mutationObserver.observe(this.el, { childList: true, subtree: true })
+  }
+
+  private enqueueTranslation(item: QueueItem): void {
+    this.pendingQueue.push(item)
+    this.processQueue()
+  }
+
+  private processQueue(): void {
+    while (this.isRunning && this.activeCount < this.batchSize && this.pendingQueue.length > 0) {
+      const item = this.pendingQueue.shift()!
+      this.activeCount++
+      this.processItem(item).finally(() => {
+        this.activeCount--
+        this.processQueue()
+      })
+    }
+  }
+
+  private async processItem(item: QueueItem): Promise<void> {
+    const { textParagraph, cancelLoading } = item
+
+    try {
+      if (this.useHTML) {
+        const translateOptions = { from: this.language.from, to: this.language.to, map: textParagraph.combinedTextMap, text: textParagraph.combinedText }
+        textParagraph.translate = await this.translateHTML(translateOptions)
+        cancelLoading()
+        this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph)
+      }
+      else {
+        const translateOptions = { textNodes: textParagraph.textNodes, from: this.language.from, to: this.language.to }
+        textParagraph.textNodes = await this.translate(translateOptions)
+        cancelLoading()
+        this.isRunning && this.createParagraphBilingualDisplay(textParagraph)
+      }
+    }
+    catch (error) {
+      cancelLoading()
+      console.error('Translation error:', error)
+    }
   }
 
   createLodingDisplay(el: HTMLElement) {

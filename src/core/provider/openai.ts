@@ -6,6 +6,8 @@ export interface IOpenAIConfig {
   baseUrl: string
   model: string
   prompt: string
+  temperature: number
+  maxTokens: number
 }
 
 export class OpenAITranslator implements ITranslationProvider {
@@ -42,7 +44,8 @@ export class OpenAITranslator implements ITranslationProvider {
               content: text,
             },
           ],
-          temperature: 0.3,
+          temperature: this.config.temperature ?? 0.3,
+          ...((this.config.maxTokens ?? 0) > 0 ? { max_tokens: this.config.maxTokens } : {}),
         }),
         onload: (resp) => {
           if (resp.status < 200 || resp.status >= 300) {

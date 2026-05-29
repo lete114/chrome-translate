@@ -688,7 +688,8 @@
                 content: text
               }
             ],
-            temperature: 0.3
+            temperature: this.config.temperature ?? 0.3,
+            ...(this.config.maxTokens ?? 0) > 0 ? { max_tokens: this.config.maxTokens } : {}
           }),
           onload: (resp) => {
             if (resp.status < 200 || resp.status >= 300) {
@@ -1245,6 +1246,9 @@
     constructor(options) {
       this.useHTML = false;
       this.isRunning = false;
+      this.batchSize = 6;
+      this.activeCount = 0;
+      this.pendingQueue = [];
       this.translateElements = [];
       this.translateContainers = [];
       this.translateLoadingElements = [];
@@ -1326,6 +1330,8 @@
     }
     stop() {
       this.isRunning = false;
+      this.pendingQueue = [];
+      this.activeCount = 0;
       this.observer?.disconnect();
       this.mutationObserver?.disconnect();
       this.observer = void 0;
@@ -1350,22 +1356,8 @@
               return;
             }
             node.setAttribute(TRANSLATE_ATTR, "");
-            const cancelLoding = this.createLodingDisplay(node);
-            try {
-              if (this.useHTML) {
-                const translateOptions = { from: this.language.from, to: this.language.to, map: textParagraph.combinedTextMap, text: textParagraph.combinedText };
-                textParagraph.translate = await this.translateHTML(translateOptions);
-                cancelLoding();
-                this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph);
-              } else {
-                const translateOptions = { textNodes: textParagraph.textNodes, from: this.language.from, to: this.language.to };
-                textParagraph.textNodes = await this.translate(translateOptions);
-                cancelLoding();
-                this.isRunning && this.createParagraphBilingualDisplay(textParagraph);
-              }
-            } catch (error) {
-              console.error("Translation error:", error);
-            }
+            const cancelLoading = this.createLodingDisplay(node);
+            this.enqueueTranslation({ textParagraph, cancelLoading });
             observer.unobserve(node);
           }
         });
@@ -1395,6 +1387,39 @@
       };
       this.mutationObserver = new MutationObserver(debounce(mutationCallback, 500));
       this.mutationObserver.observe(this.el, { childList: true, subtree: true });
+    }
+    enqueueTranslation(item) {
+      this.pendingQueue.push(item);
+      this.processQueue();
+    }
+    processQueue() {
+      while (this.isRunning && this.activeCount < this.batchSize && this.pendingQueue.length > 0) {
+        const item = this.pendingQueue.shift();
+        this.activeCount++;
+        this.processItem(item).finally(() => {
+          this.activeCount--;
+          this.processQueue();
+        });
+      }
+    }
+    async processItem(item) {
+      const { textParagraph, cancelLoading } = item;
+      try {
+        if (this.useHTML) {
+          const translateOptions = { from: this.language.from, to: this.language.to, map: textParagraph.combinedTextMap, text: textParagraph.combinedText };
+          textParagraph.translate = await this.translateHTML(translateOptions);
+          cancelLoading();
+          this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph);
+        } else {
+          const translateOptions = { textNodes: textParagraph.textNodes, from: this.language.from, to: this.language.to };
+          textParagraph.textNodes = await this.translate(translateOptions);
+          cancelLoading();
+          this.isRunning && this.createParagraphBilingualDisplay(textParagraph);
+        }
+      } catch (error) {
+        cancelLoading();
+        console.error("Translation error:", error);
+      }
     }
     createLodingDisplay(el) {
       const loading = document.createElement("span");
@@ -2202,11 +2227,15 @@ info() {
     side: "right",
     language: { from: "auto", to: "" },
     provider: "chrome",
+    mode: "text",
+    batchSize: 6,
     openai: {
       apiKey: "",
       baseUrl: "https://api.openai.com/v1",
       model: "gpt-4o-mini",
-      prompt: "You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes."
+      prompt: "You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes.",
+      temperature: 0.3,
+      maxTokens: 1024
     }
   };
   let ChromeTranslateBall = class extends i$1 {
@@ -2225,6 +2254,11 @@ info() {
       this.openaiModelsError = "";
       this.modelDropdownOpen = false;
       this.modelDropdownUp = false;
+      this.activeTab = "translate";
+      this.mode = DEFAULT_CONFIG.mode;
+      this.batchSize = DEFAULT_CONFIG.batchSize;
+      this.openaiTemperature = DEFAULT_CONFIG.openai.temperature;
+      this.openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens;
       this.config = _GM_getValue(STORAGE_CONFIG_KEY, DEFAULT_CONFIG);
       this.openaiProvider = new OpenAITranslator();
       this.dragging = false;
@@ -2332,10 +2366,10 @@ info() {
       };
       this.language = { ...this.config.language };
       this.provider = this.config.provider;
-      this.openaiApiKey = this.config.openai.apiKey;
-      this.openaiBaseUrl = this.config.openai.baseUrl;
-      this.openaiModel = this.config.openai.model;
-      this.openaiPrompt = this.config.openai.prompt;
+      this.mode = this.config.mode;
+      this.batchSize = this.config.batchSize;
+      this.openaiTemperature = this.config.openai.temperature;
+      this.openaiMaxTokens = this.config.openai.maxTokens;
       this.openaiProvider.updateConfig(this.config.openai);
       this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
       document.addEventListener("mousemove", this.throttledMouseMove);
@@ -2384,6 +2418,8 @@ info() {
       }
       const t2 = await useTranslate(options);
       this.rendererCtrl = t2;
+      t2.instance.useHTML = this.mode === "html";
+      t2.instance.batchSize = this.batchSize;
       const translator = t2.instance.translator;
       translator.registerProvider("openai", this.openaiProvider);
       if (this.provider === "openai") {
@@ -2476,11 +2512,15 @@ info() {
       this.openaiBaseUrl = field === "baseUrl" ? value : this.openaiBaseUrl;
       this.openaiModel = field === "model" ? value : this.openaiModel;
       this.openaiPrompt = field === "prompt" ? value : this.openaiPrompt;
+      this.openaiTemperature = field === "temperature" ? Number(value) : this.openaiTemperature;
+      this.openaiMaxTokens = field === "maxTokens" ? Number(value) : this.openaiMaxTokens;
       const openai = {
         apiKey: this.openaiApiKey,
         baseUrl: this.openaiBaseUrl,
         model: this.openaiModel,
-        prompt: this.openaiPrompt
+        prompt: this.openaiPrompt,
+        temperature: this.openaiTemperature,
+        maxTokens: this.openaiMaxTokens
       };
       this.openaiProvider.updateConfig(openai);
       _GM_setValue(STORAGE_CONFIG_KEY, {
@@ -2575,6 +2615,158 @@ info() {
       </div>
     `;
     }
+    onModeChange(value) {
+      this.mode = value;
+      if (this.rendererCtrl) {
+        this.rendererCtrl.instance.useHTML = value === "html";
+      }
+      _GM_setValue(STORAGE_CONFIG_KEY, {
+        ...this.config,
+        mode: value
+      });
+    }
+    onBatchSizeChange(value) {
+      this.batchSize = value;
+      if (this.rendererCtrl) {
+        this.rendererCtrl.instance.batchSize = value;
+      }
+      _GM_setValue(STORAGE_CONFIG_KEY, {
+        ...this.config,
+        batchSize: value
+      });
+    }
+    onBatchSizeInput(e2) {
+      const v2 = Number(e2.target.value);
+      if (v2 > 0) {
+        this.onBatchSizeChange(v2);
+      } else {
+        e2.target.value = String(this.batchSize);
+      }
+    }
+    onTemperatureInput(e2) {
+      const v2 = Number(e2.target.value);
+      this.openaiTemperature = v2;
+      this.onOpenAIConfigChange("temperature", String(v2));
+    }
+    onMaxTokensInput(e2) {
+      const v2 = Number(e2.target.value);
+      this.openaiMaxTokens = v2;
+      this.onOpenAIConfigChange("maxTokens", String(v2));
+    }
+    renderSidebar() {
+      return x`
+      <div class="ct-sidebar">
+        <div
+          class="ct-sidebar-item ${this.activeTab === "translate" ? "ct-sidebar-active" : ""}"
+          @click=${() => {
+      this.activeTab = "translate";
+    }}
+        >
+          <span class="ct-sidebar-icon">🌐</span>
+          <span class="ct-sidebar-label">Translate</span>
+        </div>
+        <div
+          class="ct-sidebar-item ${this.activeTab === "provider" ? "ct-sidebar-active" : ""}"
+          @click=${() => {
+      this.activeTab = "provider";
+    }}
+        >
+          <span class="ct-sidebar-icon">⚙️</span>
+          <span class="ct-sidebar-label">Provider</span>
+        </div>
+      </div>
+    `;
+    }
+    renderTranslateTab() {
+      return x`
+      <div class="ct-section-title">Language</div>
+      <div class="ct-setting-dialog">
+        <div class="ct-setting-dialog-from">${this.renderSelect("from")}</div>
+        <span class="ct-arrow-icon">→</span>
+        <div class="ct-setting-dialog-to">${this.renderSelect("to")}</div>
+      </div>
+
+      <div class="ct-section-divider"></div>
+
+      <div class="ct-section-title">Translation Mode</div>
+      <div class="ct-provider-options" style="flex-direction:column;gap:6px;">
+        <label class="ct-radio ${this.mode === "text" ? "ct-radio-active" : ""}">
+          <input type="radio" name="mode" value="text" ?checked=${this.mode === "text"} @change=${() => this.onModeChange("text")}>
+          <span>Text</span>
+        </label>
+        <label class="ct-radio ${this.mode === "html" ? "ct-radio-active" : ""}">
+          <input type="radio" name="mode" value="html" ?checked=${this.mode === "html"} @change=${() => this.onModeChange("html")}>
+          <span>HTML</span>
+        </label>
+      </div>
+
+      <div class="ct-section-divider"></div>
+
+      <div class="ct-section-title">Performance</div>
+      <label class="ct-field">
+        <span class="ct-field-label">Max concurrent requests</span>
+        <input type="number" class="ct-input" min="1" max="20" step="1" .value=${String(this.batchSize)} @change=${this.onBatchSizeInput}>
+      </label>
+    `;
+    }
+    renderProviderTab() {
+      return x`
+      <div class="ct-section-title">Translation Provider</div>
+      <div class="ct-provider-options">
+        <label class="ct-radio ${this.provider === "chrome" ? "ct-radio-active" : ""}">
+          <input type="radio" name="provider" value="chrome" ?checked=${this.provider === "chrome"} @change=${() => this.onProviderChange("chrome")}>
+          <span>Chrome AI</span>
+        </label>
+        <label class="ct-radio ${this.provider === "openai" ? "ct-radio-active" : ""}">
+          <input type="radio" name="provider" value="openai" ?checked=${this.provider === "openai"} @change=${() => this.onProviderChange("openai")}>
+          <span>OpenAI API</span>
+        </label>
+      </div>
+
+      ${this.provider === "openai" ? x`
+        <div class="ct-section-divider"></div>
+        <div class="ct-section-title">OpenAI Configuration</div>
+        <div class="ct-openai-section">
+          <label class="ct-field">
+            <span class="ct-field-label">API Key</span>
+            <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e2) => this.onOpenAIConfigChange("apiKey", e2.target.value)} placeholder="sk-...">
+          </label>
+          <label class="ct-field">
+            <span class="ct-field-label">Base URL</span>
+            <input type="text" class="ct-input" .value=${this.openaiBaseUrl} @change=${(e2) => this.onOpenAIConfigChange("baseUrl", e2.target.value)}>
+          </label>
+          <label class="ct-field">
+            <span class="ct-field-label">Model</span>
+            <div style="display:flex;gap:6px;align-items:flex-start;">
+              <div style="flex:1;min-width:0;">${this.renderModelSelect()}</div>
+              <button
+                @click=${() => {
+      void this.fetchModels();
+    }}
+                style="flex-shrink:0;width:36px;height:38px;border:1px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;color:#00c4b6;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;"
+                title="Refresh models"
+              >${refreshIcon}</button>
+            </div>
+          </label>
+          <label class="ct-field">
+            <span class="ct-field-label">Temperature</span>
+            <div class="ct-slider-row">
+              <input type="range" class="ct-slider" min="0" max="2" step="0.1" .value=${String(this.openaiTemperature)} @input=${this.onTemperatureInput}>
+              <span class="ct-slider-value">${this.openaiTemperature}</span>
+            </div>
+          </label>
+          <label class="ct-field">
+            <span class="ct-field-label">Max Tokens</span>
+            <input type="number" class="ct-input" min="0" step="1" .value=${String(this.openaiMaxTokens)} @change=${this.onMaxTokensInput}>
+          </label>
+          <label class="ct-field">
+            <span class="ct-field-label">System Prompt</span>
+            <textarea class="ct-textarea" .value=${this.openaiPrompt} @change=${(e2) => this.onOpenAIConfigChange("prompt", e2.target.value)} placeholder="Optional: custom system prompt for translation"></textarea>
+          </label>
+        </div>
+      ` : E}
+    `;
+    }
     render() {
       return x`
       <div class="ct-root">
@@ -2602,60 +2794,11 @@ info() {
             <span>Setting</span>
             <button class="ct-dialog-close" @click=${() => this.dialogEl?.close()}>✕</button>
           </div>
-          <div class="ct-dialog-body">
-            <div class="ct-setting-dialog">
-              <div class="ct-setting-dialog-from">${this.renderSelect("from")}</div>
-              <span class="ct-arrow-icon">→</span>
-              <div class="ct-setting-dialog-to">${this.renderSelect("to")}</div>
+          <div class="ct-dialog-body-with-sidebar">
+            ${this.renderSidebar()}
+            <div class="ct-content">
+              ${this.activeTab === "translate" ? this.renderTranslateTab() : this.renderProviderTab()}
             </div>
-
-            <div class="ct-section-divider"></div>
-
-            <div class="ct-provider-section">
-              <div class="ct-section-label">Translation Provider</div>
-              <div class="ct-provider-options">
-                <label class="ct-radio ${this.provider === "chrome" ? "ct-radio-active" : ""}">
-                  <input type="radio" name="provider" value="chrome" ?checked=${this.provider === "chrome"} @change=${() => this.onProviderChange("chrome")}>
-                  <span>Chrome AI</span>
-                </label>
-                <label class="ct-radio ${this.provider === "openai" ? "ct-radio-active" : ""}">
-                  <input type="radio" name="provider" value="openai" ?checked=${this.provider === "openai"} @change=${() => this.onProviderChange("openai")}>
-                  <span>OpenAI API</span>
-                </label>
-              </div>
-            </div>
-
-            ${this.provider === "openai" ? x`
-              <div class="ct-section-divider"></div>
-              <div class="ct-section-label">OpenAI Configuration</div>
-              <div class="ct-openai-section">
-                <label class="ct-field">
-                  <span class="ct-field-label">API Key</span>
-                  <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e2) => this.onOpenAIConfigChange("apiKey", e2.target.value)} placeholder="sk-...">
-                </label>
-                <label class="ct-field">
-                  <span class="ct-field-label">Base URL</span>
-                  <input type="text" class="ct-input" .value=${this.openaiBaseUrl} @change=${(e2) => this.onOpenAIConfigChange("baseUrl", e2.target.value)}>
-                </label>
-                <label class="ct-field">
-                  <span class="ct-field-label">Model</span>
-                  <div style="display:flex;gap:6px;align-items:flex-start;">
-                    <div style="flex:1;min-width:0;">${this.renderModelSelect()}</div>
-                    <button
-                      @click=${() => {
-      void this.fetchModels();
-    }}
-                      style="flex-shrink:0;width:36px;height:38px;border:1px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;color:#00c4b6;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;"
-                      title="Refresh models"
-                    >${refreshIcon}</button>
-                  </div>
-                </label>
-                <label class="ct-field">
-                  <span class="ct-field-label">System Prompt</span>
-                  <textarea class="ct-textarea" .value=${this.openaiPrompt} @change=${(e2) => this.onOpenAIConfigChange("prompt", e2.target.value)} placeholder="Optional: custom system prompt for translation"></textarea>
-                </label>
-              </div>
-            ` : E}
           </div>
         </dialog>
       </div>
@@ -2666,6 +2809,9 @@ info() {
     :host {
       all: initial;
       display: block;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
     }
 
     .ct-root {
@@ -2829,13 +2975,18 @@ info() {
     }
 
     dialog {
-      overflow: visible;
-      padding: 0;
       border: none;
       border-radius: 12px;
       box-shadow: 0 16px 48px rgba(0, 0, 0, .2);
-      width: min(90vw, 500px);
-      max-width: 90vw;
+      width: 600px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    dialog[open] {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     dialog::backdrop {
@@ -3011,8 +3162,6 @@ info() {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      overflow-y: auto;
-      max-height: 50vh;
     }
 
     .ct-field {
@@ -3065,6 +3214,131 @@ info() {
       border-color: #00c4b6;
       background: #fff;
     }
+
+    .ct-dialog-body-with-sidebar {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .ct-sidebar {
+      flex: 0 0 auto;
+      border-right: 1px solid #eee;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      width: 140px;
+    }
+
+    .ct-sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #666;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .ct-sidebar-item:hover {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .ct-sidebar-active {
+      border-left-color: #00c4b6;
+      background: #f0fdfb;
+      color: #00c4b6;
+      font-weight: 600;
+    }
+
+    .ct-sidebar-icon {
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .ct-sidebar-label {
+      white-space: nowrap;
+    }
+
+    .ct-content {
+      flex: 1;
+      min-height: 0;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .ct-section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    .ct-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ct-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: #ddd;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .ct-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #00c4b6;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .ct-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #00c4b6;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .ct-slider-value {
+      min-width: 32px;
+      font-size: 13px;
+      color: #333;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    @media (max-width: 500px) {
+      .ct-sidebar {
+        width: 60px;
+      }
+      .ct-sidebar-item {
+        padding: 10px 8px;
+        justify-content: center;
+      }
+      .ct-sidebar-label {
+        display: none;
+      }
+    }
   `;
   __decorateClass([
     r()
@@ -3108,6 +3382,21 @@ info() {
   __decorateClass([
     r()
   ], ChromeTranslateBall.prototype, "modelDropdownUp", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "activeTab", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "mode", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "batchSize", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiTemperature", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiMaxTokens", 2);
   __decorateClass([
     e$2(".ct-ball")
   ], ChromeTranslateBall.prototype, "ballEl", 2);
