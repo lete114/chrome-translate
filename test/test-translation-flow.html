@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Flow Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .test-result {
+            background-color: #e8f5e8;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .test-error {
+            background-color: #ffe8e8;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .copy-to-clipboard {
+            background-color: #007cba;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 1px 3px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Translation Flow Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Content</h2>
+        <p id="test-paragraph-1">On the surface, this makes the decision to use <code>ipvs</code> an obvious one, however, since <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> have been the default mode for so long.</p>
+        
+        <p id="test-paragraph-2">One of the fortunate side-effects of the <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> mode is that <code>ClusterIP</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> is never bound to any kernel interface.</p>
+        
+        <p id="test-paragraph-3">Although this does make <code>ipvs</code> less safe by default, it doesn't mean that these risks can't be mitigated (e.g. by not binding to <code>0.0.0.0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span>).</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Controls</h2>
+        <button onclick="testTextExtraction()">Test Text Extraction</button>
+        <button onclick="testHtmlProcessing()">Test HTML Processing</button>
+        <button onclick="testTranslationPrompt()">Test Translation Prompt</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Mock constants and utilities
+        const DOM_SELECTORS = {
+            EXCLUDE_DEFAULT: ['script', 'style', 'noscript', 'code', 'pre'],
+            MAIN_CONTENT_SELECTORS: ['main', 'article', '.content', '.main', '#content', '#main'],
+            BLOCK_ELEMENTS: ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'section', 'article']
+        };
+
+        const TEXT_PROCESSING = {
+            MIN_TEXT_LENGTH: 3,
+            MIN_SIGNIFICANT_LENGTH: 1
+        };
+
+        const REGEX_PATTERNS = {
+            PURE_NUMBERS_SYMBOLS: /^[\d\s\W]*$/,
+            CHINESE_CHARS: /[\u4e00-\u9fff\u3400-\u4dbf]/
+        };
+
+        function hasSignificantText(text) {
+            if (!text || typeof text !== 'string') return false;
+            const trimmed = text.trim();
+            if (trimmed.length < TEXT_PROCESSING.MIN_TEXT_LENGTH) return false;
+            if (REGEX_PATTERNS.PURE_NUMBERS_SYMBOLS.test(trimmed)) return false;
+            if (trimmed.length === TEXT_PROCESSING.MIN_SIGNIFICANT_LENGTH && !REGEX_PATTERNS.CHINESE_CHARS.test(trimmed)) return false;
+            return true;
+        }
+
+        function logResult(message, isError = false) {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = isError ? 'test-error' : 'test-result';
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+
+        function testTextExtraction() {
+            logResult('=== Testing Text Extraction ===');
+            
+            const testParagraphs = document.querySelectorAll('[id^="test-paragraph-"]');
+            
+            testParagraphs.forEach((p, index) => {
+                logResult(`\nParagraph ${index + 1}:`);
+                logResult(`Original HTML: ${p.innerHTML}`);
+                logResult(`Text content: ${p.textContent}`);
+                
+                // Test HTML content extraction
+                const clone = p.cloneNode(true);
+                const existingTranslations = clone.querySelectorAll('.ot-paragraph-translated, .ot-bilingual-container');
+                existingTranslations.forEach(el => el.remove());
+                
+                const htmlContent = clone.innerHTML.trim();
+                logResult(`Extracted HTML: ${htmlContent}`);
+                
+                // Test HTML tag detection
+                const hasHtml = /<[^>]+>/g.test(htmlContent);
+                logResult(`Contains HTML tags: ${hasHtml}`);
+                
+                // Test significant HTML elements
+                const htmlElements = p.querySelectorAll('a, code, span, strong, em, b, i, u, mark, sup, sub');
+                logResult(`HTML elements count: ${htmlElements.length}`);
+                
+                if (hasHtml && htmlElements.length > 0) {
+                    // Test text extraction with inline tags
+                    const extractedText = getTextWithInlineTags(p);
+                    logResult(`Text with inline tags: ${extractedText}`);
+                }
+            });
+        }
+
+        function getTextWithInlineTags(element) {
+            let result = '';
+            
+            for (const node of element.childNodes) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    result += node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    const tagName = node.tagName.toLowerCase();
+                    
+                    if (['a', 'code', 'span', 'strong', 'em', 'b', 'i', 'u', 'mark', 'sup', 'sub'].includes(tagName)) {
+                        const innerText = getTextWithInlineTags(node);
+                        
+                        if (innerText.trim()) {
+                            let attrs = '';
+                            ['href', 'title', 'class'].forEach(attr => {
+                                if (node.hasAttribute(attr)) {
+                                    attrs += ` ${attr}="${node.getAttribute(attr)}"`;
+                                }
+                            });
+                            
+                            result += `<${tagName}${attrs}>${innerText}</${tagName}>`;
+                        }
+                    } else {
+                        result += getTextWithInlineTags(node);
+                    }
+                }
+            }
+            
+            return result;
+        }
+
+        function testHtmlProcessing() {
+            logResult('=== Testing HTML Processing ===');
+            
+            const testTexts = [
+                'Simple text without HTML',
+                'Text with <code>HTML tags</code>',
+                'Complex <a href="test">link</a> with <strong>formatting</strong>',
+                'Text with <span class="copy-to-clipboard">inline elements</span>',
+                'On the surface, this makes the decision to use <code>ipvs</code> an obvious one, however, since <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> have been the default mode for so long.'
+            ];
+            
+            testTexts.forEach((text, index) => {
+                logResult(`\nTest ${index + 1}: "${text.substring(0, 50)}..."`);
+                
+                // Test HTML tag detection
+                const hasHtml = /<[^>]+>/g.test(text);
+                logResult(`Contains HTML: ${hasHtml}`);
+                
+                if (hasHtml) {
+                    // Test HTML sanitization
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = text;
+                    
+                    // Remove dangerous elements
+                    const dangerousElements = tempDiv.querySelectorAll('script, style, iframe, object, embed');
+                    dangerousElements.forEach(el => el.remove());
+                    
+                    // Remove dangerous attributes
+                    const allElements = tempDiv.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        const dangerousAttrs = ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur'];
+                        dangerousAttrs.forEach(attr => {
+                            if (el.hasAttribute(attr)) {
+                                el.removeAttribute(attr);
+                            }
+                        });
+                        
+                        if (el.hasAttribute('href') && el.getAttribute('href').startsWith('javascript:')) {
+                            el.removeAttribute('href');
+                        }
+                    });
+                    
+                    logResult(`Sanitized HTML: ${tempDiv.innerHTML}`);
+                }
+            });
+        }
+
+        function testTranslationPrompt() {
+            logResult('=== Testing Translation Prompt Generation ===');
+            
+            const testTexts = [
+                'Simple text without HTML',
+                'Text with <code>HTML tags</code> and <strong>formatting</strong>',
+                'Complex example: On the surface, this makes the decision to use <code>ipvs</code> an obvious one, however, since <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> have been the default mode for so long.'
+            ];
+            
+            testTexts.forEach((text, index) => {
+                logResult(`\nTest ${index + 1}: "${text.substring(0, 50)}..."`);
+                
+                const hasHtml = /<[^>]+>/g.test(text);
+                logResult(`Contains HTML: ${hasHtml}`);
+                
+                // Simulate prompt generation
+                const baseInstructions = [
+                    'You are a professional translator. Translate the following text from English to Chinese.',
+                    '',
+                    'Requirements:',
+                    '1. Maintain the original meaning, tone, and context accurately',
+                    '2. Use natural, fluent language that sounds native to the target language',
+                    '3. Preserve technical terms, proper nouns, and brand names when appropriate',
+                    '4. Keep the same formatting structure (line breaks, spacing, punctuation style)',
+                    '5. For ambiguous terms, choose the most contextually appropriate translation',
+                    '6. Only return the translation without any additional text, explanation, or commentary'
+                ];
+                
+                if (hasHtml) {
+                    baseInstructions.push('7. The text contains HTML tags. Preserve all HTML tags and their structure exactly as they appear');
+                    baseInstructions.push('8. Only translate the text content within HTML tags, not the tags themselves');
+                    baseInstructions.push('9. Maintain the exact same HTML structure in the translation');
+                }
+                
+                const prompt = `${baseInstructions.join('\n')}\n\nText to translate:\n${text}\n\nTranslation:`;
+                
+                logResult(`Generated prompt:\n${prompt}`);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('Translation Flow Test initialized');
+            logResult('Click the test buttons above to run different tests');
+        });
+    </script>
+</body>
+</html>

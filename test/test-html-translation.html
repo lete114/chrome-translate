@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Translation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .copy-to-clipboard {
+            background-color: #007cba;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 1px 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML Translation Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Test Case 1: Simple HTML with inline elements</h2>
+        <p>On the surface, this makes the decision to use <code>ipvs</code> an obvious one, however, since <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> have been the default mode for so long, some of its quirks and undocumented side-effects have become the standard.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Case 2: Complex HTML with links and formatting</h2>
+        <p>One of the fortunate side-effects of the <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> mode is that <code>ClusterIP</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> is never bound to any kernel interface and remains completely virtual (as a NAT rule). So when <code>ipvs</code> changed this behaviour by introducing a dummy <code>kube-ipvs0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> interface, it <a href="https://github.com/kubernetes/kubernetes/issues/72236" class="highlight">made it possible</a> for processes inside Pods to access any host-local services bound to <code>0.0.0.0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> by targeting any existing <code>ClusterIP</code><span class="copy-to-clipboard" title="Copy to clipboard"></span>.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Case 3: Text with technical terms and formatting</h2>
+        <p>Although this does make <code>ipvs</code> less safe by default, it doesn't mean that these risks can't be mitigated (e.g. by not binding to <code>0.0.0.0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span>).</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Case 4: Mixed content with emphasis</h2>
+        <p>The <strong>kube-proxy</strong> component is responsible for implementing the <em>Service</em> abstraction in Kubernetes. It runs on each node and maintains network rules that allow network communication to your <code>Pods</code> from network sessions inside or outside of your cluster.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Case 5: List with inline formatting</h2>
+        <ul>
+            <li>Configure <code>kube-proxy</code> to use <strong>IPVS mode</strong> for better performance</li>
+            <li>Set up proper <em>network policies</em> to secure your cluster</li>
+            <li>Monitor <a href="#monitoring">service endpoints</a> for availability</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Case 6: Code blocks and technical content</h2>
+        <p>To enable IPVS mode, you need to modify the <code>kube-proxy</code> configuration:</p>
+        <pre><code>apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: "ipvs"</code></pre>
+        <p>This configuration tells <code>kube-proxy</code> to use the <strong>IPVS</strong> load balancer instead of the default <code>iptables</code> implementation.</p>
+    </div>
+
+    <script>
+        // Add some dynamic content for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('HTML Translation Test Page loaded');
+            
+            // Add click handlers for copy buttons
+            document.querySelectorAll('.copy-to-clipboard').forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log('Copy button clicked');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

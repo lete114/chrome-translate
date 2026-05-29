@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Element Bilingual Translation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        .instructions {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-left: 4px solid #007cba;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select Element Bilingual Translation Test</h1>
+    
+    <div class="instructions">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Translate this page using <strong>Bilingual mode</strong></li>
+            <li>Check if the dropdown options show both original and translated text</li>
+            <li>Verify that the translated text appears inline with the original text</li>
+            <li>Test with different dropdown types and option lengths</li>
+        </ol>
+        <p><strong>Expected behavior:</strong> Each option should display as "Original Text 译文" in bilingual mode.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Basic Dropdown Test</h2>
+        <p>This section tests basic dropdown functionality with simple options.</p>
+        
+        <div class="form-group">
+            <label for="country">Select your country:</label>
+            <select id="country" name="country">
+                <option value="">Choose a country</option>
+                <option value="us">United States</option>
+                <option value="uk">United Kingdom</option>
+                <option value="ca">Canada</option>
+                <option value="au">Australia</option>
+                <option value="de">Germany</option>
+                <option value="fr">France</option>
+                <option value="jp">Japan</option>
+                <option value="cn">China</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Complex Options Test</h2>
+        <p>This section tests dropdown with longer and more complex option text.</p>
+        
+        <div class="form-group">
+            <label for="service">Select a service plan:</label>
+            <select id="service" name="service">
+                <option value="">Please select a service plan</option>
+                <option value="basic">Basic Plan - Limited features for personal use</option>
+                <option value="standard">Standard Plan - Enhanced features for small teams</option>
+                <option value="premium">Premium Plan - Advanced features for large organizations</option>
+                <option value="enterprise">Enterprise Plan - Full-featured solution with custom support</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="category">Product category:</label>
+            <select id="category" name="category">
+                <option value="">Select product category</option>
+                <option value="electronics">Electronics and Technology</option>
+                <option value="clothing">Clothing and Fashion</option>
+                <option value="home">Home and Garden</option>
+                <option value="sports">Sports and Recreation</option>
+                <option value="books">Books and Education</option>
+                <option value="health">Health and Beauty</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Multiple Dropdowns Test</h2>
+        <p>This section tests multiple dropdowns on the same page to ensure consistent behavior.</p>
+        
+        <div class="form-group">
+            <label for="language">Preferred language:</label>
+            <select id="language" name="language">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ru">Russian</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="timezone">Time zone:</label>
+            <select id="timezone" name="timezone">
+                <option value="">Select your time zone</option>
+                <option value="utc-12">UTC-12:00 International Date Line West</option>
+                <option value="utc-11">UTC-11:00 Coordinated Universal Time-11</option>
+                <option value="utc-10">UTC-10:00 Hawaii</option>
+                <option value="utc-9">UTC-09:00 Alaska</option>
+                <option value="utc-8">UTC-08:00 Pacific Time (US & Canada)</option>
+                <option value="utc-7">UTC-07:00 Mountain Time (US & Canada)</option>
+                <option value="utc-6">UTC-06:00 Central Time (US & Canada)</option>
+                <option value="utc-5">UTC-05:00 Eastern Time (US & Canada)</option>
+                <option value="utc-4">UTC-04:00 Atlantic Time (Canada)</option>
+                <option value="utc-3">UTC-03:00 Brasilia, Buenos Aires</option>
+                <option value="utc-2">UTC-02:00 Mid-Atlantic</option>
+                <option value="utc-1">UTC-01:00 Azores</option>
+                <option value="utc+0">UTC+00:00 Greenwich Mean Time</option>
+                <option value="utc+1">UTC+01:00 Central European Time</option>
+                <option value="utc+2">UTC+02:00 Eastern European Time</option>
+                <option value="utc+3">UTC+03:00 Moscow, St. Petersburg</option>
+                <option value="utc+4">UTC+04:00 Abu Dhabi, Muscat</option>
+                <option value="utc+5">UTC+05:00 Islamabad, Karachi</option>
+                <option value="utc+6">UTC+06:00 Almaty, Dhaka</option>
+                <option value="utc+7">UTC+07:00 Bangkok, Hanoi</option>
+                <option value="utc+8">UTC+08:00 Beijing, Perth, Singapore</option>
+                <option value="utc+9">UTC+09:00 Tokyo, Seoul</option>
+                <option value="utc+10">UTC+10:00 Eastern Australia</option>
+                <option value="utc+11">UTC+11:00 Magadan, Solomon Islands</option>
+                <option value="utc+12">UTC+12:00 Auckland, Wellington</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Edge Cases Test</h2>
+        <p>This section tests edge cases like very short options and special characters.</p>
+        
+        <div class="form-group">
+            <label for="size">Size:</label>
+            <select id="size" name="size">
+                <option value="xs">XS</option>
+                <option value="s">S</option>
+                <option value="m">M</option>
+                <option value="l">L</option>
+                <option value="xl">XL</option>
+                <option value="xxl">XXL</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="priority">Priority level:</label>
+            <select id="priority" name="priority">
+                <option value="low">Low priority - Can be addressed later</option>
+                <option value="medium">Medium priority - Should be addressed soon</option>
+                <option value="high">High priority - Needs immediate attention</option>
+                <option value="critical">Critical priority - Emergency response required</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Select element test page loaded. Ready for bilingual translation testing.');
+            
+            // Add change event listeners to test functionality
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log(`Selected: ${this.value} from ${this.name || this.id}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

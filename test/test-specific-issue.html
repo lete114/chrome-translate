@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specific Issue Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .copy-to-clipboard {
+            background-color: #007cba;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 1px 3px;
+        }
+        .expected-translation {
+            background-color: #e8f5e8;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .current-issue {
+            background-color: #ffe8e8;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Specific Issue Test: HTML Tag Truncation</h1>
+    
+    <div class="test-case">
+        <h2>Original Issue Example</h2>
+        <p class="ot-paragraph-bilingual" data-original-lang="en" data-translated-lang="zh-CN" aria-label="Original: by targeting any existing . Although this does make less safe by default, it doesn't mean that these risks can't be mitigated (e.g. by not binding to. Translation: 通过定位任何现有的。虽然这确实使得默认情况下不太安全，但这并不意味着这些风险无法缓解（例如，通过不绑定到）。" role="group">
+            On the surface, this makes the decision to use <code>ipvs</code> an obvious one, however, since <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> have been the default mode for so long, some of its quirks and undocumented side-effects have become the standard. One of the fortunate side-effects of the <code>iptables</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> mode is that <code>ClusterIP</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> is never bound to any kernel interface and remains completely virtual (as a NAT rule). So when <code>ipvs</code> changed this behaviour by introducing a dummy <code>kube-ipvs0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> interface, it <a href="https://github.com/kubernetes/kubernetes/issues/72236" class="highlight">made it possible</a> for processes inside Pods to access any host-local services bound to <code>0.0.0.0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span> by targeting any existing <code>ClusterIP</code><span class="copy-to-clipboard" title="Copy to clipboard"></span>. Although this does make <code>ipvs</code> less safe by default, it doesn't mean that these risks can't be mitigated (e.g. by not binding to <code>0.0.0.0</code><span class="copy-to-clipboard" title="Copy to clipboard"></span>).
+        </p>
+        
+        <div class="expected-translation">
+            <strong>Expected (like Immersive Translate):</strong><br>
+            表面上看，这使得使用 `ipvs` 成为显而易见的选择，然而，由于 `iptables` 长期以来一直是默认模式，它的一些怪癖和未记录的副作用已成为标准。`iptables` 模式的一个幸运副作用是 `ClusterIP` 从不绑定到任何内核接口，并且保持完全虚拟（作为 NAT 规则）。因此，当 `ipvs` 通过引入一个虚拟 `kube-ipvs0` 接口改变了这种行为时，它使得 Pod 内部的进程可以通过针对任何现有的 `ClusterIP` 来访问绑定到 `0.0.0.0` 的任何主机本地服务。尽管这确实使得 `ipvs` 默认情况下不太安全，但这并不意味着这些风险无法缓解（例如，通过不绑定到 `0.0.0.0`）。
+        </div>
+        
+        <div class="current-issue">
+            <strong>Current Issue (truncated):</strong><br>
+            通过定位任何现有的。虽然这确实使得默认情况下不太安全，但这并不意味着这些风险无法缓解（例如，通过不绑定到）。
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h2>Simplified Test Case</h2>
+        <p>This is a simple test with <code>inline code</code> and <span class="copy-to-clipboard">clickable elements</span> to see if translation continues after HTML tags.</p>
+    </div>
+
+    <div class="test-case">
+        <h2>Complex Test Case</h2>
+        <p>Here we have multiple <code>code elements</code> with <span class="copy-to-clipboard" title="Copy">copy buttons</span> and even <a href="#test" class="highlight">highlighted links</a> to test if the translation handles all of these <strong>formatting elements</strong> correctly without truncation.</p>
+    </div>
+
+    <div class="test-case">
+        <h2>Technical Content Test</h2>
+        <p>Configure the <code>kube-proxy</code> component to use <code>ipvs</code> mode by setting the <code>--proxy-mode=ipvs</code> flag. This enables <strong>IPVS-based load balancing</strong> which provides better performance than the default <code>iptables</code> implementation. You can verify the configuration by checking the <code>/var/log/kube-proxy.log</code> file for <em>IPVS mode enabled</em> messages.</p>
+    </div>
+
+    <script>
+        console.log('Specific issue test page loaded');
+        
+        // Simulate text extraction and processing
+        function simulateTextExtraction() {
+            console.log('\n=== Simulating Text Extraction ===');
+            
+            const paragraphs = document.querySelectorAll('p:not(.expected-translation p):not(.current-issue p)');
+            
+            paragraphs.forEach((p, index) => {
+                console.log(`\nParagraph ${index + 1}:`);
+                console.log('Original HTML:', p.innerHTML);
+                console.log('Text content:', p.textContent);
+                
+                // Simulate our HTML extraction
+                const clone = p.cloneNode(true);
+                const existingTranslations = clone.querySelectorAll('.ot-paragraph-translated, .ot-bilingual-container');
+                existingTranslations.forEach(el => el.remove());
+                
+                console.log('Extracted HTML:', clone.innerHTML);
+                
+                // Check if it contains HTML tags
+                const hasHtml = /<[^>]+>/g.test(clone.innerHTML);
+                console.log('Contains HTML tags:', hasHtml);
+                
+                if (hasHtml) {
+                    console.log('This paragraph should be processed with HTML preservation');
+                } else {
+                    console.log('This paragraph can be processed as plain text');
+                }
+            });
+        }
+        
+        // Run simulation when page loads
+        document.addEventListener('DOMContentLoaded', simulateTextExtraction);
+    </script>
+</body>
+</html>

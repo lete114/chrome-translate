@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Field Translation Test - Open Translate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="search"],
+        input[type="email"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .contenteditable {
+            width: 100%;
+            min-height: 60px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            box-sizing: border-box;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .instructions h2 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
+        }
+        
+        .sample-text {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .hotkey-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .hotkey-info h4 {
+            margin-top: 0;
+            color: #155724;
+        }
+
+        .language-info {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .language-info h4 {
+            margin-top: 0;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Input Field Translation Test Page</h1>
+    
+    <div class="instructions">
+        <h2>How to Test Input Field Translation</h2>
+        <ol>
+            <li>Make sure the Open Translate extension is installed and configured</li>
+            <li>Enable "Input field translation trigger" in the extension popup or settings</li>
+            <li>Configure your preferred hotkey (default: F2) in the extension settings</li>
+            <li>Click on any input field below and type some text</li>
+            <li>Press your configured <strong>hotkey</strong> to trigger translation</li>
+            <li>A translation popup should appear near the input field</li>
+            <li>You can copy the translation or replace the original text</li>
+        </ol>
+    </div>
+
+    <div class="hotkey-info">
+        <h4>🔥 New Hotkey System</h4>
+        <p><strong>Default:</strong> F2 key (works with all input methods including Chinese, Japanese, Korean IMEs)</p>
+        <p><strong>Customizable:</strong> Go to extension settings to change the hotkey or add modifier keys (Ctrl, Alt, Shift)</p>
+        <p><strong>Reliable:</strong> No more issues with space key detection or input method conflicts</p>
+    </div>
+
+    <div class="language-info">
+        <h4>🌍 Smart Language Detection</h4>
+        <p><strong>Intelligent Translation:</strong> The system now detects the webpage's language and translates to that language</p>
+        <p><strong>Example:</strong> On this English page, Chinese input will be translated to English</p>
+        <p><strong>Fallback:</strong> When page language detection fails, uses your configured default target language</p>
+        <p><strong>Settings:</strong> Enable/disable in extension popup or configure in advanced settings</p>
+    </div>
+
+    <div class="sample-text">
+        <strong>Sample texts to try:</strong><br>
+        • Hello, how are you today?<br>
+        • This is a test of the new translation feature.<br>
+        • The quick brown fox jumps over the lazy dog.<br>
+        • 你好，今天天气怎么样？<br>
+        • これは新しい翻訳機能のテストです。<br>
+        • 안녕하세요, 오늘 날씨가 어떻습니까?<br>
+        • Bonjour, comment allez-vous aujourd'hui?
+    </div>
+
+    <div class="test-section">
+        <h3>Regular Text Input</h3>
+        <div class="form-group">
+            <label for="textInput1">Text Input Field:</label>
+            <input type="text" id="textInput1" placeholder="Type some text here and press F2 to translate">
+        </div>
+        
+        <div class="form-group">
+            <label for="textInput2">Another Text Input:</label>
+            <input type="text" id="textInput2" placeholder="Try typing in multiple languages">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Different Input Types</h3>
+        <div class="form-group">
+            <label for="searchInput">Search Field:</label>
+            <input type="search" id="searchInput" placeholder="Search query translation test">
+        </div>
+
+        <div class="form-group">
+            <label for="emailInput">Email Field:</label>
+            <input type="email" id="emailInput" placeholder="email@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="urlInput">URL Field:</label>
+            <input type="url" id="urlInput" placeholder="https://example.com">
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Textarea</h3>
+        <div class="form-group">
+            <label for="textarea1">Large Text Area:</label>
+            <textarea id="textarea1" placeholder="Type longer text here. You can test with multiple sentences and paragraphs. Press F2 to translate."></textarea>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Content Editable</h3>
+        <div class="form-group">
+            <label>Editable Div:</label>
+            <div class="contenteditable" contenteditable="true">
+                Click here and start typing. This is a content-editable div that should also support the translation trigger. Press F2 to translate.
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Form Example</h3>
+        <form>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" placeholder="Write your message here and press F2 to translate"></textarea>
+            </div>
+        </form>
+    </div>
+
+    <div class="test-section">
+        <h3>Language Detection Test</h3>
+        <p>This page is in English, so when you type text in other languages and press F2, it should translate to English.</p>
+        
+        <div class="form-group">
+            <label for="chineseTest">Try Chinese Text:</label>
+            <input type="text" id="chineseTest" placeholder="输入中文文本，按F2翻译成英文">
+        </div>
+        
+        <div class="form-group">
+            <label for="japaneseTest">Try Japanese Text:</label>
+            <input type="text" id="japaneseTest" placeholder="日本語のテキストを入力してF2を押してください">
+        </div>
+
+        <div class="form-group">
+            <label for="englishTest">Try English Text:</label>
+            <input type="text" id="englishTest" placeholder="Type English text and press F2 (should use fallback language)">
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input, textarea, [contenteditable]');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    console.log('Input focused:', this.id || this.tagName);
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.code === 'F2') {
+                        console.log('F2 key pressed in:', this.id || this.tagName);
+                        console.log('Text content:', this.value || this.textContent);
+                    }
+                });
+
+                input.addEventListener('input', function() {
+                    console.log('Input changed:', this.id || this.tagName, 'Value:', this.value || this.textContent);
+                });
+            });
+
+            // Display current page language detection info
+            console.log('Page language (html lang):', document.documentElement.lang || 'not set');
+            console.log('Page title:', document.title);
+            console.log('Page URL:', window.location.href);
+        });
+    </script>
+</body>
+</html>

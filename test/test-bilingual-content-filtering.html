@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Bilingual Content Filtering</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+        
+        .navbar {
+            background-color: #666;
+            padding: 0.5rem;
+        }
+        
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #f5f5f5;
+            padding: 1rem;
+            margin-right: 1rem;
+        }
+        
+        .main-content {
+            flex: 1;
+            background-color: white;
+            padding: 1rem;
+        }
+        
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .widget {
+            background-color: #e9e9e9;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页眉 - 应该被排除 -->
+    <header class="header">
+        <h1>Website Header</h1>
+        <p>This is the header content that should not be translated in bilingual mode.</p>
+    </header>
+    
+    <!-- 导航栏 - 应该被排除 -->
+    <nav class="navbar">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+    </nav>
+    
+    <div class="container">
+        <!-- 侧边栏 - 应该被排除 -->
+        <aside class="sidebar">
+            <div class="widget">
+                <h3>Navigation Widget</h3>
+                <p>This sidebar content should not be translated in bilingual mode.</p>
+                <ul>
+                    <li><a href="#link1">Link 1</a></li>
+                    <li><a href="#link2">Link 2</a></li>
+                    <li><a href="#link3">Link 3</a></li>
+                </ul>
+            </div>
+            
+            <div class="widget">
+                <h3>Advertisement</h3>
+                <p>This is an advertisement widget that should be excluded from translation.</p>
+            </div>
+        </aside>
+        
+        <!-- 主要内容区域 - 应该被翻译 -->
+        <main class="main-content">
+            <article>
+                <h1>Main Article Title</h1>
+                <p>This is the main content of the article. This paragraph should be translated in bilingual mode because it contains the primary content that users want to read.</p>
+                
+                <h2>Section Heading</h2>
+                <p>This is another paragraph in the main content area. It contains important information that should be translated for better user understanding.</p>
+                
+                <p>Here is a longer paragraph with more detailed content. This type of content represents the core information that users are looking for when they visit this page. It should definitely be included in the bilingual translation.</p>
+                
+                <h3>Subsection</h3>
+                <p>Even subsections and their content should be translated as they are part of the main article content.</p>
+                
+                <blockquote>
+                    <p>This is a quote within the main content. Quotes are also important content that should be translated.</p>
+                </blockquote>
+            </article>
+        </main>
+    </div>
+    
+    <!-- 页脚 - 应该被排除 -->
+    <footer class="footer">
+        <p>Copyright 2024. This footer content should not be translated in bilingual mode.</p>
+        <nav>
+            <a href="#privacy">Privacy Policy</a>
+            <a href="#terms">Terms of Service</a>
+        </nav>
+    </footer>
+</body>
+</html>

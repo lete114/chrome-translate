@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Mode Switch Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+        .instructions {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-left: 4px solid #007cba;
+            margin-bottom: 20px;
+        }
+        .test-content {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 2px 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Translation Mode Switch Test Page</h1>
+    
+    <div class="instructions">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>First, translate this page using <strong>Replace mode</strong></li>
+            <li>Then switch to <strong>Bilingual mode</strong> and observe the changes</li>
+            <li>Switch back to <strong>Replace mode</strong> and verify it works correctly</li>
+            <li>Repeat the process to ensure consistent behavior</li>
+        </ol>
+        <p><strong>Expected behavior:</strong> Each mode should display correctly without interference from the other mode's cached results.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Section 1: Basic Text Content</h2>
+        <p>This is a simple paragraph that should be translated consistently regardless of the translation mode. The content should appear differently in Replace mode versus Bilingual mode.</p>
+        
+        <p>Another paragraph with <span class="highlight">highlighted text</span> to test formatting preservation. This helps verify that the translation maintains proper text structure.</p>
+        
+        <div class="test-content">
+            <p>This paragraph is inside a div container. It should be handled correctly by both translation modes without any visual artifacts or leftover elements from previous translations.</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Section 2: Complex Content Structure</h2>
+        <p>This section contains more complex content to test the robustness of mode switching:</p>
+        
+        <ul>
+            <li>First list item with regular text</li>
+            <li>Second item with <strong>bold formatting</strong></li>
+            <li>Third item with <em>italic text</em> and <code>code snippets</code></li>
+        </ul>
+        
+        <blockquote>
+            This is a blockquote that should be translated properly. It contains longer text to test how different modes handle substantial content blocks.
+        </blockquote>
+    </div>
+
+    <div class="test-section">
+        <h2>Section 3: Mixed Content Types</h2>
+        <p>This section tests various content types that might cause issues during mode switching:</p>
+        
+        <table border="1" style="border-collapse: collapse; width: 100%;">
+            <tr>
+                <th style="padding: 8px;">Column Header 1</th>
+                <th style="padding: 8px;">Column Header 2</th>
+            </tr>
+            <tr>
+                <td style="padding: 8px;">Table cell content that should be translated</td>
+                <td style="padding: 8px;">Another cell with different content</td>
+            </tr>
+        </table>
+        
+        <p>Text after table should also be handled correctly during mode switches.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Section 4: Edge Cases</h2>
+        <p>Short text.</p>
+        <p>This is a much longer paragraph designed to test how the translation system handles substantial amounts of text when switching between different translation modes. It should maintain consistency and not show any artifacts from previous translation attempts.</p>
+        
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <p>Left column content that should be translated independently.</p>
+            </div>
+            <div style="flex: 1;">
+                <p>Right column content with different text for comparison.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some dynamic content to test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Test page loaded. Ready for translation mode testing.');
+            
+            // Add a timestamp to verify page state
+            const timestamp = new Date().toLocaleString();
+            const timestampElement = document.createElement('p');
+            timestampElement.textContent = `Page loaded at: ${timestamp}`;
+            timestampElement.style.fontSize = '12px';
+            timestampElement.style.color = '#666';
+            document.body.appendChild(timestampElement);
+        });
+    </script>
+</body>
+</html>
