@@ -10,11 +10,11 @@ export class CtIconButton extends LitElement {
   static override styles = css`
     :host([size="sm"]) button { width: 28px; height: 28px; border-radius: 50%; }
     :host([size="md"]) button { width: 36px; height: 36px; border-radius: 8px; }
-    :host([variant="ghost"]) button { border: none; background: #f5f5f5; color: #999; }
-    :host([variant="ghost"]) button:hover { background: #e8e8e8; color: #333; }
-    :host([variant="outlined"]) button { border: 1px solid #ddd; background: #fafafa; color: #00c4b6; }
-    :host([variant="outlined"]) button:hover { border-color: #00c4b6; }
-    :host([variant="filled"]) button { border: none; background: #00c4b6; color: #fff; }
+    :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
+    :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
+    :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
+    :host([variant="outlined"]) button:hover { border-color: var(--ct-btn-hover-border, #00c4b6); }
+    :host([variant="filled"]) button { border: none; background: var(--ct-btn-bg, #00c4b6); color: var(--ct-btn-color, #fff); }
     :host([variant="filled"]) button:hover { opacity: 0.9; }
 
     @unocss-placeholder;

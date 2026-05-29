@@ -1,7 +1,8 @@
+import type { LFUCache } from '../utils/LFUCache'
 import type { CtDialog } from './ct-dialog'
 import type { TabItem } from './ct-tabs'
 import { css, html, LitElement } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { emitCtEvent } from '../utils/emit'
 import { LANGUAGES } from '../utils/languages'
 import { refreshIcon } from './icons'
@@ -14,14 +15,6 @@ import './ct-divider'
 import './ct-section-header'
 import './ct-tabs'
 import './ct-dialog'
-
-export interface SettingsChangeEvent {
-  language?: { from: string, to: string }
-  provider?: 'chrome' | 'openai'
-  mode?: 'text' | 'html'
-  batchSize?: number
-  openaiField?: { field: string, value: string }
-}
 
 @customElement('chrome-translate-settings')
 export class ChromeTranslateSettings extends LitElement {
@@ -47,8 +40,10 @@ export class ChromeTranslateSettings extends LitElement {
   @property({ type: String }) openaiModelsError = ''
   @property({ type: Number }) openaiTemperature = 0.3
   @property({ type: Number }) openaiMaxTokens = 1024
+  @property({ type: Object }) translateCache?: LFUCache<string>
 
   @property({ type: String }) private activeTab = 'translate'
+  @state() private cacheSearch = ''
 
   @query('ct-dialog') private dialogEl!: CtDialog
 
@@ -197,10 +192,88 @@ export class ChromeTranslateSettings extends LitElement {
     `
   }
 
+  private renderCacheTab() {
+    if (!this.translateCache) {
+      return html`<div class="text-13px text-[#888]">Cache not available</div>`
+    }
+
+    const info = this.translateCache.info()
+    const pct = info.maxBytes > 0 ? Math.round((info.usedBytes / info.maxBytes) * 100) : 0
+    const search = this.cacheSearch.toLowerCase()
+    const filtered = info.items.filter(item => item.key.toLowerCase().includes(search))
+
+    const statsHtml = html`
+      <div class="flex items-center justify-between text-12px text-[#888]">
+        <span>${info.usedSize} / ${info.maxSize}</span>
+        <span class="flex items-center gap-8px">
+          ${info.totalItems} items
+          <ct-icon-button size="sm" variant="ghost" title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-icon-button>
+          <ct-icon-button size="sm" variant="ghost" title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff" 
+          @click=${() => {
+              this.translateCache!.clear()
+              this.requestUpdate()
+            }
+          }>🗑</ct-icon-button>
+        </span>
+      </div>
+      <div class="w-full h-8px bg-[#eee] rounded-[4px] overflow-hidden my-16px">
+        <div class="h-full bg-[#00c4b6] rounded-[4px] transition-width transition-duration-0.3s" style="width: ${pct}%"></div>
+      </div>
+    `
+
+    const searchInput = html`
+      <input
+        type="text"
+        placeholder="Search entries…"
+        class="w-full px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-colors transition-duration-0.2s box-border mb-12px focus:border-[#00c4b6] focus:bg-[#fff]"
+        .value=${this.cacheSearch}
+        @input=${(e: Event) => { this.cacheSearch = (e.target as HTMLInputElement).value }}
+      >
+    `
+
+    const entryList = filtered.length > 0
+      ? html`
+        <div class="flex flex-col gap-2px">
+          ${filtered.slice(0, 100).map(item => html`
+            <div class="flex items-start gap-8px px-8px py-6px rounded-[6px] hover:bg-[#f5f5f5] group">
+              <span class="flex-1 leading-[1.4] text-[#555]">${item.key}</span>
+              <span class="shrink-0 text-11px text-[#999] mt-1px">f:${item.freq}</span>
+              <button
+                class="shrink-0 w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c] opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s"
+                title="Remove entry"
+                @click=${() => {
+                    this.translateCache!.remove(item.key)
+                    this.requestUpdate()
+                  }
+                }
+              >✕</button>
+            </div>
+          `)}
+        </div>
+        ${filtered.length > 100 ? html`<div class="text-11px text-[#999] mt-4px">… and ${filtered.length - 100} more</div>` : ''}
+      `
+      : html`<div class="text-13px text-[#888] text-center py-20px">No entries found</div>`
+
+    return html`
+      <div class="flex flex-col h-full">
+        <div class="shrink-0">
+          <ct-section-header label="Cache Management"></ct-section-header>
+          ${statsHtml}
+          <ct-divider></ct-divider>
+          ${searchInput}
+        </div>
+        <div class="flex-1 overflow-y-auto min-h-0">
+          ${entryList}
+        </div>
+      </div>
+    `
+  }
+
   override render() {
     const tabs: TabItem[] = [
       { icon: html`<span>🌐</span>`, label: 'Translate', value: 'translate' },
       { icon: html`<span>⚙️</span>`, label: 'Provider', value: 'provider' },
+      { icon: html`<span>🗃️</span>`, label: 'Cache', value: 'cache' },
     ]
 
     return html`
@@ -211,7 +284,11 @@ export class ChromeTranslateSettings extends LitElement {
           .active=${this.activeTab}
           @ct-change=${(e: CustomEvent) => { this.activeTab = e.detail.value }}
         ></ct-tabs>
-        ${this.activeTab === 'translate' ? this.renderTranslateTab() : this.renderProviderTab()}
+        ${this.activeTab === 'translate'
+          ? this.renderTranslateTab()
+          : this.activeTab === 'provider'
+            ? this.renderProviderTab()
+            : this.renderCacheTab()}
       </ct-dialog>
     `
   }

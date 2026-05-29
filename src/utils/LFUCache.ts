@@ -215,6 +215,8 @@ export class LFUCache<T = any> implements ICacheStorage<T> {
       maxSize: formatSize(maxBytes),
       usedSize: formatSize(usedBytes),
       freeSize: formatSize(maxBytes - usedBytes),
+      usedBytes,
+      maxBytes,
       items: sortedItems,
     }
   }

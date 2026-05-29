@@ -1,4 +1,5 @@
 import type { ITranslateOptions } from '../core/translator'
+import type { LFUCache } from '../utils/LFUCache'
 import type { ChromeTranslateSettings } from './ct-settings'
 import { GM_getValue, GM_setValue } from '$'
 import { css, html, LitElement, nothing } from 'lit'
@@ -116,6 +117,7 @@ export class ChromeTranslateBall extends LitElement {
   @state() private batchSize = DEFAULT_CONFIG.batchSize
   @state() private openaiTemperature = DEFAULT_CONFIG.openai.temperature
   @state() private openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens
+  @state() private translateCache?: LFUCache<string>
 
   @query('.ct-ball') private ballEl!: HTMLElement
   @query('chrome-translate-settings') private settingsDialog!: ChromeTranslateSettings
@@ -196,6 +198,7 @@ export class ChromeTranslateBall extends LitElement {
 
     const t = await useTranslate(options)
     this.rendererCtrl = t
+    this.translateCache = t.instance.translateCache
     t.instance.useHTML = this.mode === 'html'
     t.instance.batchSize = this.batchSize
 
@@ -499,6 +502,7 @@ export class ChromeTranslateBall extends LitElement {
           .openaiModelsError=${this.openaiModelsError}
           .openaiTemperature=${this.openaiTemperature}
           .openaiMaxTokens=${this.openaiMaxTokens}
+          .translateCache=${this.translateCache}
           @language-change=${this.onSettingsEvent}
           @mode-change=${this.onSettingsEvent}
           @batch-size-change=${this.onSettingsEvent}

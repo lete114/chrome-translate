@@ -2052,6 +2052,8 @@ info() {
         maxSize: formatSize(maxBytes),
         usedSize: formatSize(usedBytes),
         freeSize: formatSize(maxBytes - usedBytes),
+        usedBytes,
+        maxBytes,
         items: sortedItems
       };
     }
@@ -2166,11 +2168,11 @@ info() {
   CtIconButton.styles = i$3`
     :host([size="sm"]) button { width: 28px; height: 28px; border-radius: 50%; }
     :host([size="md"]) button { width: 36px; height: 36px; border-radius: 8px; }
-    :host([variant="ghost"]) button { border: none; background: #f5f5f5; color: #999; }
-    :host([variant="ghost"]) button:hover { background: #e8e8e8; color: #333; }
-    :host([variant="outlined"]) button { border: 1px solid #ddd; background: #fafafa; color: #00c4b6; }
-    :host([variant="outlined"]) button:hover { border-color: #00c4b6; }
-    :host([variant="filled"]) button { border: none; background: #00c4b6; color: #fff; }
+    :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
+    :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
+    :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
+    :host([variant="outlined"]) button:hover { border-color: var(--ct-btn-hover-border, #00c4b6); }
+    :host([variant="filled"]) button { border: none; background: var(--ct-btn-bg, #00c4b6); color: var(--ct-btn-color, #fff); }
     :host([variant="filled"]) button:hover { opacity: 0.9; }
 
     /* layer: preflights */
@@ -3150,6 +3152,7 @@ info() {
       this.openaiTemperature = 0.3;
       this.openaiMaxTokens = 1024;
       this.activeTab = "translate";
+      this.cacheSearch = "";
     }
     show() {
       this.dialogEl?.show();
@@ -3286,10 +3289,80 @@ info() {
       ` : ""}
     `;
     }
+    renderCacheTab() {
+      if (!this.translateCache) {
+        return x`<div class="text-13px text-[#888]">Cache not available</div>`;
+      }
+      const info = this.translateCache.info();
+      const pct = info.maxBytes > 0 ? Math.round(info.usedBytes / info.maxBytes * 100) : 0;
+      const search = this.cacheSearch.toLowerCase();
+      const filtered = info.items.filter((item) => item.key.toLowerCase().includes(search));
+      const statsHtml = x`
+      <div class="flex items-center justify-between text-12px text-[#888]">
+        <span>${info.usedSize} / ${info.maxSize}</span>
+        <span class="flex items-center gap-8px">
+          ${info.totalItems} items
+          <ct-icon-button size="sm" variant="ghost" title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-icon-button>
+          <ct-icon-button size="sm" variant="ghost" title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff" 
+          @click=${() => {
+      this.translateCache.clear();
+      this.requestUpdate();
+    }}>🗑</ct-icon-button>
+        </span>
+      </div>
+      <div class="w-full h-8px bg-[#eee] rounded-[4px] overflow-hidden my-16px">
+        <div class="h-full bg-[#00c4b6] rounded-[4px] transition-width transition-duration-0.3s" style="width: ${pct}%"></div>
+      </div>
+    `;
+      const searchInput = x`
+      <input
+        type="text"
+        placeholder="Search entries…"
+        class="w-full px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-colors transition-duration-0.2s box-border mb-12px focus:border-[#00c4b6] focus:bg-[#fff]"
+        .value=${this.cacheSearch}
+        @input=${(e2) => {
+      this.cacheSearch = e2.target.value;
+    }}
+      >
+    `;
+      const entryList = filtered.length > 0 ? x`
+        <div class="flex flex-col gap-2px">
+          ${filtered.slice(0, 100).map((item) => x`
+            <div class="flex items-start gap-8px px-8px py-6px rounded-[6px] hover:bg-[#f5f5f5] group">
+              <span class="flex-1 leading-[1.4] text-[#555]">${item.key}</span>
+              <span class="shrink-0 text-11px text-[#999] mt-1px">f:${item.freq}</span>
+              <button
+                class="shrink-0 w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c] opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s"
+                title="Remove entry"
+                @click=${() => {
+      this.translateCache.remove(item.key);
+      this.requestUpdate();
+    }}
+              >✕</button>
+            </div>
+          `)}
+        </div>
+        ${filtered.length > 100 ? x`<div class="text-11px text-[#999] mt-4px">… and ${filtered.length - 100} more</div>` : ""}
+      ` : x`<div class="text-13px text-[#888] text-center py-20px">No entries found</div>`;
+      return x`
+      <div class="flex flex-col h-full">
+        <div class="shrink-0">
+          <ct-section-header label="Cache Management"></ct-section-header>
+          ${statsHtml}
+          <ct-divider></ct-divider>
+          ${searchInput}
+        </div>
+        <div class="flex-1 overflow-y-auto min-h-0">
+          ${entryList}
+        </div>
+      </div>
+    `;
+    }
     render() {
       const tabs = [
         { icon: x`<span>🌐</span>`, label: "Translate", value: "translate" },
-        { icon: x`<span>⚙️</span>`, label: "Provider", value: "provider" }
+        { icon: x`<span>⚙️</span>`, label: "Provider", value: "provider" },
+        { icon: x`<span>🗃️</span>`, label: "Cache", value: "cache" }
       ];
       return x`
       <ct-dialog title="Setting">
@@ -3301,7 +3374,7 @@ info() {
       this.activeTab = e2.detail.value;
     }}
         ></ct-tabs>
-        ${this.activeTab === "translate" ? this.renderTranslateTab() : this.renderProviderTab()}
+        ${this.activeTab === "translate" ? this.renderTranslateTab() : this.activeTab === "provider" ? this.renderProviderTab() : this.renderCacheTab()}
       </ct-dialog>
     `;
     }
@@ -3312,24 +3385,88 @@ info() {
       display: contents;
     }
 
+    .entry-key {
+      word-break: break-all;
+      font-size: 12px;
+    }
+
     /* layer: preflights */
 *,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
 /* layer: default */
 .static{position:static;}
+.my-16px{margin-top:16px;margin-bottom:16px;}
+.mb-12px{margin-bottom:12px;}
+.mt-1px{margin-top:1px;}
+.mt-4px{margin-top:4px;}
+.box-border{box-sizing:border-box;}
 .contents{display:contents;}
+.h-20px{height:20px;}
+.h-8px{height:8px;}
+.h-full{height:100%;}
+.min-h-0{min-height:0;}
 .min-w-0{min-width:0;}
+.w-20px{width:20px;}
+.w-full{width:100%;}
 .flex{display:flex;}
 .flex-1{flex:1 1 0%;}
+.shrink-0{flex-shrink:0;}
 .flex-col{flex-direction:column;}
+.cursor-pointer{cursor:pointer;}
 .items-start{align-items:flex-start;}
 .items-center{align-items:center;}
+.justify-center{justify-content:center;}
+.justify-between{justify-content:space-between;}
 .gap-12px{gap:12px;}
+.gap-2px{gap:2px;}
 .gap-4px{gap:4px;}
 .gap-6px{gap:6px;}
+.gap-8px{gap:8px;}
+.overflow-hidden{overflow:hidden;}
+.overflow-y-auto{overflow-y:auto;}
+.break-all{word-break:break-all;}
+.border-1px{border-width:1px;}
+.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.focus\\:border-\\[\\#00c4b6\\]:focus{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.rounded-\\[4px\\]{border-radius:4px;}
+.rounded-\\[6px\\]{border-radius:6px;}
+.border-none{border-style:none;}
+.border-solid{border-style:solid;}
+.bg-\\[\\#00c4b6\\]{--un-bg-opacity:1;background-color:rgb(0 196 182 / var(--un-bg-opacity)) /* #00c4b6 */;}
+.bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;}
+.bg-\\[\\#fafafa\\]{--un-bg-opacity:1;background-color:rgb(250 250 250 / var(--un-bg-opacity)) /* #fafafa */;}
+.bg-transparent{background-color:transparent /* transparent */;}
+.hover\\:bg-\\[\\#e8e8e8\\]:hover{--un-bg-opacity:1;background-color:rgb(232 232 232 / var(--un-bg-opacity)) /* #e8e8e8 */;}
+.hover\\:bg-\\[\\#f5f5f5\\]:hover{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
+.focus\\:bg-\\[\\#fff\\]:focus{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
+.p-0{padding:0;}
+.px-12px{padding-left:12px;padding-right:12px;}
+.px-8px{padding-left:8px;padding-right:8px;}
+.py-20px{padding-top:20px;padding-bottom:20px;}
+.py-6px{padding-top:6px;padding-bottom:6px;}
+.py-8px{padding-top:8px;padding-bottom:8px;}
+.text-center{text-align:center;}
+.text-11px{font-size:11px;}
 .text-12px{font-size:12px;}
+.text-13px{font-size:13px;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
 .text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
+.text-\\[\\#999\\],
 .text-\\#999{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
-.font-500{font-weight:500;};
+.text-\\[\\#ccc\\]{--un-text-opacity:1;color:rgb(204 204 204 / var(--un-text-opacity)) /* #ccc */;}
+.hover\\:text-\\[\\#e74c3c\\]:hover{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
+.font-500{font-weight:500;}
+.leading-\\[1\\.4\\]{line-height:1.4;}
+.leading-none{line-height:1;}
+.opacity-0{opacity:0;}
+.group:hover .group-hover\\:opacity-100{opacity:1;}
+.outline-none{outline:2px solid transparent;outline-offset:2px;}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-width{transition-property:width;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.15s{transition-duration:0.15s;}
+.transition-duration-0\\.2s{transition-duration:0.2s;}
+.transition-duration-0\\.3s{transition-duration:0.3s;};
   `;
   __decorateClass$1([
     n2({ type: Object })
@@ -3371,8 +3508,14 @@ info() {
     n2({ type: Number })
   ], ChromeTranslateSettings.prototype, "openaiMaxTokens", 2);
   __decorateClass$1([
+    n2({ type: Object })
+  ], ChromeTranslateSettings.prototype, "translateCache", 2);
+  __decorateClass$1([
     n2({ type: String })
   ], ChromeTranslateSettings.prototype, "activeTab", 2);
+  __decorateClass$1([
+    r()
+  ], ChromeTranslateSettings.prototype, "cacheSearch", 2);
   __decorateClass$1([
     e("ct-dialog")
   ], ChromeTranslateSettings.prototype, "dialogEl", 2);
@@ -3557,6 +3700,7 @@ info() {
       }
       const t2 = await useTranslate(options);
       this.rendererCtrl = t2;
+      this.translateCache = t2.instance.translateCache;
       t2.instance.useHTML = this.mode === "html";
       t2.instance.batchSize = this.batchSize;
       const translator = t2.instance.translator;
@@ -3747,6 +3891,7 @@ info() {
           .openaiModelsError=${this.openaiModelsError}
           .openaiTemperature=${this.openaiTemperature}
           .openaiMaxTokens=${this.openaiMaxTokens}
+          .translateCache=${this.translateCache}
           @language-change=${this.onSettingsEvent}
           @mode-change=${this.onSettingsEvent}
           @batch-size-change=${this.onSettingsEvent}
@@ -3891,6 +4036,9 @@ info() {
   __decorateClass([
     r()
   ], ChromeTranslateBall.prototype, "openaiMaxTokens", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "translateCache", 2);
   __decorateClass([
     e(".ct-ball")
   ], ChromeTranslateBall.prototype, "ballEl", 2);
