@@ -1,11 +1,14 @@
 import { getScrollbarInfo } from './public'
 
+export type Mode = 'bilingual' | 'replace'
+
 export const PREFIX = 'ct'
 export const STORAGE_CONFIG_KEY = `${PREFIX}-config`
 
 export const BILINGUAL_CONTAINER = `${PREFIX}-bilingual-container`
 export const BILINGUAL_PARAGRAPH = `${PREFIX}-bilingual-paragraph`
 export const TRANSLATE_ATTR = `data-${PREFIX}-translate`
+export const ORIGINAL_ATTR = `data-${PREFIX}-original`
 export const SCROLLBAR_INFO = getScrollbarInfo()
 
 // DOM selectors

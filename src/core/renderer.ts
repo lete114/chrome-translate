@@ -1,7 +1,7 @@
 import type { LFUCache } from '../utils/LFUCache'
 import type { ITextNodeInfo, ITextParagraph, TCombinedTextMap, TextExtractor } from './textExtractor'
 import type { ITranslateOptions, Translator } from './translator'
-import { BILINGUAL_CONTAINER, BILINGUAL_PARAGRAPH, DOM_SELECTORS, TRANSLATE_ATTR } from '../utils/constant'
+import { BILINGUAL_CONTAINER, BILINGUAL_PARAGRAPH, DOM_SELECTORS, ORIGINAL_ATTR, TRANSLATE_ATTR } from '../utils/constant'
 import { logger } from '../utils/logger'
 import { applySpaces, debounce, isExcludedElement } from '../utils/public'
 
@@ -24,6 +24,7 @@ export class Renderer {
   language: ITranslateOptions
   el: HTMLElement
   useHTML = false
+  mode: 'bilingual' | 'replace' = 'bilingual'
   isRunning = false
   batchSize = 6
   private activeCount = 0
@@ -89,6 +90,10 @@ export class Renderer {
     this.language = { from, to }
   }
 
+  setMode(mode: 'bilingual' | 'replace') {
+    this.mode = mode
+  }
+
   clear() {
     this.clearCache()
     this.clearElements()
@@ -111,6 +116,11 @@ export class Renderer {
       el.remove()
     })
     this.translateContainers.forEach((el) => {
+      const original = el.getAttribute(ORIGINAL_ATTR)
+      if (original) {
+        el.innerHTML = original
+        el.removeAttribute(ORIGINAL_ATTR)
+      }
       el.classList.remove(BILINGUAL_CONTAINER)
       el.removeAttribute(TRANSLATE_ATTR)
     })
@@ -219,13 +229,21 @@ export class Renderer {
         const translateOptions = { from: this.language.from, to: this.language.to, map: textParagraph.combinedTextMap, text: textParagraph.combinedText }
         textParagraph.translate = await this.translateHTML(translateOptions)
         cancelLoading()
-        this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph)
+        if (this.mode === 'bilingual') {
+          this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph)
+        } else {
+          this.isRunning && this.createParagraphReplaceDisplay(textParagraph)
+        }
       }
       else {
         const translateOptions = { textNodes: textParagraph.textNodes, from: this.language.from, to: this.language.to }
         textParagraph.textNodes = await this.translate(translateOptions)
         cancelLoading()
-        this.isRunning && this.createParagraphBilingualDisplay(textParagraph)
+        if (this.mode === 'bilingual') {
+          this.isRunning && this.createParagraphBilingualDisplay(textParagraph)
+        } else {
+          this.isRunning && this.createParagraphReplaceDisplay(textParagraph)
+        }
       }
       const preview = (textParagraph.combinedText ?? textParagraph.textNodes[0]?.text ?? '').slice(0, 50)
       logger.info(`Translated: ${preview}...`)
@@ -402,5 +420,23 @@ export class Renderer {
     }
 
     container.appendChild(wrap)
+  }
+
+  createParagraphReplaceDisplay(textParagraph: ITextParagraph) {
+    const container = textParagraph.container
+    container.setAttribute(ORIGINAL_ATTR, container.innerHTML)
+
+    if (textParagraph.translate) {
+      container.innerHTML = textParagraph.translate
+    } else {
+      for (const info of textParagraph.textNodes) {
+        const { node, translate, originalText } = info
+        if (translate && translate !== originalText) {
+          node.textContent = translate
+        }
+      }
+    }
+
+    this.translateContainers.push(container)
   }
 }
