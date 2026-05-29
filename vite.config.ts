@@ -1,3 +1,4 @@
+import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import monkey from 'vite-plugin-monkey'
 
@@ -10,6 +11,9 @@ export default defineConfig({
         namespace: 'lete114/chrome-translate',
         match: ['*://*/*'],
       },
+    }),
+    UnoCSS({
+      mode: 'shadow-dom',
     }),
   ],
 })

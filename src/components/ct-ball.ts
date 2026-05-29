@@ -2,7 +2,6 @@ import type { ITranslateOptions } from '../core/translator'
 import { GM_getValue, GM_setValue } from '$'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { OpenAITranslator } from '../core/provider/openai'
 import { useTranslate } from '../hooks/useTranslate'
 import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
@@ -50,150 +49,30 @@ export class ChromeTranslateBall extends LitElement {
   static override styles = css`
     :host {
       all: initial;
-      display: block;
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
-    }
-
-    .ct-root {
-      --size: 40px;
-      --bg: #fff;
-      user-select: none;
-      touch-action: none;
     }
 
     .ct-ball {
+      --size: 40px;
       --x: 0px;
-      --y: calc(50vh - var(--size)/2);
+      --y: calc(50vh - var(--size) / 2);
       position: fixed;
-      z-index: 999999999;
       top: 0;
+      z-index: 999999999;
       width: var(--size);
       height: var(--size);
-      background-color: var(--bg);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, .25);
-      cursor: pointer;
-      user-select: none;
-      touch-action: none;
       transform: translate(var(--x), var(--y));
-    }
-
-    .ct-ball.ct-moving {
-      border-radius: 50%;
-      padding: unset !important;
-    }
-
-    .ct-ball.ct-moving .ct-setting-wrap {
-      display: none;
-    }
-
-    .ct-icon {
-      --size: 28px;
-      width: var(--size);
-      height: var(--size);
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background-color: #00c4b6;
-    }
-
-    .ct-language-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .ct-language-icon svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    .ct-check-icon {
-      position: absolute;
-      bottom: -2px;
-      right: 0;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: rgba(0, 200, 0, .8);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .ct-check-icon svg {
-      width: 8px;
-      height: 8px;
-    }
-
-    .ct-setting-wrap {
-      --x: 0px;
-      --y: calc(50vh - var(--size)/2);
-      position: absolute;
-      user-select: none;
-      touch-action: none;
       transition: all 0.3s ease;
-      top: calc(var(--size));
-      padding-top: 10px;
-      color: #000;
-    }
-
-    .ct-ball[data-side="left"] .ct-setting-wrap {
-      left: calc(var(--size) * -1);
-    }
-
-    .ct-ball[data-side="left"] .ct-setting-wrap:hover {
-      left: 6px;
-    }
-
-    .ct-ball[data-side="right"] .ct-setting-wrap {
-      right: calc(var(--size) * -1);
-    }
-
-    .ct-ball[data-side="right"] .ct-setting-wrap:hover {
-      right: 6px;
-    }
-
-    .ct-setting {
-      width: calc(var(--size) - 4px);
-      height: calc(var(--size) - 4px);
-      background-color: var(--bg);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, .25);
-      border-radius: 20px;
-    }
-
-    .ct-setting svg {
-      width: 20px;
-      height: 20px;
     }
 
     .ct-ball[data-side="left"] {
       border-top-right-radius: 20px;
       border-bottom-right-radius: 20px;
     }
-
     .ct-ball[data-side="left"]:hover {
       --x: 0;
       padding-left: 10px;
     }
-
-    .ct-ball[data-side="left"]:hover .ct-setting-wrap {
-      left: 6px;
-    }
+    .ct-ball[data-side="left"]:hover .ct-setting-wrap { left: 6px; }
 
     .ct-ball[data-side="right"] {
       --x: calc(100vw - var(--size) - var(--scrollbar-width));
@@ -202,394 +81,22 @@ export class ChromeTranslateBall extends LitElement {
       border-bottom-left-radius: 20px;
       padding-right: var(--offset);
     }
-
     .ct-ball[data-side="right"]:hover {
       --x: calc(100vw - var(--size) - var(--offset));
     }
+    .ct-ball[data-side="right"]:hover .ct-setting-wrap { right: calc(var(--scrollbar-width) + 6px); }
+    .ct-ball[data-side="right"] .ct-check-icon { left: 0; right: unset; }
 
-    .ct-ball[data-side="right"]:hover .ct-setting-wrap {
-      right: calc(var(--scrollbar-width) + 6px);
-    }
-
-    .ct-ball[data-side="right"] .ct-icon .ct-check-icon {
-      left: 0;
-      right: unset;
-    }
-
-    dialog {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, .2);
-      width: 600px;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    dialog[open] {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    dialog::backdrop {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .ct-dialog-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid #eee;
-      font-size: 16px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .ct-dialog-close {
-      width: 28px;
-      height: 28px;
-      border: none;
-      background: #f5f5f5;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #999;
-    }
-
-    .ct-dialog-close:hover {
-      background: #e8e8e8;
-      color: #333;
-    }
-
-    .ct-setting-dialog {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .ct-setting-dialog-from,
-    .ct-setting-dialog-to {
-      flex: 1;
-    }
-
-    .ct-arrow-icon {
-      color: #999;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    .ct-custom-select {
-      position: relative;
-    }
-
-    .ct-select-trigger {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #f8f8f8;
-      cursor: pointer;
-      font-size: 13px;
-      color: #333;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-      transition: border-color 0.2s;
-    }
-
-    .ct-select-trigger:hover {
-      border-color: #00c4b6;
-    }
-
-    .ct-select-trigger:disabled {
-      opacity: 0.7;
-      cursor: default;
-    }
-
-    .ct-select-trigger:disabled:hover {
-      border-color: #ddd;
-    }
-
-    .ct-arrow {
-      font-size: 10px;
-      color: #999;
-      transition: transform 0.2s;
-    }
-
-    .ct-select-dropdown {
+    .ct-setting-wrap {
       position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 10;
+      transition: all 0.3s ease;
+      top: var(--size);
+      padding-top: 10px;
     }
+    .ct-ball[data-side="left"] .ct-setting-wrap { left: calc(var(--size) * -1); }
+    .ct-ball[data-side="right"] .ct-setting-wrap { right: calc(var(--size) * -1); }
 
-    .ct-select-dropdown[data-dropup="true"] {
-      top: auto;
-      bottom: calc(100% + 4px);
-    }
-
-    .ct-select-option {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 13px;
-      color: #555;
-      transition: background 0.15s;
-    }
-
-    .ct-select-option:hover {
-      background: #f0f0f0;
-    }
-
-    .ct-select-option.ct-selected {
-      color: #00c4b6;
-      font-weight: 600;
-      background: #f0fdfb;
-    }
-
-    .ct-dialog-body {
-      padding: 20px;
-    }
-
-    .ct-section-divider {
-      height: 1px;
-      background: #eee;
-      margin: 16px 0;
-    }
-
-    .ct-section-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #888;
-      margin-bottom: 10px;
-    }
-
-    .ct-provider-options {
-      display: flex;
-      gap: 12px;
-    }
-
-    .ct-radio {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      color: #555;
-      transition: all 0.2s;
-    }
-
-    .ct-radio:hover {
-      border-color: #00c4b6;
-    }
-
-    .ct-radio.ct-radio-active {
-      border-color: #00c4b6;
-      background: #f0fdfb;
-      color: #00c4b6;
-      font-weight: 600;
-    }
-
-    .ct-radio input {
-      display: none;
-    }
-
-    .ct-openai-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .ct-field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .ct-field-label {
-      font-size: 12px;
-      color: #888;
-      font-weight: 500;
-    }
-
-    .ct-input {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #333;
-      background: #fafafa;
-      outline: none;
-      transition: border-color 0.2s;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .ct-input:focus {
-      border-color: #00c4b6;
-      background: #fff;
-    }
-
-    .ct-textarea {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #333;
-      background: #fafafa;
-      outline: none;
-      transition: border-color 0.2s;
-      width: 100%;
-      min-height: 80px;
-      box-sizing: border-box;
-      resize: none;
-      font-family: inherit;
-    }
-
-    .ct-textarea:focus {
-      border-color: #00c4b6;
-      background: #fff;
-    }
-
-    .ct-dialog-body-with-sidebar {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .ct-sidebar {
-      flex: 0 0 auto;
-      border-right: 1px solid #eee;
-      padding: 12px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      width: 140px;
-    }
-
-    .ct-sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 13px;
-      color: #666;
-      border-left: 3px solid transparent;
-      transition: all 0.15s;
-      user-select: none;
-    }
-
-    .ct-sidebar-item:hover {
-      background: #f5f5f5;
-      color: #333;
-    }
-
-    .ct-sidebar-active {
-      border-left-color: #00c4b6;
-      background: #f0fdfb;
-      color: #00c4b6;
-      font-weight: 600;
-    }
-
-    .ct-sidebar-icon {
-      font-size: 16px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
-    .ct-sidebar-label {
-      white-space: nowrap;
-    }
-
-    .ct-content {
-      flex: 1;
-      min-height: 0;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    .ct-section-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #888;
-      margin-bottom: 10px;
-    }
-
-    .ct-slider-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .ct-slider {
-      flex: 1;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 4px;
-      border-radius: 2px;
-      background: #ddd;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .ct-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #00c4b6;
-      cursor: pointer;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .ct-slider::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #00c4b6;
-      cursor: pointer;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .ct-slider-value {
-      min-width: 32px;
-      font-size: 13px;
-      color: #333;
-      font-weight: 500;
-      text-align: right;
-    }
-
-    @media (max-width: 500px) {
-      .ct-sidebar {
-        width: 60px;
-      }
-      .ct-sidebar-item {
-        padding: 10px 8px;
-        justify-content: center;
-      }
-      .ct-sidebar-label {
-        display: none;
-      }
-    }
+    @unocss-placeholder;
   `
 
   @state() private moving = false
@@ -669,14 +176,12 @@ export class ChromeTranslateBall extends LitElement {
     if (y) {
       ball.style.setProperty('--y', y)
     }
-    ball.setAttribute('data-side', this.config.side)
 
-    const root = this.renderRoot.querySelector('.ct-root') as HTMLElement
     this.cleanupScrollbarWatch = watchScrollbarChange((info) => {
       Object.assign(SCROLLBAR_INFO, info)
-      this.setScrollbarProperty(root)
+      this.setScrollbarProperty(this.ballEl)
     })
-    this.setScrollbarProperty(root)
+    this.setScrollbarProperty(this.ballEl)
 
     ball.getBoundingClientRect()
     ball.style.transition = 'all 0.3s ease'
@@ -946,7 +451,7 @@ export class ChromeTranslateBall extends LitElement {
 
   private toggleModelDropdown(): void {
     if (!this.modelDropdownOpen) {
-      const trigger = this.renderRoot.querySelector<HTMLElement>('.ct-model-select-trigger')
+      const trigger = this.renderRoot.querySelector<HTMLElement>('.model-select-trigger')
       if (trigger) {
         const rect = trigger.getBoundingClientRect()
         const spaceBelow = window.innerHeight - rect.bottom
@@ -968,24 +473,24 @@ export class ChromeTranslateBall extends LitElement {
     const disabled = this.openaiModelsLoading || !!this.openaiModelsError
 
     return html`
-      <div class="ct-custom-select" data-dropdown="model">
+      <div class="relative" data-dropdown="model">
         <button
-          class="ct-select-trigger ct-model-select-trigger"
+          class="model-select-trigger w-full px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-border-color transition-duration-0.2s [&:hover]-border-[#00c4b6] [&:disabled]-op-70 [&:disabled]-cursor-default [&:disabled]:hover-border-[#ddd]"
           ?disabled=${disabled}
           @click=${this.toggleModelDropdown}
         >
           ${this.openaiModelsLoading ? 'Loading models…' : label}
-          <span class="ct-arrow">▾</span>
+          <span class="text-#999">▾</span>
         </button>
         ${this.openaiModelsError
-          ? html`<div style="font-size:11px;color:#e74c3c;line-height:1.4;padding-top:2px;">${this.openaiModelsError}</div>`
+          ? html`<div class="text-11px text-[#e74c3c] lh-[1.4] pt-2px">${this.openaiModelsError}</div>`
           : nothing}
         ${!disabled && this.modelDropdownOpen
           ? html`
-          <div class="ct-select-dropdown" data-dropup=${String(this.modelDropdownUp)}>
+          <div class="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10 data-[dropup=true]:top-auto data-[dropup=true]:bottom-[calc(100%+4px)]" data-dropup=${String(this.modelDropdownUp)}>
             ${this.openaiModels.map(m => html`
               <div
-                class="ct-select-option ${m === this.openaiModel ? 'ct-selected' : ''}"
+                class="px-12px py-8px cursor-pointer text-13px text-[#555] [&:hover]-bg-[#f0f0f0] ${m === this.openaiModel ? 'text-[#00c4b6]! font-600 bg-[#f0fdfb]' : ''}"
                 @click=${() => this.onSelectModel(m)}
               >${m}</div>
             `)}
@@ -1004,21 +509,21 @@ export class ChromeTranslateBall extends LitElement {
     const label = options.find(o => o.value === current)?.label ?? current
 
     return html`
-      <div class="ct-custom-select" data-dropdown=${target}>
+      <div class="relative" data-dropdown=${target}>
         <button
-          class="ct-select-trigger"
+          class="w-[100%] px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-border-color transition-duration-0.2s [&:hover]-border-[#00c4b6] [&:disabled]-op-70 [&:disabled]-cursor-default [&:disabled]:hover-border-[#ddd]"
           @click=${() => this.toggleDropdown(target)}
         >
           ${label}
-          <span class="ct-arrow">▾</span>
+          <span class="text-#999">▾</span>
         </button>
         <div
-          class="ct-select-dropdown"
+          class="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10"
           ?hidden=${this.activeDropdown !== target}
         >
           ${options.map(o => html`
             <div
-              class="ct-select-option ${o.value === current ? 'ct-selected' : ''}"
+              class="px-12px py-8px cursor-pointer text-13px text-[#555] [&:hover]-bg-[#f0f0f0] ${o.value === current ? 'text-[#00c4b6]! font-600 bg-[#f0fdfb]' : ''}"
               @click=${() => { void this.onSelectLanguage(target, o.value) }}
             >${o.label}</div>
           `)}
@@ -1073,20 +578,20 @@ export class ChromeTranslateBall extends LitElement {
 
   private renderSidebar(): unknown {
     return html`
-      <div class="ct-sidebar">
+      <div class="max-[500px]:w-[60px] flex-[0_0_auto] border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-140px">
         <div
-          class="ct-sidebar-item ${this.activeTab === 'translate' ? 'ct-sidebar-active' : ''}"
+          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === 'translate' ? 'border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}"
           @click=${() => { this.activeTab = 'translate' }}
         >
-          <span class="ct-sidebar-icon">🌐</span>
-          <span class="ct-sidebar-label">Translate</span>
+          <span class="text-16px">🌐</span>
+          <span class="max-[500px]:hidden whitespace-nowrap">Translate</span>
         </div>
         <div
-          class="ct-sidebar-item ${this.activeTab === 'provider' ? 'ct-sidebar-active' : ''}"
+          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === 'provider' ? 'border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}"
           @click=${() => { this.activeTab = 'provider' }}
         >
-          <span class="ct-sidebar-icon">⚙️</span>
-          <span class="ct-sidebar-label">Provider</span>
+          <span class="text-16px">⚙️</span>
+          <span class="max-[500px]:hidden whitespace-nowrap">Provider</span>
         </div>
       </div>
     `
@@ -1094,89 +599,86 @@ export class ChromeTranslateBall extends LitElement {
 
   private renderTranslateTab(): unknown {
     return html`
-      <div class="ct-section-title">Language</div>
-      <div class="ct-setting-dialog">
-        <div class="ct-setting-dialog-from">${this.renderSelect('from')}</div>
-        <span class="ct-arrow-icon">→</span>
-        <div class="ct-setting-dialog-to">${this.renderSelect('to')}</div>
+      <div class="text-13px font-600 text-[#888] mb-10px">Language</div>
+      <div class="flex items-center gap-12px">
+        <div class="flex-1">${this.renderSelect('from')}</div>
+        <span class="text-#999">→</span>
+        <div class="flex-1">${this.renderSelect('to')}</div>
       </div>
 
-      <div class="ct-section-divider"></div>
+      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
 
-      <div class="ct-section-title">Translation Mode</div>
-      <div class="ct-provider-options" style="flex-direction:column;gap:6px;">
-        <label class="ct-radio ${this.mode === 'text' ? 'ct-radio-active' : ''}">
-          <input type="radio" name="mode" value="text" ?checked=${this.mode === 'text'} @change=${() => this.onModeChange('text')}>
+      <div class="text-13px font-600 text-[#888] mb-10px">Translation Mode</div>
+      <div class="flex gap-12px" style="flex-direction:column;gap:6px;">
+        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.mode === 'text' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
+          <input class="hidden" type="radio" name="mode" value="text" ?checked=${this.mode === 'text'} @change=${() => this.onModeChange('text')}>
           <span>Text</span>
         </label>
-        <label class="ct-radio ${this.mode === 'html' ? 'ct-radio-active' : ''}">
-          <input type="radio" name="mode" value="html" ?checked=${this.mode === 'html'} @change=${() => this.onModeChange('html')}>
+        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.mode === 'html' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
+          <input class="hidden" type="radio" name="mode" value="html" ?checked=${this.mode === 'html'} @change=${() => this.onModeChange('html')}>
           <span>HTML</span>
         </label>
       </div>
 
-      <div class="ct-section-divider"></div>
+      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
 
-      <div class="ct-section-title">Performance</div>
-      <label class="ct-field">
-        <span class="ct-field-label">Max concurrent requests</span>
-        <input type="number" class="ct-input" min="1" max="20" step="1" .value=${String(this.batchSize)} @change=${this.onBatchSizeInput}>
+      <div class="text-13px font-600 text-[#888] mb-10px">Performance</div>
+      <label class="flex flex-col gap-4px">
+        <span class="text-12px text-[#888] font-500">Max concurrent requests</span>
+        <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="1" max="20" step="1" .value=${String(this.batchSize)} @change=${this.onBatchSizeInput}>
       </label>
     `
   }
 
   private renderProviderTab(): unknown {
     return html`
-      <div class="ct-section-title">Translation Provider</div>
-      <div class="ct-provider-options">
-        <label class="ct-radio ${this.provider === 'chrome' ? 'ct-radio-active' : ''}">
-          <input type="radio" name="provider" value="chrome" ?checked=${this.provider === 'chrome'} @change=${() => this.onProviderChange('chrome')}>
+      <div class="text-13px font-600 text-[#888] mb-10px">Translation Provider</div>
+      <div class="flex gap-12px">
+        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.provider === 'chrome' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
+          <input class="hidden" type="radio" name="provider" value="chrome" ?checked=${this.provider === 'chrome'} @change=${() => this.onProviderChange('chrome')}>
           <span>Chrome AI</span>
         </label>
-        <label class="ct-radio ${this.provider === 'openai' ? 'ct-radio-active' : ''}">
-          <input type="radio" name="provider" value="openai" ?checked=${this.provider === 'openai'} @change=${() => this.onProviderChange('openai')}>
+        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.provider === 'openai' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
+          <input class="hidden" type="radio" name="provider" value="openai" ?checked=${this.provider === 'openai'} @change=${() => this.onProviderChange('openai')}>
           <span>OpenAI API</span>
         </label>
       </div>
 
       ${this.provider === 'openai'
         ? html`
-        <div class="ct-section-divider"></div>
-        <div class="ct-section-title">OpenAI Configuration</div>
-        <div class="ct-openai-section">
-          <label class="ct-field">
-            <span class="ct-field-label">API Key</span>
-            <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e: Event) => this.onOpenAIConfigChange('apiKey', (e.target as HTMLInputElement).value)} placeholder="sk-...">
+        <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+        <div class="text-13px font-600 text-[#888] mb-10px">OpenAI Configuration</div>
+        <div class="flex flex-col gap-12px">
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">API Key</span>
+            <input type="password" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiApiKey} @change=${(e: Event) => this.onOpenAIConfigChange('apiKey', (e.target as HTMLInputElement).value)} placeholder="sk-...">
           </label>
-          <label class="ct-field">
-            <span class="ct-field-label">Base URL</span>
-            <input type="text" class="ct-input" .value=${this.openaiBaseUrl} @change=${(e: Event) => this.onOpenAIConfigChange('baseUrl', (e.target as HTMLInputElement).value)}>
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">Base URL</span>
+            <input type="text" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiBaseUrl} @change=${(e: Event) => this.onOpenAIConfigChange('baseUrl', (e.target as HTMLInputElement).value)}>
           </label>
-          <label class="ct-field">
-            <span class="ct-field-label">Model</span>
-            <div style="display:flex;gap:6px;align-items:flex-start;">
-              <div style="flex:1;min-width:0;">${this.renderModelSelect()}</div>
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">Model</span>
+            <div class="flex gap-6px items-start">
+              <div class="flex-1 min-w-0">${this.renderModelSelect()}</div>
               <button
                 @click=${() => { void this.fetchModels() }}
-                style="flex-shrink:0;width:36px;height:38px;border:1px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;color:#00c4b6;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;"
+                class="shrink-0 w-36px h-38px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#fafafa] cursor-pointer text-[#00c4b6] flex items-center justify-center p-0 box-border"
                 title="Refresh models"
               >${refreshIcon}</button>
             </div>
           </label>
-          <label class="ct-field">
-            <span class="ct-field-label">Temperature</span>
-            <div class="ct-slider-row">
-              <input type="range" class="ct-slider" min="0" max="2" step="0.1" .value=${String(this.openaiTemperature)} @input=${this.onTemperatureInput}>
-              <span class="ct-slider-value">${this.openaiTemperature}</span>
-            </div>
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">Temperature</span>
+            <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="0" step="0.1" .value=${String(this.openaiTemperature)} @change=${this.onTemperatureInput}>
           </label>
-          <label class="ct-field">
-            <span class="ct-field-label">Max Tokens</span>
-            <input type="number" class="ct-input" min="0" step="1" .value=${String(this.openaiMaxTokens)} @change=${this.onMaxTokensInput}>
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">Max Tokens</span>
+            <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="0" step="1" .value=${String(this.openaiMaxTokens)} @change=${this.onMaxTokensInput}>
           </label>
-          <label class="ct-field">
-            <span class="ct-field-label">System Prompt</span>
-            <textarea class="ct-textarea" .value=${this.openaiPrompt} @change=${(e: Event) => this.onOpenAIConfigChange('prompt', (e.target as HTMLInputElement).value)} placeholder="Optional: custom system prompt for translation"></textarea>
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">System Prompt</span>
+            <textarea class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] min-h-120px box-border resize-y font-[inherit] [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiPrompt} @change=${(e: Event) => this.onOpenAIConfigChange('prompt', (e.target as HTMLInputElement).value)} placeholder="Optional: custom system prompt for translation"></textarea>
           </label>
         </div>
       `
@@ -1186,36 +688,38 @@ export class ChromeTranslateBall extends LitElement {
 
   override render() {
     return html`
-      <div class="ct-root">
+      <div class="select-none touch-none">
         <div
-          class="ct-ball ${classMap({ 'ct-moving': this.moving })}"
+          data-side=${this.config.side}
+          class="ct-ball bg-white text-white flex items-center justify-center shadow-[0_8px_16px_rgba(0,0,0,.25)] cursor-pointer ${this.moving ? 'rounded-full! p-0!' : ''}"
+          style="--scrollbar-width: ${SCROLLBAR_INFO.width}px"
           @click=${this.onTranslate}
           @mousedown=${this.onMouseDown}
           @contextmenu=${(e: Event) => e.preventDefault()}
         >
-          <div class="ct-icon">
-            <span class="ct-language-icon">${languageIcon}</span>
+          <div class="relative w-[28px] h-[28px] flex items-center justify-center rounded-full bg-[#00c4b6]">
+            <span class="w-5 h-5 flex items-center justify-center">${languageIcon}</span>
             ${this.isTranslating
               ? html`
-              <span class="ct-check-icon">${checkIcon}</span>
+              <span class="ct-check-icon absolute bottom-[-2px] right-0 w-[12px] h-[12px] rounded-full bg-[rgba(0,200,0,.8)] text-white flex items-center justify-center">${checkIcon}</span>
             `
               : nothing}
           </div>
-          <div class="ct-setting-wrap" @click=${(e: Event) => e.stopPropagation()}>
-            <div class="ct-setting" @click=${this.onOpenSetting}>
+          <div class="ct-setting-wrap text-black" ?hidden=${this.moving} @click=${(e: Event) => e.stopPropagation()}>
+            <div class="w-[calc(var(--size)-4px)] h-[calc(var(--size)-4px)] bg-white cursor-pointer flex items-center justify-center shadow-[0_8px_16px_rgba(0,0,0,.25)] rounded-[20px]" @click=${this.onOpenSetting}>
               ${settingIcon}
             </div>
           </div>
         </div>
 
-        <dialog>
-          <div class="ct-dialog-header">
+        <dialog class="[&::backdrop]-bg-[rgba(0,0,0,0.3)] open:flex open:flex-col open:h-full border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden">
+          <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
             <span>Setting</span>
-            <button class="ct-dialog-close" @click=${() => this.dialogEl?.close()}>✕</button>
+            <button class="w-28px h-28px border-none bg-[#f5f5f5] rounded-[50%] cursor-pointer flex items-center justify-center text-14px text-[#999] [&:hover]-bg-[#e8e8e8] [&:hover]-text-[#333]" @click=${() => this.dialogEl?.close()}>✕</button>
           </div>
-          <div class="ct-dialog-body-with-sidebar">
+          <div class="flex flex-1 overflow-hidden">
             ${this.renderSidebar()}
-            <div class="ct-content">
+            <div class="flex-1 min-h-0 p-20px overflow-y-auto">
               ${this.activeTab === 'translate' ? this.renderTranslateTab() : this.renderProviderTab()}
             </div>
           </div>
