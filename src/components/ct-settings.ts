@@ -5,6 +5,7 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { emitCtEvent } from '../utils/emit'
 import { LANGUAGES } from '../utils/languages'
+import { parseCacheKey } from '../utils/public'
 import { refreshIcon } from './icons'
 import './ct-input'
 import './ct-select'
@@ -44,6 +45,8 @@ export class ChromeTranslateSettings extends LitElement {
 
   @property({ type: String }) private activeTab = 'translate'
   @state() private cacheSearch = ''
+  @state() private cacheLimit = 100
+  @state() private cacheOrder: 'desc' | 'asc' = 'desc'
 
   @query('ct-dialog') private dialogEl!: CtDialog
 
@@ -202,19 +205,25 @@ export class ChromeTranslateSettings extends LitElement {
     const search = this.cacheSearch.toLowerCase()
     const filtered = info.items.filter(item => item.key.toLowerCase().includes(search))
 
+    const limitOptions = [
+      { label: '25', value: '25' },
+      { label: '50', value: '50' },
+      { label: '100', value: '100' },
+      { label: 'All', value: '0' },
+    ]
+
     const statsHtml = html`
       <div class="flex items-center justify-between text-12px text-[#888]">
-        <span>${info.usedSize} / ${info.maxSize}</span>
-        <span class="flex items-center gap-8px">
-          ${info.totalItems} items
+        <span>${info.totalItems} items • ${info.usedSize} / ${info.maxSize}</span>
+        <div class="flex items-center gap-8px">
           <ct-icon-button size="sm" variant="ghost" title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-icon-button>
-          <ct-icon-button size="sm" variant="ghost" title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff" 
-          @click=${() => {
-              this.translateCache!.clear()
-              this.requestUpdate()
-            }
-          }>🗑</ct-icon-button>
-        </span>
+          <ct-icon-button size="sm" variant="ghost" title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+            @click=${() => {
+                this.translateCache!.clear()
+                this.requestUpdate()
+              }}
+          >🗑</ct-icon-button>
+        </div>
       </div>
       <div class="w-full h-8px bg-[#eee] rounded-[4px] overflow-hidden my-16px">
         <div class="h-full bg-[#00c4b6] rounded-[4px] transition-width transition-duration-0.3s" style="width: ${pct}%"></div>
@@ -222,36 +231,68 @@ export class ChromeTranslateSettings extends LitElement {
     `
 
     const searchInput = html`
-      <input
-        type="text"
-        placeholder="Search entries…"
-        class="w-full px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-colors transition-duration-0.2s box-border mb-12px focus:border-[#00c4b6] focus:bg-[#fff]"
-        .value=${this.cacheSearch}
-        @input=${(e: Event) => { this.cacheSearch = (e.target as HTMLInputElement).value }}
-      >
+      <div class="flex items-center gap-8px mb-12px">
+        <input
+          type="text"
+          placeholder="Search entries…"
+          class="flex-1 px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] text-13px text-[#333] bg-[#fafafa] outline-none transition-colors transition-duration-0.2s box-border focus:border-[#00c4b6] focus:bg-[#fff]"
+          .value=${this.cacheSearch}
+          @input=${(e: Event) => { this.cacheSearch = (e.target as HTMLInputElement).value }}
+        >
+        <ct-select
+          .value=${String(this.cacheLimit)}
+          .options=${limitOptions}
+          class="w-68px shrink-0"
+          @ct-change=${(e: CustomEvent) => {
+              this.cacheLimit = Number(e.detail.value)
+              this.requestUpdate()
+            }}
+        ></ct-select>
+        <ct-icon-button size="sm" variant="ghost" title="Toggle sort order"
+          @click=${() => {
+              this.cacheOrder = this.cacheOrder === 'desc' ? 'asc' : 'desc'
+              this.requestUpdate()
+            }}
+        >${this.cacheOrder === 'desc' ? '↓' : '↑'}</ct-icon-button>
+      </div>
     `
 
-    const entryList = filtered.length > 0
+    const displayed = this.cacheOrder === 'desc' ? filtered : [...filtered].reverse()
+    const sliced = this.cacheLimit > 0 ? displayed.slice(0, this.cacheLimit) : displayed
+
+    const entryList = sliced.length > 0
       ? html`
-        <div class="flex flex-col gap-2px">
-          ${filtered.slice(0, 100).map(item => html`
-            <div class="flex items-start gap-8px px-8px py-6px rounded-[6px] hover:bg-[#f5f5f5] group">
-              <span class="flex-1 leading-[1.4] text-[#555]">${item.key}</span>
-              <span class="shrink-0 text-11px text-[#999] mt-1px">f:${item.freq}</span>
-              <button
-                class="shrink-0 w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c] opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s"
-                title="Remove entry"
-                @click=${() => {
-                    this.translateCache!.remove(item.key)
-                    this.requestUpdate()
+        <div class="flex flex-col">
+          ${sliced.map((item, index, arr) => {
+            const parsed = parseCacheKey(item.key)
+            return html`
+              <div class="flex flex-col px-8px py-6px rounded-[6px] hover:bg-[#f5f5f5] group cursor-default">
+                <div class="flex items-start justify-between gap-8px">
+                  <span class="flex-1 text-13px text-[#333] leading-[1.4] break-words">${parsed?.text ?? item.key}</span>
+                  <button
+                    class="shrink-0 w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c] opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s mt-1px"
+                    title="Remove entry"
+                    @click=${() => {
+                        this.translateCache!.remove(item.key)
+                        this.requestUpdate()
+                      }
+                    }
+                  >✕</button>
+                </div>
+                <div class="flex items-center gap-8px text-11px text-[#999] mt-4px">
+                  ${parsed
+                    ? html`
+                      <span class="inline-flex items-center px-6px py-1px rounded-[3px] bg-[#e8f4f8] text-[#0088cc] font-medium text-10px leading-[18px]">${parsed.from} → ${parsed.to}</span>
+                      <span>· freq: ${item.freq}</span>
+                    `
+                    : html`<span>freq: ${item.freq}</span>`
                   }
-                }
-              >✕</button>
-            </div>
-          `)}
-        </div>
-        ${filtered.length > 100 ? html`<div class="text-11px text-[#999] mt-4px">… and ${filtered.length - 100} more</div>` : ''}
-      `
+                </div>
+              </div>
+              ${index < arr.length - 1 ? html`<ct-divider class="mx-8px"></ct-divider>` : ''}
+            `
+          })}
+        </div>`
       : html`<div class="text-13px text-[#888] text-center py-20px">No entries found</div>`
 
     return html`

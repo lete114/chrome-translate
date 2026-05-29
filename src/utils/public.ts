@@ -268,6 +268,20 @@ export function hasSignificantText(text: string) {
 /**
  * Format size
  */
+export interface ParsedCacheKey {
+  from: string
+  to: string
+  text: string
+}
+
+export function parseCacheKey(key: string): ParsedCacheKey | null {
+  const match = key.match(/^([a-zA-Z-]+)->([a-zA-Z-]+):(.*)$/)
+  if (!match) {
+    return null
+  }
+  return { from: match[1], to: match[2], text: match[3] }
+}
+
 export function formatSize(bytes: number): string {
   if (bytes < 1024) {
     return `${bytes} B`
