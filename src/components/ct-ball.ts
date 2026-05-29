@@ -39,7 +39,7 @@ const DEFAULT_CONFIG: Config = {
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4o-mini',
-    prompt: 'You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes.',
+    prompt: 'You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes. The text contains critical markup tags like <c1>, <c2>, <c3> etc. Each tag\'s opening <cN> and closing </cN> wrap a single contiguous text span. You MUST preserve ALL of these tags exactly as-is, in the exact same order and position, and keep each tag\'s content as one continuous segment. Never split a tag\'s inner content across different parts of the sentence. Never remove, merge, reorder, or restructure any of these tags in any circumstance.',
     temperature: 0.3,
     maxTokens: 1024,
   },

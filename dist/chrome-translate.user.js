@@ -660,6 +660,9 @@
     }
   });
   class OpenAITranslator {
+    constructor() {
+      this.useDeveloperRole = true;
+    }
     updateConfig(config) {
       Object.assign(this.config ??= {}, config);
     }
@@ -668,6 +671,18 @@
     }
     async translate(options) {
       const { text, from, to } = options;
+      const role = this.useDeveloperRole ? "developer" : "system";
+      try {
+        return await this.sendRequest(role, text, from, to);
+      } catch (err) {
+        if (this.useDeveloperRole && err instanceof Error && err.message.includes("400")) {
+          this.useDeveloperRole = false;
+          return await this.sendRequest("system", text, from, to);
+        }
+        throw err;
+      }
+    }
+    sendRequest(role, text, from, to) {
       return new Promise((resolve, reject) => {
         _GM_xmlhttpRequest({
           method: "POST",
@@ -680,7 +695,7 @@
             model: this.config.model,
             messages: [
               {
-                role: "system",
+                role,
                 content: this.config.prompt.replaceAll("{from}", from).replaceAll("{to}", to)
               },
               {
@@ -1265,6 +1280,7 @@
           return;
         }
         const key = `${from}->${to}:${node.text}`;
+        this.translateCache.clear();
         if (this.translateCache.has(key)) {
           const text = this.translateCache.get(key);
           node.translate = text;
@@ -2233,7 +2249,7 @@ info() {
       apiKey: "",
       baseUrl: "https://api.openai.com/v1",
       model: "gpt-4o-mini",
-      prompt: "You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes.",
+      prompt: "You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes. The text contains critical markup tags like <c1>, <c2>, <c3> etc. Each tag's opening <cN> and closing </cN> wrap a single contiguous text span. You MUST preserve ALL of these tags exactly as-is, in the exact same order and position, and keep each tag's content as one continuous segment. Never split a tag's inner content across different parts of the sentence. Never remove, merge, reorder, or restructure any of these tags in any circumstance.",
       temperature: 0.3,
       maxTokens: 1024
     }

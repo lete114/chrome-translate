@@ -12,6 +12,7 @@ export interface IOpenAIConfig {
 
 export class OpenAITranslator implements ITranslationProvider {
   private config!: IOpenAIConfig
+  private useDeveloperRole = true
 
   updateConfig(config: Partial<IOpenAIConfig>): void {
     Object.assign(this.config ??= {} as IOpenAIConfig, config)
@@ -23,7 +24,21 @@ export class OpenAITranslator implements ITranslationProvider {
 
   async translate(options: ITranslateOptions & { text: string }): Promise<string> {
     const { text, from, to } = options
+    const role = this.useDeveloperRole ? 'developer' : 'system'
 
+    try {
+      return await this.sendRequest(role, text, from, to)
+    }
+    catch (err) {
+      if (this.useDeveloperRole && err instanceof Error && err.message.includes('400')) {
+        this.useDeveloperRole = false
+        return await this.sendRequest('system', text, from, to)
+      }
+      throw err
+    }
+  }
+
+  private sendRequest(role: 'developer' | 'system', text: string, from: string, to: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'POST',
@@ -36,7 +51,7 @@ export class OpenAITranslator implements ITranslationProvider {
           model: this.config.model,
           messages: [
             {
-              role: 'system',
+              role,
               content: this.config.prompt.replaceAll('{from}', from).replaceAll('{to}', to),
             },
             {
