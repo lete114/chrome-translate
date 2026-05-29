@@ -18,9 +18,6 @@
 (function () {
   'use strict';
 
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   /**
    * @license
    * Copyright 2019 Google LLC
@@ -610,6 +607,319 @@
       } });
     };
   }
+  function emitCtEvent(host, name, detail) {
+    host.dispatchEvent(new CustomEvent(name, {
+      detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+  var __defProp$a = Object.defineProperty;
+  var __getOwnPropDesc$b = Object.getOwnPropertyDescriptor;
+  var __decorateClass$b = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$b(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$a(target, key, result);
+    return result;
+  };
+  let CtButton = class extends i {
+    constructor() {
+      super(...arguments);
+      this.size = "sm";
+      this.variant = "ghost";
+      this.square = false;
+      this.title = "";
+      this.disabled = false;
+    }
+    onClick() {
+      if (this.disabled) {
+        return;
+      }
+      emitCtEvent(this, "ct-click", void 0);
+    }
+    render() {
+      return x`
+      <button
+        part="button"
+        class="flex items-center justify-center box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
+        ?disabled=${this.disabled}
+        title=${this.title}
+        @click=${this.onClick}
+      >
+        <slot></slot>
+      </button>
+    `;
+    }
+  };
+  CtButton.styles = i$3`
+    :host([size="sm"]) button { min-width: 28px; height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; gap: 4px; }
+    :host([size="md"]) button { min-width: 36px; height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; gap: 6px; }
+    :host([size="sm"][square]) button { width: 28px; padding: 0; border-radius: 50%; }
+    :host([size="md"][square]) button { width: 36px; padding: 0; }
+    :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
+    :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
+    :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
+    :host([variant="outlined"]) button:hover { border-color: var(--ct-btn-hover-border, #00c4b6); }
+    :host([variant="filled"]) button { border: none; background: var(--ct-btn-bg, #00c4b6); color: var(--ct-btn-color, #fff); }
+    :host([variant="filled"]) button:hover { opacity: 0.9; }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.box-border{box-sizing:border-box;}
+.flex{display:flex;}
+.cursor-pointer{cursor:pointer;}
+.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed;}
+.items-center{align-items:center;}
+.justify-center{justify-content:center;}
+.border{border-width:1px;}
+.leading-none{line-height:1;}
+.disabled\\:op-50:disabled{opacity:0.5;}
+.focus-visible\\:outline-2:focus-visible{outline-width:2px;}
+.focus-visible\\:outline-\\[\\#00c4b6\\]:focus-visible{--un-outline-color-opacity:1;outline-color:rgb(0 196 182 / var(--un-outline-color-opacity)) /* #00c4b6 */;}
+.focus-visible\\:outline-offset-2:focus-visible{outline-offset:2px;}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
+  `;
+  __decorateClass$b([
+    n2({ type: String, reflect: true })
+  ], CtButton.prototype, "size", 2);
+  __decorateClass$b([
+    n2({ type: String, reflect: true })
+  ], CtButton.prototype, "variant", 2);
+  __decorateClass$b([
+    n2({ type: Boolean, reflect: true })
+  ], CtButton.prototype, "square", 2);
+  __decorateClass$b([
+    n2({ type: String })
+  ], CtButton.prototype, "title", 2);
+  __decorateClass$b([
+    n2({ type: Boolean })
+  ], CtButton.prototype, "disabled", 2);
+  CtButton = __decorateClass$b([
+    t("ct-button")
+  ], CtButton);
+  var __defProp$9 = Object.defineProperty;
+  var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
+  var __decorateClass$a = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$9(target, key, result);
+    return result;
+  };
+  let CtDialog = class extends i {
+    constructor() {
+      super(...arguments);
+      this.title = "";
+      this.width = "600px";
+      this.height = "100%";
+    }
+    show() {
+      this.dialogEl?.showModal();
+    }
+    close() {
+      this.dialogEl?.close();
+    }
+    firstUpdated() {
+      this.dialogEl.addEventListener("click", (e2) => {
+        if (e2.target === this.dialogEl) {
+          this.dialogEl.close();
+        }
+      });
+      this.dialogEl.addEventListener("close", () => {
+        emitCtEvent(this, "ct-close", void 0);
+      });
+    }
+    render() {
+      return x`
+      <dialog part="dialog" class="[&[open]]-flex [&[open]]-flex-col border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] p-0 overflow-hidden" style="width: ${this.width}; height: ${this.height}">
+        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
+          <span part="title">${this.title}</span>
+          <slot name="header-actions">
+            <ct-button size="sm" variant="ghost" square @click=${() => this.dialogEl?.close()}>✕</ct-button>
+          </slot>
+        </div>
+        <div class="flex flex-1 overflow-hidden">
+          <div part="sidebar" class="flex flex-col flex-[0_0_auto]">
+            <slot name="sidebar"></slot>
+          </div>
+          <div part="main" class="flex-1 min-h-0 p-20px overflow-y-auto">
+            <slot></slot>
+          </div>
+        </div>
+      </dialog>
+    `;
+    }
+  };
+  CtDialog.styles = i$3`
+    :host {
+      display: contents;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.contents{display:contents;}
+.min-h-0{min-height:0;}
+.\\[\\&\\[open\\]\\]-flex[open],
+.flex{display:flex;}
+.flex-\\[0_0_auto\\]{flex:0 0 auto;}
+.flex-1{flex:1 1 0%;}
+.\\[\\&\\[open\\]\\]-flex-col[open],
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.overflow-hidden{overflow:hidden;}
+.overflow-y-auto{overflow-y:auto;}
+.border-b-1px{border-bottom-width:1px;}
+.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
+.rounded-\\[12px\\]{border-radius:12px;}
+.border-none{border-style:none;}
+.border-b-solid{border-bottom-style:solid;}
+.p-0{padding:0;}
+.p-20px{padding:20px;}
+.px-20px{padding-left:20px;padding-right:20px;}
+.py-16px{padding-top:16px;padding-bottom:16px;}
+.text-16px{font-size:16px;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.font-600{font-weight:600;}
+.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);};
+  `;
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtDialog.prototype, "title", 2);
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtDialog.prototype, "width", 2);
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtDialog.prototype, "height", 2);
+  __decorateClass$a([
+    e("dialog")
+  ], CtDialog.prototype, "dialogEl", 2);
+  CtDialog = __decorateClass$a([
+    t("ct-dialog")
+  ], CtDialog);
+  var __defProp$8 = Object.defineProperty;
+  var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$9 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$8(target, key, result);
+    return result;
+  };
+  let CtConfirm = class extends i {
+    constructor() {
+      super(...arguments);
+      this.title = "";
+      this.message = "";
+      this.confirmText = "Confirm";
+      this.cancelText = "Cancel";
+      this.danger = false;
+    }
+    static show(options) {
+      return new Promise((resolve) => {
+        const el = document.createElement("ct-confirm");
+        Object.assign(el, options);
+        el.resolve = resolve;
+        document.body.appendChild(el);
+        void el.updateComplete.then(() => {
+          el.dialogEl?.show();
+        });
+      });
+    }
+    onConfirm() {
+      this.resolve(true);
+      this.remove();
+    }
+    onCancel() {
+      this.resolve(false);
+      this.remove();
+    }
+    render() {
+      const dangerStyle = this.danger ? "--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff" : "";
+      return x`
+      <ct-dialog
+        .title=${this.title}
+        width="360px"
+        height="fit-content"
+        @ct-close=${this.onCancel}
+      >
+        <div class="text-14px text-[#555] leading-[1.5]">
+          ${this.message}
+        </div>
+        <div class="flex items-center justify-end gap-8px mt-16px">
+          <ct-button
+            size="md" variant="outlined"
+            @click=${this.onCancel}
+          >${this.cancelText}</ct-button>
+          <ct-button
+            size="md"
+            variant=${this.danger ? "outlined" : "filled"}
+            style=${dangerStyle}
+            @click=${this.onConfirm}
+          >${this.confirmText}</ct-button>
+        </div>
+      </ct-dialog>
+    `;
+    }
+  };
+  CtConfirm.styles = i$3`
+    :host {
+      all: initial;
+      display: contents;
+    }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.mt-16px{margin-top:16px;}
+.contents{display:contents;}
+.flex{display:flex;}
+.items-center{align-items:center;}
+.justify-end{justify-content:flex-end;}
+.gap-8px{gap:8px;}
+.text-14px{font-size:14px;}
+.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
+.leading-\\[1\\.5\\]{line-height:1.5;};
+  `;
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "title", 2);
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "message", 2);
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "confirmText", 2);
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "cancelText", 2);
+  __decorateClass$9([
+    n2({ type: Boolean })
+  ], CtConfirm.prototype, "danger", 2);
+  __decorateClass$9([
+    e("ct-dialog")
+  ], CtConfirm.prototype, "dialogEl", 2);
+  CtConfirm = __decorateClass$9([
+    t("ct-confirm")
+  ], CtConfirm);
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   class OpenAITranslator {
     constructor() {
       this.useDeveloperRole = true;
@@ -2128,101 +2438,6 @@ info() {
   const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
   const refreshIcon = b`<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4C7.58 4 4.01 7.58 4.01 12S7.58 20 12 20c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
   const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
-  function emitCtEvent(host, name, detail) {
-    host.dispatchEvent(new CustomEvent(name, {
-      detail,
-      bubbles: true,
-      composed: true
-    }));
-  }
-  var __defProp$9 = Object.defineProperty;
-  var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
-  var __decorateClass$a = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
-    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-      if (decorator = decorators[i2])
-        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$9(target, key, result);
-    return result;
-  };
-  let CtButton = class extends i {
-    constructor() {
-      super(...arguments);
-      this.size = "sm";
-      this.variant = "ghost";
-      this.square = false;
-      this.title = "";
-      this.disabled = false;
-    }
-    onClick() {
-      if (this.disabled) {
-        return;
-      }
-      emitCtEvent(this, "ct-click", void 0);
-    }
-    render() {
-      return x`
-      <button
-        part="button"
-        class="flex items-center justify-center box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
-        ?disabled=${this.disabled}
-        title=${this.title}
-        @click=${this.onClick}
-      >
-        <slot></slot>
-      </button>
-    `;
-    }
-  };
-  CtButton.styles = i$3`
-    :host([size="sm"]) button { min-width: 28px; height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; gap: 4px; }
-    :host([size="md"]) button { min-width: 36px; height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; gap: 6px; }
-    :host([size="sm"][square]) button { width: 28px; padding: 0; border-radius: 50%; }
-    :host([size="md"][square]) button { width: 36px; padding: 0; }
-    :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
-    :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
-    :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
-    :host([variant="outlined"]) button:hover { border-color: var(--ct-btn-hover-border, #00c4b6); }
-    :host([variant="filled"]) button { border: none; background: var(--ct-btn-bg, #00c4b6); color: var(--ct-btn-color, #fff); }
-    :host([variant="filled"]) button:hover { opacity: 0.9; }
-
-    /* layer: preflights */
-*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
-/* layer: default */
-.static{position:static;}
-.box-border{box-sizing:border-box;}
-.flex{display:flex;}
-.cursor-pointer{cursor:pointer;}
-.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed;}
-.items-center{align-items:center;}
-.justify-center{justify-content:center;}
-.border{border-width:1px;}
-.leading-none{line-height:1;}
-.disabled\\:op-50:disabled{opacity:0.5;}
-.focus-visible\\:outline-2:focus-visible{outline-width:2px;}
-.focus-visible\\:outline-\\[\\#00c4b6\\]:focus-visible{--un-outline-color-opacity:1;outline-color:rgb(0 196 182 / var(--un-outline-color-opacity)) /* #00c4b6 */;}
-.focus-visible\\:outline-offset-2:focus-visible{outline-offset:2px;}
-.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-duration-0\\.2s{transition-duration:0.2s;};
-  `;
-  __decorateClass$a([
-    n2({ type: String, reflect: true })
-  ], CtButton.prototype, "size", 2);
-  __decorateClass$a([
-    n2({ type: String, reflect: true })
-  ], CtButton.prototype, "variant", 2);
-  __decorateClass$a([
-    n2({ type: Boolean, reflect: true })
-  ], CtButton.prototype, "square", 2);
-  __decorateClass$a([
-    n2({ type: String })
-  ], CtButton.prototype, "title", 2);
-  __decorateClass$a([
-    n2({ type: Boolean })
-  ], CtButton.prototype, "disabled", 2);
-  CtButton = __decorateClass$a([
-    t("ct-button")
-  ], CtButton);
   const LANGUAGES = [
 { label: "EN", value: "en" },
     { label: "ZH-CN", value: "zh-CN" },
@@ -2290,14 +2505,14 @@ info() {
    * SPDX-License-Identifier: BSD-3-Clause
    */
   const o = (o2) => o2 ?? E;
-  var __defProp$8 = Object.defineProperty;
-  var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$9 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
+  var __defProp$7 = Object.defineProperty;
+  var __getOwnPropDesc$8 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$8 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$8(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$8(target, key, result);
+    if (kind && result) __defProp$7(target, key, result);
     return result;
   };
   let CtInput = class extends i {
@@ -2384,50 +2599,50 @@ info() {
 .transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
 .transition-duration-0\\.2s{transition-duration:0.2s;};
   `;
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: String })
   ], CtInput.prototype, "value", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: String })
   ], CtInput.prototype, "type", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: String })
   ], CtInput.prototype, "placeholder", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: String })
   ], CtInput.prototype, "label", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: String })
   ], CtInput.prototype, "helpText", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: String })
   ], CtInput.prototype, "error", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: Boolean })
   ], CtInput.prototype, "disabled", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: Boolean })
   ], CtInput.prototype, "readonly", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: Number })
   ], CtInput.prototype, "min", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: Number })
   ], CtInput.prototype, "max", 2);
-  __decorateClass$9([
+  __decorateClass$8([
     n2({ type: Number })
   ], CtInput.prototype, "step", 2);
-  CtInput = __decorateClass$9([
+  CtInput = __decorateClass$8([
     t("ct-input")
   ], CtInput);
-  var __defProp$7 = Object.defineProperty;
-  var __getOwnPropDesc$8 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$8 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$8(target, key) : target;
+  var __defProp$6 = Object.defineProperty;
+  var __getOwnPropDesc$7 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$7 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$7(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$7(target, key, result);
+    if (kind && result) __defProp$6(target, key, result);
     return result;
   };
   let CtSelect = class extends i {
@@ -2615,44 +2830,44 @@ info() {
 .transition-duration-0\\.15s{transition-duration:0.15s;}
 .transition-duration-0\\.2s{transition-duration:0.2s;};
   `;
-  __decorateClass$8([
+  __decorateClass$7([
     n2({ type: String })
   ], CtSelect.prototype, "value", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     n2({ type: Array })
   ], CtSelect.prototype, "options", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     n2({ type: String })
   ], CtSelect.prototype, "placeholder", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     n2({ type: Boolean })
   ], CtSelect.prototype, "disabled", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     n2({ type: Boolean })
   ], CtSelect.prototype, "loading", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     n2({ type: String })
   ], CtSelect.prototype, "error", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     r()
   ], CtSelect.prototype, "dropdownOpen", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     r()
   ], CtSelect.prototype, "dropup", 2);
-  __decorateClass$8([
+  __decorateClass$7([
     r()
   ], CtSelect.prototype, "highlightIndex", 2);
-  CtSelect = __decorateClass$8([
+  CtSelect = __decorateClass$7([
     t("ct-select")
   ], CtSelect);
-  var __defProp$6 = Object.defineProperty;
-  var __getOwnPropDesc$7 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$7 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$7(target, key) : target;
+  var __defProp$5 = Object.defineProperty;
+  var __getOwnPropDesc$6 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$6 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$6(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$6(target, key, result);
+    if (kind && result) __defProp$5(target, key, result);
     return result;
   };
   let CtTextarea = class extends i {
@@ -2740,47 +2955,47 @@ info() {
 .transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
 .transition-duration-0\\.2s{transition-duration:0.2s;};
   `;
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: String })
   ], CtTextarea.prototype, "value", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: String })
   ], CtTextarea.prototype, "placeholder", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: String })
   ], CtTextarea.prototype, "label", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: String })
   ], CtTextarea.prototype, "helpText", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: String })
   ], CtTextarea.prototype, "error", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: Boolean })
   ], CtTextarea.prototype, "disabled", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: Boolean })
   ], CtTextarea.prototype, "readonly", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: Number })
   ], CtTextarea.prototype, "rows", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: Number })
   ], CtTextarea.prototype, "minLength", 2);
-  __decorateClass$7([
+  __decorateClass$6([
     n2({ type: Number })
   ], CtTextarea.prototype, "maxLength", 2);
-  CtTextarea = __decorateClass$7([
+  CtTextarea = __decorateClass$6([
     t("ct-textarea")
   ], CtTextarea);
-  var __defProp$5 = Object.defineProperty;
-  var __getOwnPropDesc$6 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$6 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$6(target, key) : target;
+  var __defProp$4 = Object.defineProperty;
+  var __getOwnPropDesc$5 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$5 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$5(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$5(target, key, result);
+    if (kind && result) __defProp$4(target, key, result);
     return result;
   };
   let CtRadioGroup = class extends i {
@@ -2850,24 +3065,24 @@ info() {
 .transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
 .transition-duration-0\\.2s{transition-duration:0.2s;};
   `;
-  __decorateClass$6([
+  __decorateClass$5([
     n2({ type: Array })
   ], CtRadioGroup.prototype, "options", 2);
-  __decorateClass$6([
+  __decorateClass$5([
     n2({ type: String })
   ], CtRadioGroup.prototype, "value", 2);
-  __decorateClass$6([
+  __decorateClass$5([
     n2({ type: String })
   ], CtRadioGroup.prototype, "name", 2);
-  __decorateClass$6([
+  __decorateClass$5([
     n2({ type: String, reflect: true })
   ], CtRadioGroup.prototype, "direction", 2);
-  CtRadioGroup = __decorateClass$6([
+  CtRadioGroup = __decorateClass$5([
     t("ct-radio-group")
   ], CtRadioGroup);
-  var __getOwnPropDesc$5 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$5 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$5(target, key) : target;
+  var __getOwnPropDesc$4 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$4 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$4(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = decorator(result) || result;
@@ -2891,17 +3106,17 @@ info() {
 .h-1px{height:1px;}
 .bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;};
   `;
-  CtDivider = __decorateClass$5([
+  CtDivider = __decorateClass$4([
     t("ct-divider")
   ], CtDivider);
-  var __defProp$4 = Object.defineProperty;
-  var __getOwnPropDesc$4 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$4 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$4(target, key) : target;
+  var __defProp$3 = Object.defineProperty;
+  var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$3 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$4(target, key, result);
+    if (kind && result) __defProp$3(target, key, result);
     return result;
   };
   let CtSectionHeader = class extends i {
@@ -2928,20 +3143,20 @@ info() {
 .text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
 .font-600{font-weight:600;};
   `;
-  __decorateClass$4([
+  __decorateClass$3([
     n2({ type: String })
   ], CtSectionHeader.prototype, "label", 2);
-  CtSectionHeader = __decorateClass$4([
+  CtSectionHeader = __decorateClass$3([
     t("ct-section-header")
   ], CtSectionHeader);
-  var __defProp$3 = Object.defineProperty;
-  var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$3 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
+  var __defProp$2 = Object.defineProperty;
+  var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$2 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$3(target, key, result);
+    if (kind && result) __defProp$2(target, key, result);
     return result;
   };
   let CtTabs = class extends i {
@@ -3022,117 +3237,15 @@ info() {
 .transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
 .transition-duration-0\\.15s{transition-duration:0.15s;};
   `;
-  __decorateClass$3([
+  __decorateClass$2([
     n2({ type: Array })
   ], CtTabs.prototype, "tabs", 2);
-  __decorateClass$3([
+  __decorateClass$2([
     n2({ type: String })
   ], CtTabs.prototype, "active", 2);
-  CtTabs = __decorateClass$3([
+  CtTabs = __decorateClass$2([
     t("ct-tabs")
   ], CtTabs);
-  var __defProp$2 = Object.defineProperty;
-  var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$2 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
-    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-      if (decorator = decorators[i2])
-        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$2(target, key, result);
-    return result;
-  };
-  let CtDialog = class extends i {
-    constructor() {
-      super(...arguments);
-      this.title = "";
-    }
-    show() {
-      this.dialogEl?.showModal();
-    }
-    close() {
-      this.dialogEl?.close();
-    }
-    firstUpdated() {
-      this.dialogEl.addEventListener("click", (e2) => {
-        if (e2.target === this.dialogEl) {
-          this.dialogEl.close();
-        }
-      });
-    }
-    render() {
-      return x`
-      <dialog part="dialog" class="border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden">
-        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
-          <span part="title">${this.title}</span>
-          <slot name="header-actions">
-            <ct-button size="sm" variant="ghost" square @click=${() => this.dialogEl?.close()}>✕</ct-button>
-          </slot>
-        </div>
-        <div class="flex flex-1 overflow-hidden">
-          <div part="sidebar" class="flex flex-col flex-[0_0_auto]">
-            <slot name="sidebar"></slot>
-          </div>
-          <div part="main" class="flex-1 min-h-0 p-20px overflow-y-auto">
-            <slot></slot>
-          </div>
-        </div>
-      </dialog>
-    `;
-    }
-  };
-  CtDialog.styles = i$3`
-    :host {
-      display: contents;
-    }
-
-    dialog::backdrop {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    dialog[open] {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    /* layer: preflights */
-*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
-/* layer: default */
-.static{position:static;}
-.contents{display:contents;}
-.min-h-0{min-height:0;}
-.w-600px{width:600px;}
-.flex{display:flex;}
-.flex-\\[0_0_auto\\]{flex:0 0 auto;}
-.flex-1{flex:1 1 0%;}
-.flex-col{flex-direction:column;}
-.items-center{align-items:center;}
-.justify-between{justify-content:space-between;}
-.overflow-hidden{overflow:hidden;}
-.overflow-y-auto{overflow-y:auto;}
-.border-b-1px{border-bottom-width:1px;}
-.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
-.rounded-\\[12px\\]{border-radius:12px;}
-.border-none{border-style:none;}
-.border-b-solid{border-bottom-style:solid;}
-.p-0{padding:0;}
-.p-20px{padding:20px;}
-.px-20px{padding-left:20px;padding-right:20px;}
-.py-16px{padding-top:16px;padding-bottom:16px;}
-.text-16px{font-size:16px;}
-.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
-.font-600{font-weight:600;}
-.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);};
-  `;
-  __decorateClass$2([
-    n2({ type: String })
-  ], CtDialog.prototype, "title", 2);
-  __decorateClass$2([
-    e("dialog")
-  ], CtDialog.prototype, "dialogEl", 2);
-  CtDialog = __decorateClass$2([
-    t("ct-dialog")
-  ], CtDialog);
   var __defProp$1 = Object.defineProperty;
   var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
   var __decorateClass$1 = (decorators, target, key, kind) => {
@@ -3546,7 +3659,7 @@ info() {
     }}
           ></ct-tabs>
           <ct-divider></ct-divider>
-          <div class="px-12px pt-0 pb-8px flex justify-center">
+          <div class="py-8px flex justify-center">
             <ct-button size="sm" variant="outlined"
               style="--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
               @click=${() => {
@@ -3635,8 +3748,7 @@ info() {
 .py-1px{padding-top:1px;padding-bottom:1px;}
 .py-20px{padding-top:20px;padding-bottom:20px;}
 .py-6px{padding-top:6px;padding-bottom:6px;}
-.pb-8px{padding-bottom:8px;}
-.pt-0{padding-top:0;}
+.py-8px{padding-top:8px;padding-bottom:8px;}
 .text-center{text-align:center;}
 .text-10px{font-size:10px;}
 .text-11px{font-size:11px;}
@@ -4039,8 +4151,15 @@ info() {
         batchSize: value
       });
     }
-    resetToDefault() {
-      if (!confirm("Reset all settings to default values?")) {
+    async resetToDefault() {
+      const confirmed = await CtConfirm.show({
+        title: "Reset Settings",
+        message: "Reset all settings to default values?",
+        confirmText: "Reset",
+        cancelText: "Cancel",
+        danger: true
+      });
+      if (!confirmed) {
         return;
       }
       _GM_setValue(STORAGE_CONFIG_KEY, structuredClone(DEFAULT_CONFIG));

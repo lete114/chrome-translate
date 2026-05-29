@@ -1,6 +1,7 @@
 import type { ITranslateOptions } from '../core/translator'
 import type { LFUCache } from '../utils/LFUCache'
 import type { ChromeTranslateSettings } from './ct-settings'
+import { CtConfirm } from './ct-confirm'
 import { GM_getValue, GM_setValue } from '$'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
@@ -11,6 +12,7 @@ import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
 import { checkIcon, languageIcon, settingIcon } from './icons'
 import './ct-button'
+import './ct-confirm'
 import './ct-settings'
 
 interface Config {
@@ -438,8 +440,16 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
-  private resetToDefault(): void {
-    if (!confirm('Reset all settings to default values?')) {
+  private async resetToDefault(): Promise<void> {
+    const confirmed = await CtConfirm.show({
+      title: 'Reset Settings',
+      message: 'Reset all settings to default values?',
+      confirmText: 'Reset',
+      cancelText: 'Cancel',
+      danger: true,
+    })
+
+    if (!confirmed) {
       return
     }
 
