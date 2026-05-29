@@ -2368,6 +2368,10 @@ info() {
       this.provider = this.config.provider;
       this.mode = this.config.mode;
       this.batchSize = this.config.batchSize;
+      this.openaiApiKey = this.config.openai.apiKey;
+      this.openaiBaseUrl = this.config.openai.baseUrl;
+      this.openaiModel = this.config.openai.model;
+      this.openaiPrompt = this.config.openai.prompt;
       this.openaiTemperature = this.config.openai.temperature;
       this.openaiMaxTokens = this.config.openai.maxTokens;
       this.openaiProvider.updateConfig(this.config.openai);
@@ -2471,6 +2475,9 @@ info() {
       this.openaiModelsError = "";
       try {
         this.openaiModels = await this.openaiProvider.fetchModels();
+        if (this.openaiModels.length > 0 && !this.openaiModels.includes(this.openaiModel)) {
+          this.onOpenAIConfigChange("model", this.openaiModels[0]);
+        }
       } catch (err) {
         this.openaiModelsError = err instanceof Error ? err.message : "Unknown error";
       } finally {
@@ -2545,35 +2552,20 @@ info() {
       this.onOpenAIConfigChange("model", value);
     }
     renderModelSelect() {
-      const label = this.openaiModels.includes(this.openaiModel) ? this.openaiModel : `Custom: ${this.openaiModel}`;
-      if (this.openaiModelsLoading) {
-        return x`
-        <div class="ct-input" style="color:#999;display:flex;align-items:center;gap:6px;">
-          <span>Loading models…</span>
-        </div>
-      `;
-      }
-      if (this.openaiModelsError && this.openaiModels.length === 0) {
-        return x`
-        <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
-          <input
-            type="text"
-            class="ct-input"
-            .value=${this.openaiModel}
-            @change=${(e2) => this.onOpenAIConfigChange("model", e2.target.value)}
-            placeholder="Failed to fetch models. Type manually."
-          >
-          <div style="font-size:11px;color:#e74c3c;">${this.openaiModelsError}</div>
-        </div>
-      `;
-      }
+      const label = this.openaiModel;
+      const disabled = this.openaiModelsLoading || !!this.openaiModelsError;
       return x`
       <div class="ct-custom-select" data-dropdown="model">
-        <button class="ct-select-trigger ct-model-select-trigger" @click=${this.toggleModelDropdown}>
-          ${label}
+        <button
+          class="ct-select-trigger ct-model-select-trigger"
+          ?disabled=${disabled}
+          @click=${this.toggleModelDropdown}
+        >
+          ${this.openaiModelsLoading ? "Loading models…" : label}
           <span class="ct-arrow">▾</span>
         </button>
-        ${this.modelDropdownOpen ? x`
+        ${this.openaiModelsError ? x`<div style="font-size:11px;color:#e74c3c;line-height:1.4;padding-top:2px;">${this.openaiModelsError}</div>` : E}
+        ${!disabled && this.modelDropdownOpen ? x`
           <div class="ct-select-dropdown" data-dropup=${String(this.modelDropdownUp)}>
             ${this.openaiModels.map((m2) => x`
               <div
@@ -3062,6 +3054,15 @@ info() {
 
     .ct-select-trigger:hover {
       border-color: #00c4b6;
+    }
+
+    .ct-select-trigger:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .ct-select-trigger:disabled:hover {
+      border-color: #ddd;
     }
 
     .ct-arrow {
