@@ -438,6 +438,51 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
+  private resetToDefault(): void {
+    if (!confirm('Reset all settings to default values?')) {
+      return
+    }
+
+    GM_setValue(STORAGE_CONFIG_KEY, structuredClone(DEFAULT_CONFIG))
+    this.config = {
+      ...DEFAULT_CONFIG,
+      language: { ...DEFAULT_CONFIG.language },
+      openai: { ...DEFAULT_CONFIG.openai },
+    }
+
+    this.language = { ...DEFAULT_CONFIG.language }
+    this.provider = DEFAULT_CONFIG.provider
+    this.mode = DEFAULT_CONFIG.mode
+    this.batchSize = DEFAULT_CONFIG.batchSize
+    this.openaiApiKey = DEFAULT_CONFIG.openai.apiKey
+    this.openaiBaseUrl = DEFAULT_CONFIG.openai.baseUrl
+    this.openaiModel = DEFAULT_CONFIG.openai.model
+    this.openaiPrompt = DEFAULT_CONFIG.openai.prompt
+    this.openaiTemperature = DEFAULT_CONFIG.openai.temperature
+    this.openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens
+    this.openaiModels = []
+    this.openaiModelsLoading = false
+    this.openaiModelsError = ''
+    this.isTranslating = false
+
+    this.openaiProvider.updateConfig(DEFAULT_CONFIG.openai)
+    const t = this.rendererCtrl
+    if (t) {
+      t.instance.useHTML = DEFAULT_CONFIG.mode === 'html'
+      t.instance.batchSize = DEFAULT_CONFIG.batchSize
+      t.instance.translator.setProvider('chrome')
+      if (t.isTranslating()) {
+        t.stop()
+        t.instance.clearElements()
+      }
+      void t.instance.translator.detectPageLanguage().then(lang => {
+        t.instance.setLanguage({ from: lang, to: DEFAULT_CONFIG.language.to })
+      })
+    }
+
+    this.settingsDialog?.close()
+  }
+
   private onSettingsEvent(e: CustomEvent): void {
     const { type, detail } = e
     switch (type) {
@@ -458,6 +503,9 @@ export class ChromeTranslateBall extends LitElement {
         break
       case 'fetch-models':
         void this.fetchModels()
+        break
+      case 'reset-default':
+        this.resetToDefault()
         break
     }
   }
@@ -509,6 +557,7 @@ export class ChromeTranslateBall extends LitElement {
           @provider-change=${this.onSettingsEvent}
           @openai-config-change=${this.onSettingsEvent}
           @fetch-models=${this.onSettingsEvent}
+          @reset-default=${this.onSettingsEvent}
         ></chrome-translate-settings>
       </div>
     `

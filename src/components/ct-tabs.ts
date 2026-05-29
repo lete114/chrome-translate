@@ -40,7 +40,7 @@ export class CtTabs extends LitElement {
 
   override render() {
     return html`
-      <div class="flex-1 border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-full">
+      <div class="flex-1 px-0 py-12px flex flex-col gap-2px w-full">
         ${this.tabs.map(t => html`
           <div
             part="tab"

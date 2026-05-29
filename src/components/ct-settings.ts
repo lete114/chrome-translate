@@ -137,7 +137,7 @@ export class ChromeTranslateSettings extends LitElement {
         </div>
       </div>
 
-      <ct-divider></ct-divider>
+      <ct-divider class="my-16px"></ct-divider>
 
       <ct-section-header label="Translation Mode"></ct-section-header>
       <ct-radio-group
@@ -148,7 +148,7 @@ export class ChromeTranslateSettings extends LitElement {
         @ct-change=${(e: CustomEvent) => this.emit('mode-change', { value: e.detail.value })}
       ></ct-radio-group>
 
-      <ct-divider></ct-divider>
+      <ct-divider class="my-16px"></ct-divider>
 
       <ct-section-header label="Performance"></ct-section-header>
       <ct-input
@@ -174,7 +174,7 @@ export class ChromeTranslateSettings extends LitElement {
 
       ${this.provider === 'openai'
         ? html`
-        <ct-divider></ct-divider>
+        <ct-divider class="my-16px"></ct-divider>
         <ct-section-header label="OpenAI Configuration"></ct-section-header>
         <div class="flex flex-col gap-12px">
           <ct-input
@@ -337,7 +337,7 @@ export class ChromeTranslateSettings extends LitElement {
                   }
                 </div>
               </div>
-              ${index < arr.length - 1 ? html`<ct-divider class="mx-8px"></ct-divider>` : ''}
+              ${index < arr.length - 1 ? html`<ct-divider class="mx-8px my-16px"></ct-divider>` : ''}
             `
           })}
         </div>`
@@ -348,7 +348,7 @@ export class ChromeTranslateSettings extends LitElement {
         <div class="shrink-0">
           <ct-section-header label="Cache Management"></ct-section-header>
           ${statsHtml}
-          <ct-divider></ct-divider>
+          <ct-divider class="my-16px"></ct-divider>
           ${searchInput}
         </div>
         <div class="flex-1 overflow-y-auto min-h-0">
@@ -449,12 +449,23 @@ export class ChromeTranslateSettings extends LitElement {
 
     return html`
       <ct-dialog title="Setting">
-        <ct-tabs
-          slot="sidebar"
-          .tabs=${tabs}
-          .active=${this.activeTab}
-          @ct-change=${(e: CustomEvent) => { this.activeTab = e.detail.value }}
-        ></ct-tabs>
+        <div slot="sidebar" class="flex flex-col h-full border-r-1px border-r-solid border-r-[#eee]">
+          <ct-tabs
+            class="flex-1 min-h-0"
+            .tabs=${tabs}
+            .active=${this.activeTab}
+            @ct-change=${(e: CustomEvent) => { this.activeTab = e.detail.value }}
+          ></ct-tabs>
+          <ct-divider></ct-divider>
+          <div class="py-8px flex justify-center">
+            <ct-button size="sm" variant="outlined"
+              style="--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+              @click=${() => {
+                  this.emit('reset-default', undefined)
+                }}
+            >Reset Config</ct-button>
+          </div>
+        </div>
         ${this.activeTab === 'translate'
           ? this.renderTranslateTab()
           : this.activeTab === 'provider'

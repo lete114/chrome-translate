@@ -2875,7 +2875,7 @@ info() {
   };
   let CtDivider = class extends i {
     render() {
-      return x`<div part="root" class="h-1px bg-[#eee] mx-0 my-16px"></div>`;
+      return x`<div part="root" class="h-1px bg-[#eee]"></div>`;
     }
   };
   CtDivider.styles = i$3`
@@ -2887,8 +2887,6 @@ info() {
 *,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
 /* layer: default */
 .static{position:static;}
-.mx-0{margin-left:0;margin-right:0;}
-.my-16px{margin-top:16px;margin-bottom:16px;}
 .block{display:block;}
 .h-1px{height:1px;}
 .bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;};
@@ -2960,7 +2958,7 @@ info() {
     }
     render() {
       return x`
-      <div class="flex-1 border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-full">
+      <div class="flex-1 px-0 py-12px flex flex-col gap-2px w-full">
         ${this.tabs.map((t2) => x`
           <div
             part="tab"
@@ -3004,12 +3002,9 @@ info() {
 .gap-8px{gap:8px;}
 .whitespace-nowrap{white-space:nowrap;}
 .border-l-3px{border-left-width:3px;}
-.border-r-1px{border-right-width:1px;}
 .border-l-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;--un-border-left-opacity:var(--un-border-opacity) !important;border-left-color:rgb(0 196 182 / var(--un-border-left-opacity)) !important;}
 .border-l-transparent{border-left-color:transparent;}
-.border-r-\\[\\#eee\\]{--un-border-opacity:1;--un-border-right-opacity:var(--un-border-opacity);border-right-color:rgb(238 238 238 / var(--un-border-right-opacity));}
 .border-l-solid{border-left-style:solid;}
-.border-r-solid{border-right-style:solid;}
 .bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
 .hover\\:bg-\\[\\#f5f5f5\\]:hover{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
 .px-0{padding-left:0;padding-right:0;}
@@ -3246,7 +3241,7 @@ info() {
         </div>
       </div>
 
-      <ct-divider></ct-divider>
+      <ct-divider class="my-16px"></ct-divider>
 
       <ct-section-header label="Translation Mode"></ct-section-header>
       <ct-radio-group
@@ -3257,7 +3252,7 @@ info() {
         @ct-change=${(e2) => this.emit("mode-change", { value: e2.detail.value })}
       ></ct-radio-group>
 
-      <ct-divider></ct-divider>
+      <ct-divider class="my-16px"></ct-divider>
 
       <ct-section-header label="Performance"></ct-section-header>
       <ct-input
@@ -3281,7 +3276,7 @@ info() {
       ></ct-radio-group>
 
       ${this.provider === "openai" ? x`
-        <ct-divider></ct-divider>
+        <ct-divider class="my-16px"></ct-divider>
         <ct-section-header label="OpenAI Configuration"></ct-section-header>
         <div class="flex flex-col gap-12px">
           <ct-input
@@ -3434,7 +3429,7 @@ info() {
                     ` : x`<span>freq: ${item.freq}</span>`}
                 </div>
               </div>
-              ${index < arr.length - 1 ? x`<ct-divider class="mx-8px"></ct-divider>` : ""}
+              ${index < arr.length - 1 ? x`<ct-divider class="mx-8px my-16px"></ct-divider>` : ""}
             `;
     })}
         </div>` : x`<div class="text-13px text-[#888] text-center py-20px">No entries found</div>`;
@@ -3443,7 +3438,7 @@ info() {
         <div class="shrink-0">
           <ct-section-header label="Cache Management"></ct-section-header>
           ${statsHtml}
-          <ct-divider></ct-divider>
+          <ct-divider class="my-16px"></ct-divider>
           ${searchInput}
         </div>
         <div class="flex-1 overflow-y-auto min-h-0">
@@ -3541,14 +3536,25 @@ info() {
       ];
       return x`
       <ct-dialog title="Setting">
-        <ct-tabs
-          slot="sidebar"
-          .tabs=${tabs}
-          .active=${this.activeTab}
-          @ct-change=${(e2) => {
+        <div slot="sidebar" class="flex flex-col h-full border-r-1px border-r-solid border-r-[#eee]">
+          <ct-tabs
+            class="flex-1 min-h-0"
+            .tabs=${tabs}
+            .active=${this.activeTab}
+            @ct-change=${(e2) => {
       this.activeTab = e2.detail.value;
     }}
-        ></ct-tabs>
+          ></ct-tabs>
+          <ct-divider></ct-divider>
+          <div class="px-12px pt-0 pb-8px flex justify-center">
+            <ct-button size="sm" variant="outlined"
+              style="--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+              @click=${() => {
+      this.emit("reset-default", void 0);
+    }}
+            >Reset Config</ct-button>
+          </div>
+        </div>
         ${this.activeTab === "translate" ? this.renderTranslateTab() : this.activeTab === "provider" ? this.renderProviderTab() : this.renderCacheTab()}
       </ct-dialog>
     `;
@@ -3602,14 +3608,17 @@ info() {
 .overflow-y-auto{overflow-y:auto;}
 .break-words{overflow-wrap:break-word;}
 .border-1px{border-width:1px;}
+.border-r-1px{border-right-width:1px;}
 .border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
 .focus\\:border-\\[\\#00c4b6\\]:focus{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.border-r-\\[\\#eee\\]{--un-border-opacity:1;--un-border-right-opacity:var(--un-border-opacity);border-right-color:rgb(238 238 238 / var(--un-border-right-opacity));}
 .rounded-\\[3px\\]{border-radius:3px;}
 .rounded-\\[4px\\]{border-radius:4px;}
 .rounded-\\[6px\\]{border-radius:6px;}
 .rounded-\\[8px\\]{border-radius:8px;}
 .border-none{border-style:none;}
 .border-solid{border-style:solid;}
+.border-r-solid{border-right-style:solid;}
 .bg-\\[\\#00c4b6\\]{--un-bg-opacity:1;background-color:rgb(0 196 182 / var(--un-bg-opacity)) /* #00c4b6 */;}
 .bg-\\[\\#e8f4f8\\]{--un-bg-opacity:1;background-color:rgb(232 244 248 / var(--un-bg-opacity)) /* #e8f4f8 */;}
 .bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;}
@@ -3626,6 +3635,8 @@ info() {
 .py-1px{padding-top:1px;padding-bottom:1px;}
 .py-20px{padding-top:20px;padding-bottom:20px;}
 .py-6px{padding-top:6px;padding-bottom:6px;}
+.pb-8px{padding-bottom:8px;}
+.pt-0{padding-top:0;}
 .text-center{text-align:center;}
 .text-10px{font-size:10px;}
 .text-11px{font-size:11px;}
@@ -4028,6 +4039,46 @@ info() {
         batchSize: value
       });
     }
+    resetToDefault() {
+      if (!confirm("Reset all settings to default values?")) {
+        return;
+      }
+      _GM_setValue(STORAGE_CONFIG_KEY, structuredClone(DEFAULT_CONFIG));
+      this.config = {
+        ...DEFAULT_CONFIG,
+        language: { ...DEFAULT_CONFIG.language },
+        openai: { ...DEFAULT_CONFIG.openai }
+      };
+      this.language = { ...DEFAULT_CONFIG.language };
+      this.provider = DEFAULT_CONFIG.provider;
+      this.mode = DEFAULT_CONFIG.mode;
+      this.batchSize = DEFAULT_CONFIG.batchSize;
+      this.openaiApiKey = DEFAULT_CONFIG.openai.apiKey;
+      this.openaiBaseUrl = DEFAULT_CONFIG.openai.baseUrl;
+      this.openaiModel = DEFAULT_CONFIG.openai.model;
+      this.openaiPrompt = DEFAULT_CONFIG.openai.prompt;
+      this.openaiTemperature = DEFAULT_CONFIG.openai.temperature;
+      this.openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens;
+      this.openaiModels = [];
+      this.openaiModelsLoading = false;
+      this.openaiModelsError = "";
+      this.isTranslating = false;
+      this.openaiProvider.updateConfig(DEFAULT_CONFIG.openai);
+      const t2 = this.rendererCtrl;
+      if (t2) {
+        t2.instance.useHTML = DEFAULT_CONFIG.mode === "html";
+        t2.instance.batchSize = DEFAULT_CONFIG.batchSize;
+        t2.instance.translator.setProvider("chrome");
+        if (t2.isTranslating()) {
+          t2.stop();
+          t2.instance.clearElements();
+        }
+        void t2.instance.translator.detectPageLanguage().then((lang) => {
+          t2.instance.setLanguage({ from: lang, to: DEFAULT_CONFIG.language.to });
+        });
+      }
+      this.settingsDialog?.close();
+    }
     onSettingsEvent(e2) {
       const { type, detail } = e2;
       switch (type) {
@@ -4048,6 +4099,9 @@ info() {
           break;
         case "fetch-models":
           void this.fetchModels();
+          break;
+        case "reset-default":
+          this.resetToDefault();
           break;
       }
     }
@@ -4096,6 +4150,7 @@ info() {
           @provider-change=${this.onSettingsEvent}
           @openai-config-change=${this.onSettingsEvent}
           @fetch-models=${this.onSettingsEvent}
+          @reset-default=${this.onSettingsEvent}
         ></chrome-translate-settings>
       </div>
     `;

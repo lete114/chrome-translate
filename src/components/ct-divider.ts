@@ -12,7 +12,7 @@ export class CtDivider extends LitElement {
   `
 
   override render() {
-    return html`<div part="root" class="h-1px bg-[#eee] mx-0 my-16px"></div>`
+    return html`<div part="root" class="h-1px bg-[#eee]"></div>`
   }
 }
 
