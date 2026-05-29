@@ -30,20 +30,12 @@ export class Translator {
     return this.providers.get(name)
   }
 
-  private get currentProvider(): ITranslationProvider {
-    const provider = this.providers.get(this.current)
-    if (!provider) {
-      throw new Error(`Current provider "${this.current}" not found`)
-    }
-    return provider
-  }
-
-  async translate(options: ITranslateOptions & { text: string }): Promise<string> {
-    return this.currentProvider.translate(options)
-  }
-
   async detectLanguage(text: string): Promise<string> {
-    const detector = await (window as any).LanguageDetector.create({
+    const api = (window as any).LanguageDetector
+    if (!api) {
+      throw new Error('LanguageDetector is not available')
+    }
+    const detector = await api.create({
       monitor: (monitor: any) => {
         const progress = (this.providers.get('chrome') as any)?.progress
         if (progress) {
@@ -68,7 +60,12 @@ export class Translator {
     if (lang) {
       return lang
     }
-    const textContent = document.body.textContent
-    return textContent ? this.detectLanguage(textContent) : 'en'
+    const textContent = document.body?.textContent
+    if (!textContent) return 'en'
+    try {
+      return await this.detectLanguage(textContent)
+    } catch {
+      return 'en'
+    }
   }
 }

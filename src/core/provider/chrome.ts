@@ -16,16 +16,24 @@ export class ChromeTranslator implements ITranslationProvider {
 
   async translate(options: ITranslateOptions & { text: string }): Promise<string> {
     const translator = await this.getTranslator({ from: options.from, to: options.to })
+    if (!translator) {
+      throw new Error('Translator is not available')
+    }
     return translator.translate(options.text)
   }
 
   private async createTranslator(options: ITranslateOptions) {
+    const api = (window as any).Translator
+    if (!api) {
+      return undefined
+    }
+
     const languages = {
       sourceLanguage: options.from,
       targetLanguage: options.to,
     }
 
-    const availability = await (window as any).Translator.availability(languages)
+    const availability = await api.availability(languages)
     logger.info(`Chrome translator: availability=${availability} (${options.from}→${options.to})`)
 
     if (availability === 'unavailable') {
@@ -33,9 +41,9 @@ export class ChromeTranslator implements ITranslationProvider {
       return undefined
     }
     else if (availability === 'available') {
-      return (window as any).Translator.create(languages)
+      return api.create(languages)
     }
-    return (window as any).Translator.create({
+    return api.create({
       ...languages,
       monitor: (monitor: any) => {
         const progess = this.progress?.createProgressElement({ title: 'Downloading Translator...' })
