@@ -12,6 +12,7 @@
 // @match        *://*/*
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 (function () {
@@ -19,6 +20,7 @@
 
   var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   /**
    * @license
    * Copyright 2019 Google LLC
@@ -658,64 +660,86 @@
     }
   });
   class OpenAITranslator {
-    constructor() {
-      this.config = {
-        apiKey: "",
-        baseUrl: "https://api.openai.com/v1",
-        model: "gpt-4o-mini",
-        prompt: ""
-      };
-    }
     updateConfig(config) {
-      if (config.apiKey !== void 0) {
-        this.config.apiKey = config.apiKey;
-      }
-      if (config.baseUrl !== void 0) {
-        this.config.baseUrl = config.baseUrl;
-      }
-      if (config.model !== void 0) {
-        this.config.model = config.model;
-      }
-      if (config.prompt !== void 0) {
-        this.config.prompt = config.prompt;
-      }
+      Object.assign(this.config ??= {}, config);
     }
     get ready() {
-      return this.config.apiKey.length > 0;
+      return (this.config?.apiKey?.length ?? 0) > 0;
     }
     async translate(options) {
       const { text, from, to } = options;
-      const response = await fetch(`${this.config.baseUrl.replace(/\/+$/, "")}/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${this.config.apiKey}`
-        },
-        body: JSON.stringify({
-          model: this.config.model,
-          messages: [
-            {
-              role: "system",
-              content: this.config.prompt || `You are a professional translator. Translate the following text from ${from} to ${to}. Return only the translated text, no explanation, no notes.`
-            },
-            {
-              role: "user",
-              content: text
+      return new Promise((resolve, reject) => {
+        _GM_xmlhttpRequest({
+          method: "POST",
+          url: `${this.config.baseUrl.replace(/\/+$/, "")}/chat/completions`,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${this.config.apiKey}`
+          },
+          data: JSON.stringify({
+            model: this.config.model,
+            messages: [
+              {
+                role: "system",
+                content: this.config.prompt.replaceAll("{from}", from).replaceAll("{to}", to)
+              },
+              {
+                role: "user",
+                content: text
+              }
+            ],
+            temperature: 0.3
+          }),
+          onload: (resp) => {
+            if (resp.status < 200 || resp.status >= 300) {
+              reject(new Error(`OpenAI API error ${resp.status}: ${resp.responseText}`));
+              return;
             }
-          ],
-          temperature: 0.3
-        })
+            try {
+              const data = JSON.parse(resp.responseText);
+              const content = data.choices?.[0]?.message?.content;
+              if (content === void 0 || content === null) {
+                reject(new Error("OpenAI API returned empty response"));
+                return;
+              }
+              resolve(content.trim());
+            } catch {
+              reject(new Error("OpenAI API returned invalid JSON"));
+            }
+          },
+          onerror: () => {
+            reject(new Error("OpenAI API network error"));
+          }
+        });
       });
-      if (!response.ok) {
-        const body = await response.text().catch(() => "");
-        throw new Error(`OpenAI API error ${response.status}: ${body}`);
-      }
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      if (content === void 0 || content === null) {
-        throw new Error("OpenAI API returned empty response");
-      }
-      return content.trim();
+    }
+    async fetchModels() {
+      const url = `${this.config.baseUrl.replace(/\/+$/, "")}/models`;
+      return new Promise((resolve, reject) => {
+        _GM_xmlhttpRequest({
+          method: "GET",
+          url,
+          headers: {
+            Authorization: `Bearer ${this.config.apiKey}`
+          },
+          onload: (resp) => {
+            if (resp.status < 200 || resp.status >= 300) {
+              reject(new Error(`Failed to fetch models (${resp.status})`));
+              return;
+            }
+            try {
+              const data = JSON.parse(resp.responseText);
+              const models = (data.data ?? []).map((m2) => m2.id).sort();
+              resolve(models);
+            } catch {
+              reject(new Error("Failed to parse models response"));
+            }
+          },
+          onerror: () => {
+            reject(new Error("Network error fetching models"));
+          }
+        });
+      });
     }
     detectPageLanguage() {
       return document.documentElement.lang || "en";
@@ -2161,6 +2185,7 @@ info() {
   ];
   const languageIcon = b`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
   const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
+  const refreshIcon = b`<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4C7.58 4 4.01 7.58 4.01 12S7.58 20 12 20c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
   const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -2181,7 +2206,7 @@ info() {
       apiKey: "",
       baseUrl: "https://api.openai.com/v1",
       model: "gpt-4o-mini",
-      prompt: ""
+      prompt: "You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes."
     }
   };
   let ChromeTranslateBall = class extends i$1 {
@@ -2195,6 +2220,11 @@ info() {
       this.openaiBaseUrl = "https://api.openai.com/v1";
       this.openaiModel = "gpt-4o-mini";
       this.openaiPrompt = "";
+      this.openaiModels = [];
+      this.openaiModelsLoading = false;
+      this.openaiModelsError = "";
+      this.modelDropdownOpen = false;
+      this.modelDropdownUp = false;
       this.config = _GM_getValue(STORAGE_CONFIG_KEY, DEFAULT_CONFIG);
       this.openaiProvider = new OpenAITranslator();
       this.dragging = false;
@@ -2262,8 +2292,25 @@ info() {
       }, 500, true);
       this.onOpenSetting = () => {
         this.dialogEl?.showModal();
+        if (this.provider === "openai") {
+          if (this.openaiPrompt === "") {
+            this.openaiPrompt = DEFAULT_CONFIG.openai.prompt;
+            this.onOpenAIConfigChange("prompt", DEFAULT_CONFIG.openai.prompt);
+          }
+          if (this.openaiModels.length === 0) {
+            void this.fetchModels();
+          }
+        }
       };
       this.onDocumentMouseDown = (e2) => {
+        if (this.modelDropdownOpen) {
+          const modelDropdownEl = e2.composedPath().find(
+            (el) => el instanceof Element && el.getAttribute("data-dropdown") === "model"
+          );
+          if (!modelDropdownEl) {
+            this.modelDropdownOpen = false;
+          }
+        }
         if (!this.activeDropdown) {
           return;
         }
@@ -2380,6 +2427,20 @@ info() {
       ball.style.setProperty("--x", `${x2}px`);
       ball.style.setProperty("--y", `${y3}px`);
     }
+    async fetchModels() {
+      if (this.openaiModelsLoading) {
+        return;
+      }
+      this.openaiModelsLoading = true;
+      this.openaiModelsError = "";
+      try {
+        this.openaiModels = await this.openaiProvider.fetchModels();
+      } catch (err) {
+        this.openaiModelsError = err instanceof Error ? err.message : "Unknown error";
+      } finally {
+        this.openaiModelsLoading = false;
+      }
+    }
     toggleDropdown(target) {
       this.activeDropdown = this.activeDropdown === target ? null : target;
     }
@@ -2406,6 +2467,9 @@ info() {
         ...this.config,
         provider: value
       });
+      if (value === "openai") {
+        void this.fetchModels();
+      }
     }
     onOpenAIConfigChange(field, value) {
       this.openaiApiKey = field === "apiKey" ? value : this.openaiApiKey;
@@ -2423,6 +2487,64 @@ info() {
         ...this.config,
         openai
       });
+    }
+    toggleModelDropdown() {
+      if (!this.modelDropdownOpen) {
+        const trigger = this.renderRoot.querySelector(".ct-model-select-trigger");
+        if (trigger) {
+          const rect = trigger.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - rect.bottom;
+          this.modelDropdownUp = spaceBelow < 200;
+        }
+      }
+      this.modelDropdownOpen = !this.modelDropdownOpen;
+    }
+    onSelectModel(value) {
+      this.openaiModel = value;
+      this.modelDropdownOpen = false;
+      this.onOpenAIConfigChange("model", value);
+    }
+    renderModelSelect() {
+      const label = this.openaiModels.includes(this.openaiModel) ? this.openaiModel : `Custom: ${this.openaiModel}`;
+      if (this.openaiModelsLoading) {
+        return x`
+        <div class="ct-input" style="color:#999;display:flex;align-items:center;gap:6px;">
+          <span>Loading models…</span>
+        </div>
+      `;
+      }
+      if (this.openaiModelsError && this.openaiModels.length === 0) {
+        return x`
+        <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+          <input
+            type="text"
+            class="ct-input"
+            .value=${this.openaiModel}
+            @change=${(e2) => this.onOpenAIConfigChange("model", e2.target.value)}
+            placeholder="Failed to fetch models. Type manually."
+          >
+          <div style="font-size:11px;color:#e74c3c;">${this.openaiModelsError}</div>
+        </div>
+      `;
+      }
+      return x`
+      <div class="ct-custom-select" data-dropdown="model">
+        <button class="ct-select-trigger ct-model-select-trigger" @click=${this.toggleModelDropdown}>
+          ${label}
+          <span class="ct-arrow">▾</span>
+        </button>
+        ${this.modelDropdownOpen ? x`
+          <div class="ct-select-dropdown" data-dropup=${String(this.modelDropdownUp)}>
+            ${this.openaiModels.map((m2) => x`
+              <div
+                class="ct-select-option ${m2 === this.openaiModel ? "ct-selected" : ""}"
+                @click=${() => this.onSelectModel(m2)}
+              >${m2}</div>
+            `)}
+          </div>
+        ` : E}
+      </div>
+    `;
     }
     renderSelect(target) {
       const options = target === "from" ? [{ label: "Auto", value: "auto" }, ...LANGUAGES] : [...LANGUAGES];
@@ -2505,8 +2627,8 @@ info() {
 
             ${this.provider === "openai" ? x`
               <div class="ct-section-divider"></div>
+              <div class="ct-section-label">OpenAI Configuration</div>
               <div class="ct-openai-section">
-                <div class="ct-section-label">OpenAI Configuration</div>
                 <label class="ct-field">
                   <span class="ct-field-label">API Key</span>
                   <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e2) => this.onOpenAIConfigChange("apiKey", e2.target.value)} placeholder="sk-...">
@@ -2517,7 +2639,16 @@ info() {
                 </label>
                 <label class="ct-field">
                   <span class="ct-field-label">Model</span>
-                  <input type="text" class="ct-input" .value=${this.openaiModel} @change=${(e2) => this.onOpenAIConfigChange("model", e2.target.value)}>
+                  <div style="display:flex;gap:6px;align-items:flex-start;">
+                    <div style="flex:1;min-width:0;">${this.renderModelSelect()}</div>
+                    <button
+                      @click=${() => {
+      void this.fetchModels();
+    }}
+                      style="flex-shrink:0;width:36px;height:38px;border:1px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;color:#00c4b6;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;"
+                      title="Refresh models"
+                    >${refreshIcon}</button>
+                  </div>
                 </label>
                 <label class="ct-field">
                   <span class="ct-field-label">System Prompt</span>
@@ -2802,6 +2933,11 @@ info() {
       z-index: 10;
     }
 
+    .ct-select-dropdown[data-dropup="true"] {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
     .ct-select-option {
       padding: 8px 12px;
       cursor: pointer;
@@ -2875,6 +3011,8 @@ info() {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      overflow-y: auto;
+      max-height: 50vh;
     }
 
     .ct-field {
@@ -2955,6 +3093,21 @@ info() {
   __decorateClass([
     r()
   ], ChromeTranslateBall.prototype, "openaiPrompt", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiModels", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiModelsLoading", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "openaiModelsError", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "modelDropdownOpen", 2);
+  __decorateClass([
+    r()
+  ], ChromeTranslateBall.prototype, "modelDropdownUp", 2);
   __decorateClass([
     e$2(".ct-ball")
   ], ChromeTranslateBall.prototype, "ballEl", 2);

@@ -124,7 +124,6 @@ export class Renderer {
     if (this.language.from === this.language.to) {
       return
     }
-
     this.stop()
 
     this.isRunning = true

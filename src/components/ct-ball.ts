@@ -9,7 +9,7 @@ import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
 import { LANGUAGES } from '../utils/languages'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
-import { checkIcon, languageIcon, settingIcon } from './icons'
+import { checkIcon, languageIcon, refreshIcon, settingIcon } from './icons'
 
 interface Config {
   position: { x: string, y: string }
@@ -33,7 +33,7 @@ const DEFAULT_CONFIG: Config = {
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
     model: 'gpt-4o-mini',
-    prompt: '',
+    prompt: 'You are a professional translator. Translate the following text from {from} to {to}. Return only the translated text, no explanation, no notes.',
   },
 }
 
@@ -310,6 +310,11 @@ export class ChromeTranslateBall extends LitElement {
       z-index: 10;
     }
 
+    .ct-select-dropdown[data-dropup="true"] {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
     .ct-select-option {
       padding: 8px 12px;
       cursor: pointer;
@@ -383,6 +388,8 @@ export class ChromeTranslateBall extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      overflow-y: auto;
+      max-height: 50vh;
     }
 
     .ct-field {
@@ -446,6 +453,11 @@ export class ChromeTranslateBall extends LitElement {
   @state() private openaiBaseUrl = 'https://api.openai.com/v1'
   @state() private openaiModel = 'gpt-4o-mini'
   @state() private openaiPrompt = ''
+  @state() private openaiModels: string[] = []
+  @state() private openaiModelsLoading = false
+  @state() private openaiModelsError = ''
+  @state() private modelDropdownOpen = false
+  @state() private modelDropdownUp = false
 
   @query('.ct-ball') private ballEl!: HTMLElement
   @query('dialog') private dialogEl!: HTMLDialogElement
@@ -657,11 +669,46 @@ export class ChromeTranslateBall extends LitElement {
     this.isTranslating = t.isTranslating()
   }, 500, true)
 
+  private async fetchModels(): Promise<void> {
+    if (this.openaiModelsLoading) {
+      return
+    }
+    this.openaiModelsLoading = true
+    this.openaiModelsError = ''
+    try {
+      this.openaiModels = await this.openaiProvider.fetchModels()
+    }
+    catch (err) {
+      this.openaiModelsError = err instanceof Error ? err.message : 'Unknown error'
+    }
+    finally {
+      this.openaiModelsLoading = false
+    }
+  }
+
   private onOpenSetting = (): void => {
     this.dialogEl?.showModal()
+    if (this.provider === 'openai') {
+      if (this.openaiPrompt === '') {
+        this.openaiPrompt = DEFAULT_CONFIG.openai.prompt
+        this.onOpenAIConfigChange('prompt', DEFAULT_CONFIG.openai.prompt)
+      }
+      if (this.openaiModels.length === 0) {
+        void this.fetchModels()
+      }
+    }
   }
 
   private onDocumentMouseDown = (e: MouseEvent): void => {
+    if (this.modelDropdownOpen) {
+      const modelDropdownEl = (e.composedPath() as Element[]).find(
+        el => el instanceof Element && el.getAttribute('data-dropdown') === 'model',
+      )
+      if (!modelDropdownEl) {
+        this.modelDropdownOpen = false
+      }
+    }
+
     if (!this.activeDropdown) {
       return
     }
@@ -707,6 +754,9 @@ export class ChromeTranslateBall extends LitElement {
       ...this.config,
       provider: value,
     })
+    if (value === 'openai') {
+      void this.fetchModels()
+    }
   }
 
   private onOpenAIConfigChange(field: 'apiKey' | 'baseUrl' | 'model' | 'prompt', value: string): void {
@@ -726,6 +776,73 @@ export class ChromeTranslateBall extends LitElement {
       ...this.config,
       openai,
     })
+  }
+
+  private toggleModelDropdown(): void {
+    if (!this.modelDropdownOpen) {
+      const trigger = this.renderRoot.querySelector<HTMLElement>('.ct-model-select-trigger')
+      if (trigger) {
+        const rect = trigger.getBoundingClientRect()
+        const spaceBelow = window.innerHeight - rect.bottom
+        this.modelDropdownUp = spaceBelow < 200
+      }
+    }
+
+    this.modelDropdownOpen = !this.modelDropdownOpen
+  }
+
+  private onSelectModel(value: string): void {
+    this.openaiModel = value
+    this.modelDropdownOpen = false
+    this.onOpenAIConfigChange('model', value)
+  }
+
+  private renderModelSelect() {
+    const label = this.openaiModels.includes(this.openaiModel) ? this.openaiModel : `Custom: ${this.openaiModel}`
+
+    if (this.openaiModelsLoading) {
+      return html`
+        <div class="ct-input" style="color:#999;display:flex;align-items:center;gap:6px;">
+          <span>Loading models…</span>
+        </div>
+      `
+    }
+
+    if (this.openaiModelsError && this.openaiModels.length === 0) {
+      return html`
+        <div style="display:flex;flex-direction:column;gap:2px;flex:1;">
+          <input
+            type="text"
+            class="ct-input"
+            .value=${this.openaiModel}
+            @change=${(e: Event) => this.onOpenAIConfigChange('model', (e.target as HTMLInputElement).value)}
+            placeholder="Failed to fetch models. Type manually."
+          >
+          <div style="font-size:11px;color:#e74c3c;">${this.openaiModelsError}</div>
+        </div>
+      `
+    }
+
+    return html`
+      <div class="ct-custom-select" data-dropdown="model">
+        <button class="ct-select-trigger ct-model-select-trigger" @click=${this.toggleModelDropdown}>
+          ${label}
+          <span class="ct-arrow">▾</span>
+        </button>
+        ${this.modelDropdownOpen
+          ? html`
+          <div class="ct-select-dropdown" data-dropup=${String(this.modelDropdownUp)}>
+            ${this.openaiModels.map(m => html`
+              <div
+                class="ct-select-option ${m === this.openaiModel ? 'ct-selected' : ''}"
+                @click=${() => this.onSelectModel(m)}
+              >${m}</div>
+            `)}
+          </div>
+        `
+          : nothing}
+      </div>
+    `
   }
 
   private renderSelect(target: 'from' | 'to') {
@@ -814,8 +931,8 @@ export class ChromeTranslateBall extends LitElement {
             ${this.provider === 'openai'
               ? html`
               <div class="ct-section-divider"></div>
+              <div class="ct-section-label">OpenAI Configuration</div>
               <div class="ct-openai-section">
-                <div class="ct-section-label">OpenAI Configuration</div>
                 <label class="ct-field">
                   <span class="ct-field-label">API Key</span>
                   <input type="password" class="ct-input" .value=${this.openaiApiKey} @change=${(e: Event) => this.onOpenAIConfigChange('apiKey', (e.target as HTMLInputElement).value)} placeholder="sk-...">
@@ -826,7 +943,14 @@ export class ChromeTranslateBall extends LitElement {
                 </label>
                 <label class="ct-field">
                   <span class="ct-field-label">Model</span>
-                  <input type="text" class="ct-input" .value=${this.openaiModel} @change=${(e: Event) => this.onOpenAIConfigChange('model', (e.target as HTMLInputElement).value)}>
+                  <div style="display:flex;gap:6px;align-items:flex-start;">
+                    <div style="flex:1;min-width:0;">${this.renderModelSelect()}</div>
+                    <button
+                      @click=${() => { void this.fetchModels() }}
+                      style="flex-shrink:0;width:36px;height:38px;border:1px solid #ddd;border-radius:8px;background:#fafafa;cursor:pointer;color:#00c4b6;display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;"
+                      title="Refresh models"
+                    >${refreshIcon}</button>
+                  </div>
                 </label>
                 <label class="ct-field">
                   <span class="ct-field-label">System Prompt</span>
