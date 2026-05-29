@@ -73,6 +73,7 @@ export class Renderer {
     }
     const translate = await this.translator.translate({ text, from, to })
     const innerHTML = this.textExtractor.parseTextWithInlineTags(translate, map)
+    this.translateCache.set(key, innerHTML)
     return innerHTML
   }
 
