@@ -1,5 +1,6 @@
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import { emitCtEvent } from '../utils/emit'
 
 export interface CtSelectOption {
   label: string
@@ -12,103 +13,10 @@ export class CtSelect extends LitElement {
   private uid = `cs-${Math.random().toString(36).slice(2, 8)}`
   static override styles = css`
     :host {
-      --ct-primary: #00c4b6;
-      --ct-border: #ddd;
-      --ct-bg: #f8f8f8;
-      --ct-bg-hover: #f0f0f0;
-      --ct-bg-active: #f0fdfb;
-      --ct-text: #333;
-      --ct-text-secondary: #555;
-      --ct-text-muted: #999;
-      --ct-radius: 8px;
-      --ct-font-size: 13px;
       display: block;
     }
 
-    .trigger {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--ct-border);
-      border-radius: var(--ct-radius);
-      background: var(--ct-bg);
-      cursor: pointer;
-      font-size: var(--ct-font-size);
-      color: var(--ct-text);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-
-    .trigger:hover {
-      border-color: var(--ct-primary);
-    }
-
-    .trigger:disabled {
-      opacity: 0.7;
-      cursor: default;
-    }
-
-    .trigger:disabled:hover {
-      border-color: var(--ct-border);
-    }
-
-    .arrow {
-      font-size: 10px;
-      color: var(--ct-text-muted);
-      transition: transform 0.2s;
-    }
-
-    .dropdown {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1px solid var(--ct-border);
-      border-radius: var(--ct-radius);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 10;
-    }
-
-    .dropdown.dropup {
-      top: auto;
-      bottom: calc(100% + 4px);
-    }
-
-    .option {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: var(--ct-font-size);
-      color: var(--ct-text-secondary);
-      transition: background 0.15s;
-    }
-
-    .option:hover,
-    .option.highlighted {
-      background: var(--ct-bg-hover);
-    }
-
-    .option.selected {
-      color: var(--ct-primary);
-      font-weight: 600;
-      background: var(--ct-bg-active);
-    }
-
-    .wrapper {
-      position: relative;
-    }
-
-    .error-text {
-      font-size: 11px;
-      color: #e74c3c;
-      line-height: 1.4;
-      padding-top: 2px;
-    }
+    @unocss-placeholder;
   `
 
   @property({ type: String }) value = ''
@@ -169,11 +77,7 @@ export class CtSelect extends LitElement {
   private select(value: string): void {
     this.dropdownOpen = false
     if (value !== this.value) {
-      this.dispatchEvent(new CustomEvent('ct-change', {
-        detail: { value },
-        bubbles: true,
-        composed: true,
-      }))
+      emitCtEvent(this, 'ct-change', { value })
     }
   }
 
@@ -206,33 +110,33 @@ export class CtSelect extends LitElement {
 
   override render() {
     return html`
-      <div class="wrapper" data-dropdown=${this.uid} part="root">
+      <div class="relative" data-dropdown=${this.uid} part="root">
         <button
           part="trigger"
-          class="trigger"
+          class="trigger w-full px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-colors transition-duration-0.2s box-border disabled:op-70 disabled:cursor-default hover:border-[#00c4b6] disabled:hover:border-[#ddd]"
           ?disabled=${this.disabled || this.loading}
           @click=${this.toggle}
           aria-haspopup="listbox"
           aria-expanded=${this.dropdownOpen}
         >
           ${this.label}
-          <span part="arrow" class="arrow" style="transform: ${this.dropdownOpen ? 'rotate(180deg)' : 'none'}">▾</span>
+          <span part="arrow" class="text-10px text-[#999]" style="transition: transform 0.2s; transform: ${this.dropdownOpen ? 'rotate(180deg)' : 'none'}">▾</span>
         </button>
 
-        ${this.error ? html`<div part="error" class="error-text">${this.error}</div>` : ''}
+        ${this.error ? html`<div part="error" class="text-11px text-[#e74c3c] lh-[1.4] pt-2px">${this.error}</div>` : ''}
 
         ${!this.disabled && !this.loading && this.dropdownOpen && this.options.length > 0
           ? html`
           <div
             part="dropdown"
-            class="dropdown ${this.dropup ? 'dropup' : ''}"
+            class="absolute left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10 ${this.dropup ? 'top-auto bottom-[calc(100%+4px)]' : 'top-[calc(100%+4px)]'}"
             role="listbox"
             @keydown=${this.onKeydown}
           >
             ${this.options.map((o, i) => html`
               <div
                 part="option"
-                class="option ${o.value === this.value ? 'selected' : ''} ${i === this.highlightIndex ? 'highlighted' : ''}"
+                class="px-12px py-8px cursor-pointer text-13px text-[#555] transition-colors transition-duration-0.15s hover:bg-[#f0f0f0] ${i === this.highlightIndex ? 'bg-[#f0f0f0]' : ''} ${o.value === this.value ? 'text-[#00c4b6]! font-600 bg-[#f0fdfb]' : ''}"
                 role="option"
                 aria-selected=${o.value === this.value}
                 @click=${() => this.select(o.value)}

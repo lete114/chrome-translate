@@ -2117,6 +2117,96 @@ info() {
   const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
   const refreshIcon = b`<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4C7.58 4 4.01 7.58 4.01 12S7.58 20 12 20c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
   const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
+  function emitCtEvent(host, name, detail) {
+    host.dispatchEvent(new CustomEvent(name, {
+      detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+  var __defProp$9 = Object.defineProperty;
+  var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
+  var __decorateClass$a = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$9(target, key, result);
+    return result;
+  };
+  let CtIconButton = class extends i {
+    constructor() {
+      super(...arguments);
+      this.size = "sm";
+      this.variant = "ghost";
+      this.title = "";
+      this.disabled = false;
+    }
+    onClick() {
+      if (this.disabled) {
+        return;
+      }
+      emitCtEvent(this, "ct-click", void 0);
+    }
+    render() {
+      return x`
+      <button
+        part="button"
+        class="flex items-center justify-center p-0 box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
+        ?disabled=${this.disabled}
+        title=${this.title}
+        @click=${this.onClick}
+      >
+        <slot></slot>
+      </button>
+    `;
+    }
+  };
+  CtIconButton.styles = i$3`
+    :host([size="sm"]) button { width: 28px; height: 28px; border-radius: 50%; }
+    :host([size="md"]) button { width: 36px; height: 36px; border-radius: 8px; }
+    :host([variant="ghost"]) button { border: none; background: #f5f5f5; color: #999; }
+    :host([variant="ghost"]) button:hover { background: #e8e8e8; color: #333; }
+    :host([variant="outlined"]) button { border: 1px solid #ddd; background: #fafafa; color: #00c4b6; }
+    :host([variant="outlined"]) button:hover { border-color: #00c4b6; }
+    :host([variant="filled"]) button { border: none; background: #00c4b6; color: #fff; }
+    :host([variant="filled"]) button:hover { opacity: 0.9; }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.box-border{box-sizing:border-box;}
+.flex{display:flex;}
+.cursor-pointer{cursor:pointer;}
+.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed;}
+.items-center{align-items:center;}
+.justify-center{justify-content:center;}
+.border{border-width:1px;}
+.p-0{padding:0;}
+.leading-none{line-height:1;}
+.disabled\\:op-50:disabled{opacity:0.5;}
+.focus-visible\\:outline-2:focus-visible{outline-width:2px;}
+.focus-visible\\:outline-\\[\\#00c4b6\\]:focus-visible{--un-outline-color-opacity:1;outline-color:rgb(0 196 182 / var(--un-outline-color-opacity)) /* #00c4b6 */;}
+.focus-visible\\:outline-offset-2:focus-visible{outline-offset:2px;}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
+  `;
+  __decorateClass$a([
+    n2({ type: String, reflect: true })
+  ], CtIconButton.prototype, "size", 2);
+  __decorateClass$a([
+    n2({ type: String, reflect: true })
+  ], CtIconButton.prototype, "variant", 2);
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtIconButton.prototype, "title", 2);
+  __decorateClass$a([
+    n2({ type: Boolean })
+  ], CtIconButton.prototype, "disabled", 2);
+  CtIconButton = __decorateClass$a([
+    t("ct-icon-button")
+  ], CtIconButton);
   const LANGUAGES = [
 { label: "EN", value: "en" },
     { label: "ZH-CN", value: "zh-CN" },
@@ -2184,14 +2274,14 @@ info() {
    * SPDX-License-Identifier: BSD-3-Clause
    */
   const o = (o2) => o2 ?? E;
-  var __defProp$3 = Object.defineProperty;
-  var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$3 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
+  var __defProp$8 = Object.defineProperty;
+  var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$9 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$3(target, key, result);
+    if (kind && result) __defProp$8(target, key, result);
     return result;
   };
   let CtInput = class extends i {
@@ -2211,29 +2301,22 @@ info() {
     }
     onChange(e2) {
       const value = e2.target.value;
-      this.dispatchEvent(new CustomEvent("ct-change", {
-        detail: { value },
-        bubbles: true,
-        composed: true
-      }));
+      emitCtEvent(this, "ct-change", { value });
     }
     onInput(e2) {
       const value = e2.target.value;
-      this.dispatchEvent(new CustomEvent("ct-input", {
-        detail: { value },
-        bubbles: true,
-        composed: true
-      }));
+      emitCtEvent(this, "ct-input", { value });
     }
     render() {
       return x`
-      <label part="root">
-        ${this.label ? x`<span part="label" class="label-text">${this.label}</span>` : ""}
+      <label part="root" class="flex flex-col gap-4px">
+        ${this.label ? x`<span part="label" class="text-12px text-[#888] font-500">${this.label}</span>` : ""}
         <input
           part="input"
           type=${this.type}
+          class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-colors transition-duration-0.2s w-full box-border focus:border-[#00c4b6] focus:bg-[#fff] disabled:op-70 disabled:cursor-default"
           .value=${this.value}
-          placeholder=${this.placeholder}
+          placeholder=${o(this.placeholder || void 0)}
           ?disabled=${this.disabled}
           ?readonly=${this.readonly}
           min=${o(this.min)}
@@ -2242,117 +2325,93 @@ info() {
           @change=${this.onChange}
           @input=${this.onInput}
         >
-        ${this.helpText ? x`<span part="help" class="help-text">${this.helpText}</span>` : ""}
-        ${this.error ? x`<span part="error" class="error-text">${this.error}</span>` : ""}
+        ${this.helpText ? x`<span part="help" class="text-11px text-[#888]">${this.helpText}</span>` : ""}
+        ${this.error ? x`<span part="error" class="text-11px text-[#e74c3c]">${this.error}</span>` : ""}
       </label>
     `;
     }
   };
   CtInput.styles = i$3`
     :host {
-      --ct-primary: #00c4b6;
-      --ct-border: #ddd;
-      --ct-bg: #fafafa;
-      --ct-bg-focus: #fff;
-      --ct-text: #333;
-      --ct-text-muted: #888;
-      --ct-radius: 6px;
-      --ct-font-size: 13px;
       display: block;
     }
 
-    label {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .label-text {
-      font-size: 12px;
-      color: var(--ct-text-muted);
-      font-weight: 500;
-    }
-
-    input {
-      padding: 8px 12px;
-      border: 1px solid var(--ct-border);
-      border-radius: var(--ct-radius);
-      font-size: var(--ct-font-size);
-      color: var(--ct-text);
-      background: var(--ct-bg);
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    input:focus {
-      border-color: var(--ct-primary);
-      background: var(--ct-bg-focus);
-    }
-
-    input:disabled {
-      opacity: 0.7;
-      cursor: default;
-    }
-
-    .help-text,
-    .error-text {
-      font-size: 11px;
-    }
-
-    .help-text {
-      color: var(--ct-text-muted);
-    }
-
-    .error-text {
-      color: #e74c3c;
-    }
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.box-border{box-sizing:border-box;}
+.block{display:block;}
+.w-full{width:100%;}
+.flex{display:flex;}
+.flex-col{flex-direction:column;}
+.disabled\\:cursor-default:disabled{cursor:default;}
+.gap-4px{gap:4px;}
+.border-1px{border-width:1px;}
+.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.focus\\:border-\\[\\#00c4b6\\]:focus{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.rounded-\\[6px\\]{border-radius:6px;}
+.border-solid{border-style:solid;}
+.bg-\\[\\#fafafa\\]{--un-bg-opacity:1;background-color:rgb(250 250 250 / var(--un-bg-opacity)) /* #fafafa */;}
+.focus\\:bg-\\[\\#fff\\]:focus{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
+.px-12px{padding-left:12px;padding-right:12px;}
+.py-8px{padding-top:8px;padding-bottom:8px;}
+.text-11px{font-size:11px;}
+.text-12px{font-size:12px;}
+.text-13px{font-size:13px;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
+.text-\\[\\#e74c3c\\]{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
+.font-500{font-weight:500;}
+.disabled\\:op-70:disabled{opacity:0.7;}
+.outline-none{outline:2px solid transparent;outline-offset:2px;}
+.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
   `;
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: String })
   ], CtInput.prototype, "value", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: String })
   ], CtInput.prototype, "type", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: String })
   ], CtInput.prototype, "placeholder", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: String })
   ], CtInput.prototype, "label", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: String })
   ], CtInput.prototype, "helpText", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: String })
   ], CtInput.prototype, "error", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: Boolean })
   ], CtInput.prototype, "disabled", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: Boolean })
   ], CtInput.prototype, "readonly", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: Number })
   ], CtInput.prototype, "min", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: Number })
   ], CtInput.prototype, "max", 2);
-  __decorateClass$3([
+  __decorateClass$9([
     n2({ type: Number })
   ], CtInput.prototype, "step", 2);
-  CtInput = __decorateClass$3([
+  CtInput = __decorateClass$9([
     t("ct-input")
   ], CtInput);
-  var __defProp$2 = Object.defineProperty;
-  var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$2 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
+  var __defProp$7 = Object.defineProperty;
+  var __getOwnPropDesc$8 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$8 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$8(target, key) : target;
     for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
       if (decorator = decorators[i2])
         result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$2(target, key, result);
+    if (kind && result) __defProp$7(target, key, result);
     return result;
   };
   let CtSelect = class extends i {
@@ -2409,11 +2468,7 @@ info() {
     select(value) {
       this.dropdownOpen = false;
       if (value !== this.value) {
-        this.dispatchEvent(new CustomEvent("ct-change", {
-          detail: { value },
-          bubbles: true,
-          composed: true
-        }));
+        emitCtEvent(this, "ct-change", { value });
       }
     }
     onKeydown(e2) {
@@ -2443,32 +2498,32 @@ info() {
     }
     render() {
       return x`
-      <div class="wrapper" data-dropdown=${this.uid} part="root">
+      <div class="relative" data-dropdown=${this.uid} part="root">
         <button
           part="trigger"
-          class="trigger"
+          class="trigger w-full px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-colors transition-duration-0.2s box-border disabled:op-70 disabled:cursor-default hover:border-[#00c4b6] disabled:hover:border-[#ddd]"
           ?disabled=${this.disabled || this.loading}
           @click=${this.toggle}
           aria-haspopup="listbox"
           aria-expanded=${this.dropdownOpen}
         >
           ${this.label}
-          <span part="arrow" class="arrow" style="transform: ${this.dropdownOpen ? "rotate(180deg)" : "none"}">▾</span>
+          <span part="arrow" class="text-10px text-[#999]" style="transition: transform 0.2s; transform: ${this.dropdownOpen ? "rotate(180deg)" : "none"}">▾</span>
         </button>
 
-        ${this.error ? x`<div part="error" class="error-text">${this.error}</div>` : ""}
+        ${this.error ? x`<div part="error" class="text-11px text-[#e74c3c] lh-[1.4] pt-2px">${this.error}</div>` : ""}
 
         ${!this.disabled && !this.loading && this.dropdownOpen && this.options.length > 0 ? x`
           <div
             part="dropdown"
-            class="dropdown ${this.dropup ? "dropup" : ""}"
+            class="absolute left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10 ${this.dropup ? "top-auto bottom-[calc(100%+4px)]" : "top-[calc(100%+4px)]"}"
             role="listbox"
             @keydown=${this.onKeydown}
           >
             ${this.options.map((o2, i2) => x`
               <div
                 part="option"
-                class="option ${o2.value === this.value ? "selected" : ""} ${i2 === this.highlightIndex ? "highlighted" : ""}"
+                class="px-12px py-8px cursor-pointer text-13px text-[#555] transition-colors transition-duration-0.15s hover:bg-[#f0f0f0] ${i2 === this.highlightIndex ? "bg-[#f0f0f0]" : ""} ${o2.value === this.value ? "text-[#00c4b6]! font-600 bg-[#f0fdfb]" : ""}"
                 role="option"
                 aria-selected=${o2.value === this.value}
                 @click=${() => this.select(o2.value)}
@@ -2485,134 +2540,588 @@ info() {
   };
   CtSelect.styles = i$3`
     :host {
-      --ct-primary: #00c4b6;
-      --ct-border: #ddd;
-      --ct-bg: #f8f8f8;
-      --ct-bg-hover: #f0f0f0;
-      --ct-bg-active: #f0fdfb;
-      --ct-text: #333;
-      --ct-text-secondary: #555;
-      --ct-text-muted: #999;
-      --ct-radius: 8px;
-      --ct-font-size: 13px;
       display: block;
     }
 
-    .trigger {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--ct-border);
-      border-radius: var(--ct-radius);
-      background: var(--ct-bg);
-      cursor: pointer;
-      font-size: var(--ct-font-size);
-      color: var(--ct-text);
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.absolute{position:absolute;}
+.relative{position:relative;}
+.static{position:static;}
+.bottom-\\[calc\\(100\\%\\+4px\\)\\]{bottom:calc(100% + 4px);}
+.left-0{left:0;}
+.right-0{right:0;}
+.top-\\[calc\\(100\\%\\+4px\\)\\]{top:calc(100% + 4px);}
+.top-auto{top:auto;}
+.z-10{z-index:10;}
+.box-border{box-sizing:border-box;}
+.block{display:block;}
+.max-h-200px{max-height:200px;}
+.w-full{width:100%;}
+.flex{display:flex;}
+.transform{transform:translateX(var(--un-translate-x)) translateY(var(--un-translate-y)) translateZ(var(--un-translate-z)) rotate(var(--un-rotate)) rotateX(var(--un-rotate-x)) rotateY(var(--un-rotate-y)) rotateZ(var(--un-rotate-z)) skewX(var(--un-skew-x)) skewY(var(--un-skew-y)) scaleX(var(--un-scale-x)) scaleY(var(--un-scale-y)) scaleZ(var(--un-scale-z));}
+.disabled\\:cursor-default:disabled{cursor:default;}
+.cursor-pointer{cursor:pointer;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.gap-4px{gap:4px;}
+.overflow-y-auto{overflow-y:auto;}
+.border-1px{border-width:1px;}
+.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.hover\\:border-\\[\\#00c4b6\\]:hover{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.disabled\\:hover\\:border-\\[\\#ddd\\]:hover:disabled{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.rounded-\\[8px\\]{border-radius:8px;}
+.border-solid{border-style:solid;}
+.bg-\\[\\#f0f0f0\\]{--un-bg-opacity:1;background-color:rgb(240 240 240 / var(--un-bg-opacity)) /* #f0f0f0 */;}
+.bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
+.bg-\\[\\#f8f8f8\\]{--un-bg-opacity:1;background-color:rgb(248 248 248 / var(--un-bg-opacity)) /* #f8f8f8 */;}
+.bg-\\[\\#fff\\]{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
+.hover\\:bg-\\[\\#f0f0f0\\]:hover{--un-bg-opacity:1;background-color:rgb(240 240 240 / var(--un-bg-opacity)) /* #f0f0f0 */;}
+.px-12px{padding-left:12px;padding-right:12px;}
+.py-10px{padding-top:10px;padding-bottom:10px;}
+.py-8px{padding-top:8px;padding-bottom:8px;}
+.pt-2px{padding-top:2px;}
+.text-10px{font-size:10px;}
+.text-11px{font-size:11px;}
+.text-13px{font-size:13px;}
+.text-\\[\\#00c4b6\\]\\!{--un-text-opacity:1 !important;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */ !important;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
+.text-\\[\\#999\\]{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
+.text-\\[\\#e74c3c\\]{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
+.font-600{font-weight:600;}
+.lh-\\[1\\.4\\]{line-height:1.4;}
+.disabled\\:op-70:disabled{opacity:0.7;}
+.shadow-\\[0_8px_24px_rgba\\(0\\,0\\,0\\,\\.12\\)\\]{--un-shadow:0 8px 24px var(--un-shadow-color, rgba(0, 0, 0, .12));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);}
+.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.15s{transition-duration:0.15s;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
+  `;
+  __decorateClass$8([
+    n2({ type: String })
+  ], CtSelect.prototype, "value", 2);
+  __decorateClass$8([
+    n2({ type: Array })
+  ], CtSelect.prototype, "options", 2);
+  __decorateClass$8([
+    n2({ type: String })
+  ], CtSelect.prototype, "placeholder", 2);
+  __decorateClass$8([
+    n2({ type: Boolean })
+  ], CtSelect.prototype, "disabled", 2);
+  __decorateClass$8([
+    n2({ type: Boolean })
+  ], CtSelect.prototype, "loading", 2);
+  __decorateClass$8([
+    n2({ type: String })
+  ], CtSelect.prototype, "error", 2);
+  __decorateClass$8([
+    r()
+  ], CtSelect.prototype, "dropdownOpen", 2);
+  __decorateClass$8([
+    r()
+  ], CtSelect.prototype, "dropup", 2);
+  __decorateClass$8([
+    r()
+  ], CtSelect.prototype, "highlightIndex", 2);
+  CtSelect = __decorateClass$8([
+    t("ct-select")
+  ], CtSelect);
+  var __defProp$6 = Object.defineProperty;
+  var __getOwnPropDesc$7 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$7 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$7(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$6(target, key, result);
+    return result;
+  };
+  let CtTextarea = class extends i {
+    constructor() {
+      super(...arguments);
+      this.value = "";
+      this.placeholder = "";
+      this.label = "";
+      this.helpText = "";
+      this.error = "";
+      this.disabled = false;
+      this.readonly = false;
+      this.rows = void 0;
+      this.minLength = void 0;
+      this.maxLength = void 0;
+    }
+    onChange(e2) {
+      const value = e2.target.value;
+      emitCtEvent(this, "ct-change", { value });
+    }
+    onInput(e2) {
+      const value = e2.target.value;
+      emitCtEvent(this, "ct-input", { value });
+    }
+    render() {
+      return x`
+      <label part="root" class="flex flex-col gap-4px">
+        ${this.label ? x`<span part="label" class="text-12px text-[#888] font-500">${this.label}</span>` : ""}
+        <textarea
+          part="textarea"
+          class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-colors transition-duration-0.2s w-full min-h-120px box-border resize-y font-inherit focus:border-[#00c4b6] focus:bg-[#fff] disabled:op-70 disabled:cursor-default"
+          .value=${this.value}
+          placeholder=${o(this.placeholder || void 0)}
+          ?disabled=${this.disabled}
+          ?readonly=${this.readonly}
+          rows=${o(this.rows)}
+          minlength=${o(this.minLength)}
+          maxlength=${o(this.maxLength)}
+          @change=${this.onChange}
+          @input=${this.onInput}
+        ></textarea>
+        ${this.helpText ? x`<span part="help" class="text-11px text-[#888]">${this.helpText}</span>` : ""}
+        ${this.error ? x`<span part="error" class="text-11px text-[#e74c3c]">${this.error}</span>` : ""}
+      </label>
+    `;
+    }
+  };
+  CtTextarea.styles = i$3`
+    :host {
+      display: block;
+    }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.box-border{box-sizing:border-box;}
+.block{display:block;}
+.min-h-120px{min-height:120px;}
+.w-full{width:100%;}
+.flex{display:flex;}
+.flex-col{flex-direction:column;}
+.disabled\\:cursor-default:disabled{cursor:default;}
+.resize-y{resize:vertical;}
+.gap-4px{gap:4px;}
+.border-1px{border-width:1px;}
+.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.focus\\:border-\\[\\#00c4b6\\]:focus{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.rounded-\\[6px\\]{border-radius:6px;}
+.border-solid{border-style:solid;}
+.bg-\\[\\#fafafa\\]{--un-bg-opacity:1;background-color:rgb(250 250 250 / var(--un-bg-opacity)) /* #fafafa */;}
+.focus\\:bg-\\[\\#fff\\]:focus{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
+.px-12px{padding-left:12px;padding-right:12px;}
+.py-8px{padding-top:8px;padding-bottom:8px;}
+.text-11px{font-size:11px;}
+.text-12px{font-size:12px;}
+.text-13px{font-size:13px;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
+.text-\\[\\#e74c3c\\]{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
+.font-500{font-weight:500;}
+.font-inherit{font-family:inherit;}
+.disabled\\:op-70:disabled{opacity:0.7;}
+.outline-none{outline:2px solid transparent;outline-offset:2px;}
+.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
+  `;
+  __decorateClass$7([
+    n2({ type: String })
+  ], CtTextarea.prototype, "value", 2);
+  __decorateClass$7([
+    n2({ type: String })
+  ], CtTextarea.prototype, "placeholder", 2);
+  __decorateClass$7([
+    n2({ type: String })
+  ], CtTextarea.prototype, "label", 2);
+  __decorateClass$7([
+    n2({ type: String })
+  ], CtTextarea.prototype, "helpText", 2);
+  __decorateClass$7([
+    n2({ type: String })
+  ], CtTextarea.prototype, "error", 2);
+  __decorateClass$7([
+    n2({ type: Boolean })
+  ], CtTextarea.prototype, "disabled", 2);
+  __decorateClass$7([
+    n2({ type: Boolean })
+  ], CtTextarea.prototype, "readonly", 2);
+  __decorateClass$7([
+    n2({ type: Number })
+  ], CtTextarea.prototype, "rows", 2);
+  __decorateClass$7([
+    n2({ type: Number })
+  ], CtTextarea.prototype, "minLength", 2);
+  __decorateClass$7([
+    n2({ type: Number })
+  ], CtTextarea.prototype, "maxLength", 2);
+  CtTextarea = __decorateClass$7([
+    t("ct-textarea")
+  ], CtTextarea);
+  var __defProp$5 = Object.defineProperty;
+  var __getOwnPropDesc$6 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$6 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$6(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$5(target, key, result);
+    return result;
+  };
+  let CtRadioGroup = class extends i {
+    constructor() {
+      super(...arguments);
+      this.options = [];
+      this.value = "";
+      this.name = "";
+      this.direction = "horizontal";
+    }
+    onChange(value) {
+      this.value = value;
+      emitCtEvent(this, "ct-change", { value });
+    }
+    render() {
+      return x`
+      ${this.options.map((o2) => x`
+        <label
+          part="option"
+          class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-colors transition-duration-0.2s hover:border-[#00c4b6] ${o2.value === this.value ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
+        >
+          <input
+            class="hidden"
+            type="radio"
+            name=${this.name}
+            value=${o2.value}
+            ?checked=${o2.value === this.value}
+            @change=${() => this.onChange(o2.value)}
+          >
+          <span part="label">${o2.label}</span>
+        </label>
+      `)}
+    `;
+    }
+  };
+  CtRadioGroup.styles = i$3`
+    :host {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
     }
 
-    .trigger:hover {
-      border-color: var(--ct-primary);
+    :host([direction="horizontal"]) { flex-direction: row; gap: 12px; }
+    :host([direction="vertical"]) { flex-direction: column; gap: 6px; }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.hidden{display:none;}
+.flex{display:flex;}
+.flex-1{flex:1 1 0%;}
+.cursor-pointer{cursor:pointer;}
+.items-center{align-items:center;}
+.gap-8px{gap:8px;}
+.border-1px{border-width:1px;}
+.border-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;border-color:rgb(0 196 182 / var(--un-border-opacity)) !important;}
+.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.hover\\:border-\\[\\#00c4b6\\]:hover{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.rounded-\\[8px\\]{border-radius:8px;}
+.border-solid{border-style:solid;}
+.bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
+.px-14px{padding-left:14px;padding-right:14px;}
+.py-10px{padding-top:10px;padding-bottom:10px;}
+.text-13px{font-size:13px;}
+.text-\\[\\#00c4b6\\]\\!{--un-text-opacity:1 !important;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */ !important;}
+.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
+.font-600{font-weight:600;}
+.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
+  `;
+  __decorateClass$6([
+    n2({ type: Array })
+  ], CtRadioGroup.prototype, "options", 2);
+  __decorateClass$6([
+    n2({ type: String })
+  ], CtRadioGroup.prototype, "value", 2);
+  __decorateClass$6([
+    n2({ type: String })
+  ], CtRadioGroup.prototype, "name", 2);
+  __decorateClass$6([
+    n2({ type: String, reflect: true })
+  ], CtRadioGroup.prototype, "direction", 2);
+  CtRadioGroup = __decorateClass$6([
+    t("ct-radio-group")
+  ], CtRadioGroup);
+  var __getOwnPropDesc$5 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$5 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$5(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = decorator(result) || result;
+    return result;
+  };
+  let CtDivider = class extends i {
+    render() {
+      return x`<div part="root" class="h-1px bg-[#eee] mx-0 my-16px"></div>`;
+    }
+  };
+  CtDivider.styles = i$3`
+    :host {
+      display: block;
     }
 
-    .trigger:disabled {
-      opacity: 0.7;
-      cursor: default;
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.mx-0{margin-left:0;margin-right:0;}
+.my-16px{margin-top:16px;margin-bottom:16px;}
+.block{display:block;}
+.h-1px{height:1px;}
+.bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;};
+  `;
+  CtDivider = __decorateClass$5([
+    t("ct-divider")
+  ], CtDivider);
+  var __defProp$4 = Object.defineProperty;
+  var __getOwnPropDesc$4 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$4 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$4(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$4(target, key, result);
+    return result;
+  };
+  let CtSectionHeader = class extends i {
+    constructor() {
+      super(...arguments);
+      this.label = "";
+    }
+    render() {
+      return x`<div part="root" class="text-13px font-600 text-[#888] mb-10px">${this.label}</div>`;
+    }
+  };
+  CtSectionHeader.styles = i$3`
+    :host {
+      display: block;
     }
 
-    .trigger:disabled:hover {
-      border-color: var(--ct-border);
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.mb-10px{margin-bottom:10px;}
+.block{display:block;}
+.text-13px{font-size:13px;}
+.text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
+.font-600{font-weight:600;};
+  `;
+  __decorateClass$4([
+    n2({ type: String })
+  ], CtSectionHeader.prototype, "label", 2);
+  CtSectionHeader = __decorateClass$4([
+    t("ct-section-header")
+  ], CtSectionHeader);
+  var __defProp$3 = Object.defineProperty;
+  var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$3 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$3(target, key, result);
+    return result;
+  };
+  let CtTabs = class extends i {
+    constructor() {
+      super(...arguments);
+      this.tabs = [];
+      this.active = "";
+    }
+    onSelect(value) {
+      if (value !== this.active) {
+        this.active = value;
+        emitCtEvent(this, "ct-change", { value });
+      }
+    }
+    render() {
+      return x`
+      <div class="flex-1 border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-full">
+        ${this.tabs.map((t2) => x`
+          <div
+            part="tab"
+            class="tab flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none hover:bg-[#f5f5f5] hover:text-[#333] ${t2.value === this.active ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
+            @click=${() => this.onSelect(t2.value)}
+          >
+            ${t2.icon ? x`<span part="icon" class="text-16px leading-none">${t2.icon}</span>` : ""}
+            <span part="label" class="tab-label whitespace-nowrap">${t2.label}</span>
+          </div>
+        `)}
+      </div>
+    `;
+    }
+  };
+  CtTabs.styles = i$3`
+    :host {
+      display: flex;
+      flex-direction: column;
+      width: 140px;
+      height: 100%;
     }
 
-    .arrow {
-      font-size: 10px;
-      color: var(--ct-text-muted);
-      transition: transform 0.2s;
+    @media (max-width: 500px) {
+      :host { width: 60px; }
+      .tab { padding: 10px 2px; justify-content: center; }
+      .tab-label { display: none; }
     }
 
-    .dropdown {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1px solid var(--ct-border);
-      border-radius: var(--ct-radius);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 10;
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.w-full{width:100%;}
+.flex{display:flex;}
+.flex-1{flex:1 1 0%;}
+.flex-col{flex-direction:column;}
+.cursor-pointer{cursor:pointer;}
+.select-none{-webkit-user-select:none;user-select:none;}
+.items-center{align-items:center;}
+.gap-2px{gap:2px;}
+.gap-8px{gap:8px;}
+.whitespace-nowrap{white-space:nowrap;}
+.border-l-3px{border-left-width:3px;}
+.border-r-1px{border-right-width:1px;}
+.border-l-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;--un-border-left-opacity:var(--un-border-opacity) !important;border-left-color:rgb(0 196 182 / var(--un-border-left-opacity)) !important;}
+.border-l-transparent{border-left-color:transparent;}
+.border-r-\\[\\#eee\\]{--un-border-opacity:1;--un-border-right-opacity:var(--un-border-opacity);border-right-color:rgb(238 238 238 / var(--un-border-right-opacity));}
+.border-l-solid{border-left-style:solid;}
+.border-r-solid{border-right-style:solid;}
+.bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
+.hover\\:bg-\\[\\#f5f5f5\\]:hover{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
+.px-0{padding-left:0;padding-right:0;}
+.px-16px{padding-left:16px;padding-right:16px;}
+.py-10px{padding-top:10px;padding-bottom:10px;}
+.py-12px{padding-top:12px;padding-bottom:12px;}
+.text-13px{font-size:13px;}
+.text-16px{font-size:16px;}
+.text-\\[\\#00c4b6\\]\\!{--un-text-opacity:1 !important;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */ !important;}
+.text-\\[\\#666\\]{--un-text-opacity:1;color:rgb(102 102 102 / var(--un-text-opacity)) /* #666 */;}
+.hover\\:text-\\[\\#333\\]:hover{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.font-600{font-weight:600;}
+.leading-none{line-height:1;}
+.tab{-moz-tab-size:4;-o-tab-size:4;tab-size:4;}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.15s{transition-duration:0.15s;};
+  `;
+  __decorateClass$3([
+    n2({ type: Array })
+  ], CtTabs.prototype, "tabs", 2);
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtTabs.prototype, "active", 2);
+  CtTabs = __decorateClass$3([
+    t("ct-tabs")
+  ], CtTabs);
+  var __defProp$2 = Object.defineProperty;
+  var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$2 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$2(target, key, result);
+    return result;
+  };
+  let CtDialog = class extends i {
+    constructor() {
+      super(...arguments);
+      this.title = "";
+    }
+    show() {
+      this.dialogEl?.showModal();
+    }
+    close() {
+      this.dialogEl?.close();
+    }
+    firstUpdated() {
+      this.dialogEl.addEventListener("click", (e2) => {
+        if (e2.target === this.dialogEl) {
+          this.dialogEl.close();
+        }
+      });
+    }
+    render() {
+      return x`
+      <dialog part="dialog" class="border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden">
+        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
+          <span part="title">${this.title}</span>
+          <slot name="header-actions">
+            <ct-icon-button size="sm" variant="ghost" @click=${() => this.dialogEl?.close()}>✕</ct-icon-button>
+          </slot>
+        </div>
+        <div class="flex flex-1 overflow-hidden">
+          <div part="sidebar" class="flex flex-col flex-[0_0_auto]">
+            <slot name="sidebar"></slot>
+          </div>
+          <div part="main" class="flex-1 min-h-0 p-20px overflow-y-auto">
+            <slot></slot>
+          </div>
+        </div>
+      </dialog>
+    `;
+    }
+  };
+  CtDialog.styles = i$3`
+    :host {
+      display: contents;
     }
 
-    .dropdown.dropup {
-      top: auto;
-      bottom: calc(100% + 4px);
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
     }
 
-    .option {
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: var(--ct-font-size);
-      color: var(--ct-text-secondary);
-      transition: background 0.15s;
+    dialog[open] {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
-    .option:hover,
-    .option.highlighted {
-      background: var(--ct-bg-hover);
-    }
-
-    .option.selected {
-      color: var(--ct-primary);
-      font-weight: 600;
-      background: var(--ct-bg-active);
-    }
-
-    .wrapper {
-      position: relative;
-    }
-
-    .error-text {
-      font-size: 11px;
-      color: #e74c3c;
-      line-height: 1.4;
-      padding-top: 2px;
-    }
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.contents{display:contents;}
+.min-h-0{min-height:0;}
+.w-600px{width:600px;}
+.flex{display:flex;}
+.flex-\\[0_0_auto\\]{flex:0 0 auto;}
+.flex-1{flex:1 1 0%;}
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.overflow-hidden{overflow:hidden;}
+.overflow-y-auto{overflow-y:auto;}
+.border-b-1px{border-bottom-width:1px;}
+.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
+.rounded-\\[12px\\]{border-radius:12px;}
+.border-none{border-style:none;}
+.border-b-solid{border-bottom-style:solid;}
+.p-0{padding:0;}
+.p-20px{padding:20px;}
+.px-20px{padding-left:20px;padding-right:20px;}
+.py-16px{padding-top:16px;padding-bottom:16px;}
+.text-16px{font-size:16px;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.font-600{font-weight:600;}
+.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);};
   `;
   __decorateClass$2([
     n2({ type: String })
-  ], CtSelect.prototype, "value", 2);
+  ], CtDialog.prototype, "title", 2);
   __decorateClass$2([
-    n2({ type: Array })
-  ], CtSelect.prototype, "options", 2);
-  __decorateClass$2([
-    n2({ type: String })
-  ], CtSelect.prototype, "placeholder", 2);
-  __decorateClass$2([
-    n2({ type: Boolean })
-  ], CtSelect.prototype, "disabled", 2);
-  __decorateClass$2([
-    n2({ type: Boolean })
-  ], CtSelect.prototype, "loading", 2);
-  __decorateClass$2([
-    n2({ type: String })
-  ], CtSelect.prototype, "error", 2);
-  __decorateClass$2([
-    r()
-  ], CtSelect.prototype, "dropdownOpen", 2);
-  __decorateClass$2([
-    r()
-  ], CtSelect.prototype, "dropup", 2);
-  __decorateClass$2([
-    r()
-  ], CtSelect.prototype, "highlightIndex", 2);
-  CtSelect = __decorateClass$2([
-    t("ct-select")
-  ], CtSelect);
+    e("dialog")
+  ], CtDialog.prototype, "dialogEl", 2);
+  CtDialog = __decorateClass$2([
+    t("ct-dialog")
+  ], CtDialog);
   var __defProp$1 = Object.defineProperty;
   var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
   var __decorateClass$1 = (decorators, target, key, kind) => {
@@ -2642,24 +3151,10 @@ info() {
       this.activeTab = "translate";
     }
     show() {
-      this.dialogEl?.showModal();
+      this.dialogEl?.show();
     }
     close() {
       this.dialogEl?.close();
-    }
-    firstUpdated() {
-      this.dialogEl.addEventListener("click", (e2) => {
-        if (e2.target === this.dialogEl) {
-          this.dialogEl.close();
-        }
-      });
-    }
-    emit(name, detail) {
-      this.dispatchEvent(new CustomEvent(name, {
-        detail,
-        bubbles: true,
-        composed: true
-      }));
     }
     get fromOptions() {
       return [{ label: "Auto", value: "auto" }, ...LANGUAGES];
@@ -2670,41 +3165,12 @@ info() {
     get modelOptions() {
       return this.openaiModels.map((m2) => ({ label: m2, value: m2 }));
     }
-    renderSidebar() {
-      return x`
-      <div class="max-[500px]:w-[60px] flex-[0_0_auto] border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-140px">
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === "translate" ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
-          @click=${() => {
-      this.activeTab = "translate";
-    }}
-        >
-          <span class="text-16px">🌐</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Translate</span>
-        </div>
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === "provider" ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
-          @click=${() => {
-      this.activeTab = "provider";
-    }}
-        >
-          <span class="text-16px">⚙️</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Provider</span>
-        </div>
-      </div>
-    `;
-    }
-    renderRadio(name, value, checked, label, onChange) {
-      return x`
-      <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${checked ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}">
-        <input class="hidden" type="radio" name=${name} value=${value} ?checked=${checked} @change=${onChange}>
-        <span>${label}</span>
-      </label>
-    `;
+    emit(name, detail) {
+      emitCtEvent(this, name, detail);
     }
     renderTranslateTab() {
       return x`
-      <div class="text-13px font-600 text-[#888] mb-10px">Language</div>
+      <ct-section-header label="Language"></ct-section-header>
       <div class="flex items-center gap-12px">
         <div class="flex-1">
           <ct-select
@@ -2723,17 +3189,20 @@ info() {
         </div>
       </div>
 
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+      <ct-divider></ct-divider>
 
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Mode</div>
-      <div class="flex gap-12px" style="flex-direction:column;gap:6px;">
-        ${this.renderRadio("mode", "text", this.mode === "text", "Text", () => this.emit("mode-change", { value: "text" }))}
-        ${this.renderRadio("mode", "html", this.mode === "html", "HTML", () => this.emit("mode-change", { value: "html" }))}
-      </div>
+      <ct-section-header label="Translation Mode"></ct-section-header>
+      <ct-radio-group
+        direction="vertical"
+        name="mode"
+        .value=${this.mode}
+        .options=${[{ label: "Text", value: "text" }, { label: "HTML", value: "html" }]}
+        @ct-change=${(e2) => this.emit("mode-change", { value: e2.detail.value })}
+      ></ct-radio-group>
 
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+      <ct-divider></ct-divider>
 
-      <div class="text-13px font-600 text-[#888] mb-10px">Performance</div>
+      <ct-section-header label="Performance"></ct-section-header>
       <ct-input
         type="number"
         label="Max concurrent requests"
@@ -2745,15 +3214,18 @@ info() {
     }
     renderProviderTab() {
       return x`
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Provider</div>
-      <div class="flex gap-12px">
-        ${this.renderRadio("provider", "chrome", this.provider === "chrome", "Chrome AI", () => this.emit("provider-change", { value: "chrome" }))}
-        ${this.renderRadio("provider", "openai", this.provider === "openai", "OpenAI API", () => this.emit("provider-change", { value: "openai" }))}
-      </div>
+      <ct-section-header label="Translation Provider"></ct-section-header>
+      <ct-radio-group
+        direction="horizontal"
+        name="provider"
+        .value=${this.provider}
+        .options=${[{ label: "Chrome AI", value: "chrome" }, { label: "OpenAI API", value: "openai" }]}
+        @ct-change=${(e2) => this.emit("provider-change", { value: e2.detail.value })}
+      ></ct-radio-group>
 
       ${this.provider === "openai" ? x`
-        <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-        <div class="text-13px font-600 text-[#888] mb-10px">OpenAI Configuration</div>
+        <ct-divider></ct-divider>
+        <ct-section-header label="OpenAI Configuration"></ct-section-header>
         <div class="flex flex-col gap-12px">
           <ct-input
             type="password"
@@ -2783,11 +3255,7 @@ info() {
                   @ct-change=${(e2) => this.emit("openai-config-change", { field: "model", value: e2.detail.value })}
                 ></ct-select>
               </div>
-              <button
-                @click=${() => this.emit("fetch-models", void 0)}
-                class="shrink-0 w-36px h-38px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#fafafa] cursor-pointer text-[#00c4b6] flex items-center justify-center p-0 box-border"
-                title="Refresh models"
-              >${refreshIcon}</button>
+              <ct-icon-button size="md" variant="outlined" title="Refresh models" @click=${() => this.emit("fetch-models", void 0)}>${refreshIcon}</ct-icon-button>
             </div>
           </label>
 
@@ -2807,33 +3275,33 @@ info() {
             @ct-change=${(e2) => this.emit("openai-config-change", { field: "maxTokens", value: e2.detail.value })}
           ></ct-input>
 
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">System Prompt</span>
-            <textarea
-              class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] min-h-120px box-border resize-y font-[inherit] [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]"
-              .value=${this.openaiPrompt}
-              @change=${(e2) => this.emit("openai-config-change", { field: "prompt", value: e2.target.value })}
-              placeholder="Optional: custom system prompt for translation"
-            ></textarea>
-          </label>
+          <ct-textarea
+            label="System Prompt"
+            placeholder="Optional: custom system prompt for translation"
+            .value=${this.openaiPrompt}
+            @ct-change=${(e2) => this.emit("openai-config-change", { field: "prompt", value: e2.detail.value })}
+          ></ct-textarea>
         </div>
-      ` : E}
+      ` : ""}
     `;
     }
     render() {
+      const tabs = [
+        { icon: x`<span>🌐</span>`, label: "Translate", value: "translate" },
+        { icon: x`<span>⚙️</span>`, label: "Provider", value: "provider" }
+      ];
       return x`
-      <dialog class="border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden open:flex open:flex-col open:h-full">
-        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
-          <span>Setting</span>
-          <button class="w-28px h-28px border-none bg-[#f5f5f5] rounded-[50%] cursor-pointer flex items-center justify-center text-14px text-[#999] [&:hover]-bg-[#e8e8e8] [&:hover]-text-[#333]" @click=${() => this.dialogEl?.close()}>✕</button>
-        </div>
-        <div class="flex flex-1 overflow-hidden">
-          ${this.renderSidebar()}
-          <div class="flex-1 min-h-0 p-20px overflow-y-auto">
-            ${this.activeTab === "translate" ? this.renderTranslateTab() : this.renderProviderTab()}
-          </div>
-        </div>
-      </dialog>
+      <ct-dialog title="Setting">
+        <ct-tabs
+          slot="sidebar"
+          .tabs=${tabs}
+          .active=${this.activeTab}
+          @ct-change=${(e2) => {
+      this.activeTab = e2.detail.value;
+    }}
+        ></ct-tabs>
+        ${this.activeTab === "translate" ? this.renderTranslateTab() : this.renderProviderTab()}
+      </ct-dialog>
     `;
     }
   };
@@ -2843,122 +3311,24 @@ info() {
       display: contents;
     }
 
-    dialog::backdrop {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
     /* layer: preflights */
 *,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
 /* layer: default */
 .static{position:static;}
-.mx-0{margin-left:0;margin-right:0;}
-.my-16px{margin-top:16px;margin-bottom:16px;}
-.mb-10px{margin-bottom:10px;}
-.box-border{box-sizing:border-box;}
 .contents{display:contents;}
-.hidden{display:none;}
-.h-1px{height:1px;}
-.h-28px{height:28px;}
-.h-38px{height:38px;}
-.min-h-0{min-height:0;}
-.min-h-120px{min-height:120px;}
 .min-w-0{min-width:0;}
-.w-\\[100\\%\\]{width:100%;}
-.w-140px{width:140px;}
-.w-28px{width:28px;}
-.w-36px{width:36px;}
-.w-600px{width:600px;}
-.open\\:h-full[open]{height:100%;}
 .flex{display:flex;}
-.open\\:flex[open]{display:flex;}
-.flex-\\[0_0_auto\\]{flex:0 0 auto;}
 .flex-1{flex:1 1 0%;}
-.shrink-0{flex-shrink:0;}
 .flex-col{flex-direction:column;}
-.open\\:flex-col[open]{flex-direction:column;}
-.cursor-pointer{cursor:pointer;}
-.select-none{-webkit-user-select:none;user-select:none;}
-.resize-y{resize:vertical;}
 .items-start{align-items:flex-start;}
 .items-center{align-items:center;}
-.justify-center{justify-content:center;}
-.justify-between{justify-content:space-between;}
 .gap-12px{gap:12px;}
-.gap-2px{gap:2px;}
 .gap-4px{gap:4px;}
 .gap-6px{gap:6px;}
-.gap-8px{gap:8px;}
-.overflow-hidden{overflow:hidden;}
-.overflow-y-auto{overflow-y:auto;}
-.whitespace-nowrap{white-space:nowrap;}
-.border-1px{border-width:1px;}
-.border-b-1px{border-bottom-width:1px;}
-.border-l-3px{border-left-width:3px;}
-.border-r-1px{border-right-width:1px;}
-.\\[\\&\\:focus\\]-border-\\[\\#00c4b6\\]:focus,
-.\\[\\&\\:hover\\]-border-\\[\\#00c4b6\\]:hover{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
-.border-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;border-color:rgb(0 196 182 / var(--un-border-opacity)) !important;}
-.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
-.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
-.border-l-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;--un-border-left-opacity:var(--un-border-opacity) !important;border-left-color:rgb(0 196 182 / var(--un-border-left-opacity)) !important;}
-.border-l-transparent{border-left-color:transparent;}
-.border-r-\\[\\#eee\\]{--un-border-opacity:1;--un-border-right-opacity:var(--un-border-opacity);border-right-color:rgb(238 238 238 / var(--un-border-right-opacity));}
-.rounded-\\[12px\\]{border-radius:12px;}
-.rounded-\\[50\\%\\]{border-radius:50%;}
-.rounded-\\[6px\\]{border-radius:6px;}
-.rounded-\\[8px\\]{border-radius:8px;}
-.border-none{border-style:none;}
-.border-solid{border-style:solid;}
-.border-b-solid{border-bottom-style:solid;}
-.border-l-solid{border-left-style:solid;}
-.border-r-solid{border-right-style:solid;}
-.\\[\\&\\:focus\\]-bg-\\[\\#fff\\]:focus{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
-.\\[\\&\\:hover\\]-bg-\\[\\#e8e8e8\\]:hover{--un-bg-opacity:1;background-color:rgb(232 232 232 / var(--un-bg-opacity)) /* #e8e8e8 */;}
-.\\[\\&\\:hover\\]-bg-\\[\\#f5f5f5\\]:hover,
-.bg-\\[\\#f5f5f5\\]{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
-.bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;}
-.bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
-.bg-\\[\\#fafafa\\]{--un-bg-opacity:1;background-color:rgb(250 250 250 / var(--un-bg-opacity)) /* #fafafa */;}
-.p-0{padding:0;}
-.p-20px{padding:20px;}
-.px-0{padding-left:0;padding-right:0;}
-.px-12px{padding-left:12px;padding-right:12px;}
-.px-14px{padding-left:14px;padding-right:14px;}
-.px-16px{padding-left:16px;padding-right:16px;}
-.px-20px{padding-left:20px;padding-right:20px;}
-.py-10px{padding-top:10px;padding-bottom:10px;}
-.py-12px{padding-top:12px;padding-bottom:12px;}
-.py-16px{padding-top:16px;padding-bottom:16px;}
-.py-8px{padding-top:8px;padding-bottom:8px;}
 .text-12px{font-size:12px;}
-.text-13px{font-size:13px;}
-.text-14px{font-size:14px;}
-.text-16px{font-size:16px;}
-.\\[\\&\\:hover\\]-text-\\[\\#333\\]:hover,
-.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
-.text-\\[\\#00c4b6\\]{--un-text-opacity:1;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */;}
-.text-\\[\\#00c4b6\\]\\!{--un-text-opacity:1 !important;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */ !important;}
-.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
-.text-\\[\\#666\\]{--un-text-opacity:1;color:rgb(102 102 102 / var(--un-text-opacity)) /* #666 */;}
 .text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
-.text-\\[\\#999\\],
 .text-\\#999{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
-.font-500{font-weight:500;}
-.font-600{font-weight:600;}
-.font-\\[inherit\\]{font-family:inherit;}
-.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);}
-.outline-none{outline:2px solid transparent;outline-offset:2px;}
-.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-border-color{transition-property:border-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-duration-0\\.15s{transition-duration:0.15s;}
-.transition-duration-0\\.2s{transition-duration:0.2s;}
-@media (max-width: 500px){
-.max-\\[500px\\]\\:hidden{display:none;}
-.max-\\[500px\\]\\:w-\\[60px\\]{width:60px;}
-.max-\\[500px\\]\\:justify-center{justify-content:center;}
-.max-\\[500px\\]\\:px-2{padding-left:0.5rem;padding-right:0.5rem;}
-.max-\\[500px\\]\\:py-\\[10px\\]{padding-top:10px;padding-bottom:10px;}
-};
+.font-500{font-weight:500;};
   `;
   __decorateClass$1([
     n2({ type: Object })
@@ -3000,10 +3370,10 @@ info() {
     n2({ type: Number })
   ], ChromeTranslateSettings.prototype, "openaiMaxTokens", 2);
   __decorateClass$1([
-    r()
+    n2({ type: String })
   ], ChromeTranslateSettings.prototype, "activeTab", 2);
   __decorateClass$1([
-    e("dialog")
+    e("ct-dialog")
   ], ChromeTranslateSettings.prototype, "dialogEl", 2);
   ChromeTranslateSettings = __decorateClass$1([
     t("chrome-translate-settings")

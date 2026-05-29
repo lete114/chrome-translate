@@ -9,6 +9,7 @@ import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
 import { checkIcon, languageIcon, settingIcon } from './icons'
+import './ct-icon-button'
 import './ct-settings'
 
 interface Config {

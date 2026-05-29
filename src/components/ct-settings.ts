@@ -1,9 +1,19 @@
-import { css, html, LitElement, nothing } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import type { CtDialog } from './ct-dialog'
+import type { TabItem } from './ct-tabs'
+import { css, html, LitElement } from 'lit'
+import { customElement, property, query } from 'lit/decorators.js'
+import { emitCtEvent } from '../utils/emit'
 import { LANGUAGES } from '../utils/languages'
 import { refreshIcon } from './icons'
 import './ct-input'
 import './ct-select'
+import './ct-textarea'
+import './ct-icon-button'
+import './ct-radio-group'
+import './ct-divider'
+import './ct-section-header'
+import './ct-tabs'
+import './ct-dialog'
 
 export interface SettingsChangeEvent {
   language?: { from: string, to: string }
@@ -19,10 +29,6 @@ export class ChromeTranslateSettings extends LitElement {
     :host {
       all: initial;
       display: contents;
-    }
-
-    dialog::backdrop {
-      background: rgba(0, 0, 0, 0.3);
     }
 
     @unocss-placeholder;
@@ -42,32 +48,16 @@ export class ChromeTranslateSettings extends LitElement {
   @property({ type: Number }) openaiTemperature = 0.3
   @property({ type: Number }) openaiMaxTokens = 1024
 
-  @state() private activeTab: 'translate' | 'provider' = 'translate'
+  @property({ type: String }) private activeTab = 'translate'
 
-  @query('dialog') private dialogEl!: HTMLDialogElement
+  @query('ct-dialog') private dialogEl!: CtDialog
 
   show(): void {
-    this.dialogEl?.showModal()
+    this.dialogEl?.show()
   }
 
   close(): void {
     this.dialogEl?.close()
-  }
-
-  override firstUpdated(): void {
-    this.dialogEl.addEventListener('click', (e: MouseEvent) => {
-      if (e.target === this.dialogEl) {
-        this.dialogEl.close()
-      }
-    })
-  }
-
-  private emit(name: string, detail: unknown): void {
-    this.dispatchEvent(new CustomEvent(name, {
-      detail,
-      bubbles: true,
-      composed: true,
-    }))
   }
 
   private get fromOptions() {
@@ -82,39 +72,13 @@ export class ChromeTranslateSettings extends LitElement {
     return this.openaiModels.map(m => ({ label: m, value: m }))
   }
 
-  private renderSidebar() {
-    return html`
-      <div class="max-[500px]:w-[60px] flex-[0_0_auto] border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-140px">
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === 'translate' ? 'border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}"
-          @click=${() => { this.activeTab = 'translate' }}
-        >
-          <span class="text-16px">🌐</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Translate</span>
-        </div>
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === 'provider' ? 'border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}"
-          @click=${() => { this.activeTab = 'provider' }}
-        >
-          <span class="text-16px">⚙️</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Provider</span>
-        </div>
-      </div>
-    `
-  }
-
-  private renderRadio(name: string, value: string, checked: boolean, label: string, onChange: () => void) {
-    return html`
-      <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${checked ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
-        <input class="hidden" type="radio" name=${name} value=${value} ?checked=${checked} @change=${onChange}>
-        <span>${label}</span>
-      </label>
-    `
+  private emit(name: string, detail: unknown): void {
+    emitCtEvent(this, name, detail)
   }
 
   private renderTranslateTab() {
     return html`
-      <div class="text-13px font-600 text-[#888] mb-10px">Language</div>
+      <ct-section-header label="Language"></ct-section-header>
       <div class="flex items-center gap-12px">
         <div class="flex-1">
           <ct-select
@@ -133,17 +97,20 @@ export class ChromeTranslateSettings extends LitElement {
         </div>
       </div>
 
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+      <ct-divider></ct-divider>
 
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Mode</div>
-      <div class="flex gap-12px" style="flex-direction:column;gap:6px;">
-        ${this.renderRadio('mode', 'text', this.mode === 'text', 'Text', () => this.emit('mode-change', { value: 'text' }))}
-        ${this.renderRadio('mode', 'html', this.mode === 'html', 'HTML', () => this.emit('mode-change', { value: 'html' }))}
-      </div>
+      <ct-section-header label="Translation Mode"></ct-section-header>
+      <ct-radio-group
+        direction="vertical"
+        name="mode"
+        .value=${this.mode}
+        .options=${[{ label: 'Text', value: 'text' }, { label: 'HTML', value: 'html' }]}
+        @ct-change=${(e: CustomEvent) => this.emit('mode-change', { value: e.detail.value })}
+      ></ct-radio-group>
 
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+      <ct-divider></ct-divider>
 
-      <div class="text-13px font-600 text-[#888] mb-10px">Performance</div>
+      <ct-section-header label="Performance"></ct-section-header>
       <ct-input
         type="number"
         label="Max concurrent requests"
@@ -156,16 +123,19 @@ export class ChromeTranslateSettings extends LitElement {
 
   private renderProviderTab() {
     return html`
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Provider</div>
-      <div class="flex gap-12px">
-        ${this.renderRadio('provider', 'chrome', this.provider === 'chrome', 'Chrome AI', () => this.emit('provider-change', { value: 'chrome' }))}
-        ${this.renderRadio('provider', 'openai', this.provider === 'openai', 'OpenAI API', () => this.emit('provider-change', { value: 'openai' }))}
-      </div>
+      <ct-section-header label="Translation Provider"></ct-section-header>
+      <ct-radio-group
+        direction="horizontal"
+        name="provider"
+        .value=${this.provider}
+        .options=${[{ label: 'Chrome AI', value: 'chrome' }, { label: 'OpenAI API', value: 'openai' }]}
+        @ct-change=${(e: CustomEvent) => this.emit('provider-change', { value: e.detail.value })}
+      ></ct-radio-group>
 
       ${this.provider === 'openai'
         ? html`
-        <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-        <div class="text-13px font-600 text-[#888] mb-10px">OpenAI Configuration</div>
+        <ct-divider></ct-divider>
+        <ct-section-header label="OpenAI Configuration"></ct-section-header>
         <div class="flex flex-col gap-12px">
           <ct-input
             type="password"
@@ -195,11 +165,7 @@ export class ChromeTranslateSettings extends LitElement {
                   @ct-change=${(e: CustomEvent) => this.emit('openai-config-change', { field: 'model', value: e.detail.value })}
                 ></ct-select>
               </div>
-              <button
-                @click=${() => this.emit('fetch-models', undefined)}
-                class="shrink-0 w-36px h-38px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#fafafa] cursor-pointer text-[#00c4b6] flex items-center justify-center p-0 box-border"
-                title="Refresh models"
-              >${refreshIcon}</button>
+              <ct-icon-button size="md" variant="outlined" title="Refresh models" @click=${() => this.emit('fetch-models', undefined)}>${refreshIcon}</ct-icon-button>
             </div>
           </label>
 
@@ -219,35 +185,34 @@ export class ChromeTranslateSettings extends LitElement {
             @ct-change=${(e: CustomEvent) => this.emit('openai-config-change', { field: 'maxTokens', value: e.detail.value })}
           ></ct-input>
 
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">System Prompt</span>
-            <textarea
-              class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] min-h-120px box-border resize-y font-[inherit] [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]"
-              .value=${this.openaiPrompt}
-              @change=${(e: Event) => this.emit('openai-config-change', { field: 'prompt', value: (e.target as HTMLTextAreaElement).value })}
-              placeholder="Optional: custom system prompt for translation"
-            ></textarea>
-          </label>
+          <ct-textarea
+            label="System Prompt"
+            placeholder="Optional: custom system prompt for translation"
+            .value=${this.openaiPrompt}
+            @ct-change=${(e: CustomEvent) => this.emit('openai-config-change', { field: 'prompt', value: e.detail.value })}
+          ></ct-textarea>
         </div>
       `
-        : nothing}
+        : ''}
     `
   }
 
   override render() {
+    const tabs: TabItem[] = [
+      { icon: html`<span>🌐</span>`, label: 'Translate', value: 'translate' },
+      { icon: html`<span>⚙️</span>`, label: 'Provider', value: 'provider' },
+    ]
+
     return html`
-      <dialog class="border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden open:flex open:flex-col open:h-full">
-        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
-          <span>Setting</span>
-          <button class="w-28px h-28px border-none bg-[#f5f5f5] rounded-[50%] cursor-pointer flex items-center justify-center text-14px text-[#999] [&:hover]-bg-[#e8e8e8] [&:hover]-text-[#333]" @click=${() => this.dialogEl?.close()}>✕</button>
-        </div>
-        <div class="flex flex-1 overflow-hidden">
-          ${this.renderSidebar()}
-          <div class="flex-1 min-h-0 p-20px overflow-y-auto">
-            ${this.activeTab === 'translate' ? this.renderTranslateTab() : this.renderProviderTab()}
-          </div>
-        </div>
-      </dialog>
+      <ct-dialog title="Setting">
+        <ct-tabs
+          slot="sidebar"
+          .tabs=${tabs}
+          .active=${this.activeTab}
+          @ct-change=${(e: CustomEvent) => { this.activeTab = e.detail.value }}
+        ></ct-tabs>
+        ${this.activeTab === 'translate' ? this.renderTranslateTab() : this.renderProviderTab()}
+      </ct-dialog>
     `
   }
 }
