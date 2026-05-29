@@ -14,7 +14,7 @@ export interface ICacheStorage<T = any> {
     maxSize: string
     usedSize: string
     freeSize: string
-    items: { key: string, freq: number, timestamp: number }[]
+    items: { key: string, value: T, freq: number, timestamp: number }[]
   } // Get detailed information about the current cache state
 }
 
@@ -141,12 +141,13 @@ export class LFUCache<T = any> implements ICacheStorage<T> {
    * Performs eviction if cache size limit exceeded.
    * @param key - key to set
    * @param value - value to cache
+   * @param initialFreq - optional initial frequency (bypasses default freq logic)
    */
-  set(key: string, value: T): void {
+  set(key: string, value: T, initialFreq?: number): void {
     const existing = this.#cache.get(key)
     const item: CacheItem<T> = {
       value,
-      freq: existing ? existing.freq + 1 : 1,
+      freq: initialFreq ?? (existing ? existing.freq + 1 : 1),
       timestamp: Date.now(),
     }
     this.#cache.set(key, item)
@@ -206,6 +207,7 @@ export class LFUCache<T = any> implements ICacheStorage<T> {
       })
       .map(([key, item]) => ({
         key,
+        value: item.value,
         freq: item.freq,
         timestamp: item.timestamp,
       }))

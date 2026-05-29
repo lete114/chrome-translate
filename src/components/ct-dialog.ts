@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import './ct-icon-button'
+import './ct-button'
 
 @customElement('ct-dialog')
 export class CtDialog extends LitElement {
@@ -48,7 +48,7 @@ export class CtDialog extends LitElement {
         <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
           <span part="title">${this.title}</span>
           <slot name="header-actions">
-            <ct-icon-button size="sm" variant="ghost" @click=${() => this.dialogEl?.close()}>✕</ct-icon-button>
+            <ct-button size="sm" variant="ghost" square @click=${() => this.dialogEl?.close()}>✕</ct-button>
           </slot>
         </div>
         <div class="flex flex-1 overflow-hidden">

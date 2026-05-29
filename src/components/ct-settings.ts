@@ -10,7 +10,7 @@ import { refreshIcon } from './icons'
 import './ct-input'
 import './ct-select'
 import './ct-textarea'
-import './ct-icon-button'
+import './ct-button'
 import './ct-radio-group'
 import './ct-divider'
 import './ct-section-header'
@@ -47,8 +47,10 @@ export class ChromeTranslateSettings extends LitElement {
   @state() private cacheSearch = ''
   @state() private cacheLimit = 100
   @state() private cacheOrder: 'desc' | 'asc' = 'desc'
+  @state() private editingItem: { key: string, from: string, to: string, text: string, value: string, freq: number } | null = null
 
   @query('ct-dialog') private dialogEl!: CtDialog
+  @query('#edit-dialog') private editDialogEl!: CtDialog
 
   show(): void {
     this.dialogEl?.show()
@@ -72,6 +74,46 @@ export class ChromeTranslateSettings extends LitElement {
 
   private emit(name: string, detail: unknown): void {
     emitCtEvent(this, name, detail)
+  }
+
+  private startEdit(item: { key: string, value: string, freq: number }): void {
+    const parsed = parseCacheKey(item.key)
+    if (!parsed) {
+      return
+    }
+    this.editingItem = {
+      key: item.key,
+      from: parsed.from,
+      to: parsed.to,
+      text: parsed.text,
+      value: item.value,
+      freq: item.freq,
+    }
+    this.updateComplete.then(() => this.editDialogEl?.show())
+  }
+
+  private saveEdit(): void {
+    if (!this.editingItem || !this.translateCache) {
+      return
+    }
+    const { from, to, text, value, freq } = this.editingItem
+    if (!from || !to || !text) {
+      return
+    }
+    const newKey = `${from}->${to}:${text}`
+    if (newKey !== this.editingItem.key) {
+      this.translateCache.remove(this.editingItem.key)
+    }
+    this.translateCache.set(newKey, value, freq)
+    this.editDialogEl?.close()
+    this.editingItem = null
+    this.requestUpdate()
+  }
+
+  private cancelEdit(): void {
+    this.editDialogEl?.close()
+    this.editingItem = null
+    this.requestUpdate()
   }
 
   private renderTranslateTab() {
@@ -163,7 +205,7 @@ export class ChromeTranslateSettings extends LitElement {
                   @ct-change=${(e: CustomEvent) => this.emit('openai-config-change', { field: 'model', value: e.detail.value })}
                 ></ct-select>
               </div>
-              <ct-icon-button size="md" variant="outlined" title="Refresh models" @click=${() => this.emit('fetch-models', undefined)}>${refreshIcon}</ct-icon-button>
+              <ct-button size="md" variant="outlined" square title="Refresh models" @click=${() => this.emit('fetch-models', undefined)}>${refreshIcon}</ct-button>
             </div>
           </label>
 
@@ -216,13 +258,13 @@ export class ChromeTranslateSettings extends LitElement {
       <div class="flex items-center justify-between text-12px text-[#888]">
         <span>${info.totalItems} items • ${info.usedSize} / ${info.maxSize}</span>
         <div class="flex items-center gap-8px">
-          <ct-icon-button size="sm" variant="ghost" title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-icon-button>
-          <ct-icon-button size="sm" variant="ghost" title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+          <ct-button size="sm" variant="ghost" square title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-button>
+          <ct-button size="sm" variant="ghost" square title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
             @click=${() => {
                 this.translateCache!.clear()
                 this.requestUpdate()
               }}
-          >🗑</ct-icon-button>
+          >🗑</ct-button>
         </div>
       </div>
       <div class="w-full h-8px bg-[#eee] rounded-[4px] overflow-hidden my-16px">
@@ -248,12 +290,12 @@ export class ChromeTranslateSettings extends LitElement {
               this.requestUpdate()
             }}
         ></ct-select>
-        <ct-icon-button size="sm" variant="ghost" title="Toggle sort order"
+        <ct-button size="sm" variant="ghost" square title="Toggle sort order"
           @click=${() => {
               this.cacheOrder = this.cacheOrder === 'desc' ? 'asc' : 'desc'
               this.requestUpdate()
             }}
-        >${this.cacheOrder === 'desc' ? '↓' : '↑'}</ct-icon-button>
+        >${this.cacheOrder === 'desc' ? '↓' : '↑'}</ct-button>
       </div>
     `
 
@@ -269,15 +311,21 @@ export class ChromeTranslateSettings extends LitElement {
               <div class="flex flex-col px-8px py-6px rounded-[6px] hover:bg-[#f5f5f5] group cursor-default">
                 <div class="flex items-start justify-between gap-8px">
                   <span class="flex-1 text-13px text-[#333] leading-[1.4] break-words">${parsed?.text ?? item.key}</span>
-                  <button
-                    class="shrink-0 w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c] opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s mt-1px"
-                    title="Remove entry"
-                    @click=${() => {
-                        this.translateCache!.remove(item.key)
-                        this.requestUpdate()
-                      }
-                    }
-                  >✕</button>
+                  <div class="flex items-center gap-4px opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s shrink-0 mt-1px">
+                    <button
+                      class="w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#0088cc]"
+                      title="Edit entry"
+                      @click=${() => this.startEdit(item)}
+                    >✏️</button>
+                    <button
+                      class="w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c]"
+                      title="Remove entry"
+                      @click=${() => {
+                          this.translateCache!.remove(item.key)
+                          this.requestUpdate()
+                        }}
+                    >✕</button>
+                  </div>
                 </div>
                 <div class="flex items-center gap-8px text-11px text-[#999] mt-4px">
                   ${parsed
@@ -307,6 +355,88 @@ export class ChromeTranslateSettings extends LitElement {
           ${entryList}
         </div>
       </div>
+      ${this.editingItem ? this.renderEditDialog() : ''}
+    `
+  }
+
+  private renderEditDialog() {
+    return html`
+      <ct-dialog id="edit-dialog" title="Edit Cache Entry">
+        <div slot="header-actions">
+          <ct-button size="sm" variant="ghost" square @click=${this.cancelEdit}>✕</ct-button>
+        </div>
+        <div class="flex flex-col gap-16px">
+          <div class="flex items-center gap-12px">
+            <label class="flex-1 flex flex-col gap-4px">
+              <span class="text-12px text-[#888] font-500">Source Language</span>
+              <ct-select
+                .value=${this.editingItem!.from}
+                .options=${this.toOptions}
+                @ct-change=${(e: CustomEvent) => {
+                    if (this.editingItem) {
+                      this.editingItem.from = e.detail.value
+                    }
+                    this.requestUpdate()
+                  }}
+              ></ct-select>
+            </label>
+            <span class="text-[#999] mt-24px">→</span>
+            <label class="flex-1 flex flex-col gap-4px">
+              <span class="text-12px text-[#888] font-500">Target Language</span>
+              <ct-select
+                .value=${this.editingItem!.to}
+                .options=${this.toOptions}
+                @ct-change=${(e: CustomEvent) => {
+                    if (this.editingItem) {
+                      this.editingItem.to = e.detail.value
+                    }
+                    this.requestUpdate()
+                  }}
+              ></ct-select>
+            </label>
+          </div>
+
+          <ct-textarea
+            label="Source Text"
+            .value=${this.editingItem!.text}
+            @ct-change=${(e: CustomEvent) => {
+                if (this.editingItem) {
+                  this.editingItem.text = e.detail.value
+                }
+                this.requestUpdate()
+              }}
+          ></ct-textarea>
+
+          <ct-textarea
+            label="Translation"
+            .value=${this.editingItem!.value}
+            @ct-change=${(e: CustomEvent) => {
+                if (this.editingItem) {
+                  this.editingItem.value = e.detail.value
+                }
+                this.requestUpdate()
+              }}
+          ></ct-textarea>
+
+          <ct-input
+            type="number"
+            label="Frequency"
+            .value=${String(this.editingItem!.freq)}
+            min="0" step="1"
+            @ct-change=${(e: CustomEvent) => {
+                if (this.editingItem) {
+                  this.editingItem.freq = Number(e.detail.value)
+                }
+                this.requestUpdate()
+              }}
+          ></ct-input>
+
+          <div class="flex items-center justify-end gap-8px mt-8px">
+            <ct-button size="md" variant="outlined" @click=${this.cancelEdit}>Cancel</ct-button>
+            <ct-button size="md" variant="filled" @click=${this.saveEdit}>Save</ct-button>
+          </div>
+        </div>
+      </ct-dialog>
     `
   }
 

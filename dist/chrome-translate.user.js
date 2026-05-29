@@ -2014,11 +2014,11 @@ get(key) {
       this.#save();
       return item.value;
     }
-set(key, value) {
+set(key, value, initialFreq) {
       const existing = this.#cache.get(key);
       const item = {
         value,
-        freq: existing ? existing.freq + 1 : 1,
+        freq: initialFreq ?? (existing ? existing.freq + 1 : 1),
         timestamp: Date.now()
       };
       this.#cache.set(key, item);
@@ -2051,6 +2051,7 @@ info() {
         return B2.freq - A2.freq;
       }).map(([key, item]) => ({
         key,
+        value: item.value,
         freq: item.freq,
         timestamp: item.timestamp
       }));
@@ -2144,11 +2145,12 @@ info() {
     if (kind && result) __defProp$9(target, key, result);
     return result;
   };
-  let CtIconButton = class extends i {
+  let CtButton = class extends i {
     constructor() {
       super(...arguments);
       this.size = "sm";
       this.variant = "ghost";
+      this.square = false;
       this.title = "";
       this.disabled = false;
     }
@@ -2162,7 +2164,7 @@ info() {
       return x`
       <button
         part="button"
-        class="flex items-center justify-center p-0 box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
+        class="flex items-center justify-center box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
         ?disabled=${this.disabled}
         title=${this.title}
         @click=${this.onClick}
@@ -2172,9 +2174,11 @@ info() {
     `;
     }
   };
-  CtIconButton.styles = i$3`
-    :host([size="sm"]) button { width: 28px; height: 28px; border-radius: 50%; }
-    :host([size="md"]) button { width: 36px; height: 36px; border-radius: 8px; }
+  CtButton.styles = i$3`
+    :host([size="sm"]) button { min-width: 28px; height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; gap: 4px; }
+    :host([size="md"]) button { min-width: 36px; height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; gap: 6px; }
+    :host([size="sm"][square]) button { width: 28px; padding: 0; border-radius: 50%; }
+    :host([size="md"][square]) button { width: 36px; padding: 0; }
     :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
     :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
     :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
@@ -2193,7 +2197,6 @@ info() {
 .items-center{align-items:center;}
 .justify-center{justify-content:center;}
 .border{border-width:1px;}
-.p-0{padding:0;}
 .leading-none{line-height:1;}
 .disabled\\:op-50:disabled{opacity:0.5;}
 .focus-visible\\:outline-2:focus-visible{outline-width:2px;}
@@ -2204,19 +2207,22 @@ info() {
   `;
   __decorateClass$a([
     n2({ type: String, reflect: true })
-  ], CtIconButton.prototype, "size", 2);
+  ], CtButton.prototype, "size", 2);
   __decorateClass$a([
     n2({ type: String, reflect: true })
-  ], CtIconButton.prototype, "variant", 2);
+  ], CtButton.prototype, "variant", 2);
+  __decorateClass$a([
+    n2({ type: Boolean, reflect: true })
+  ], CtButton.prototype, "square", 2);
   __decorateClass$a([
     n2({ type: String })
-  ], CtIconButton.prototype, "title", 2);
+  ], CtButton.prototype, "title", 2);
   __decorateClass$a([
     n2({ type: Boolean })
-  ], CtIconButton.prototype, "disabled", 2);
-  CtIconButton = __decorateClass$a([
-    t("ct-icon-button")
-  ], CtIconButton);
+  ], CtButton.prototype, "disabled", 2);
+  CtButton = __decorateClass$a([
+    t("ct-button")
+  ], CtButton);
   const LANGUAGES = [
 { label: "EN", value: "en" },
     { label: "ZH-CN", value: "zh-CN" },
@@ -3064,7 +3070,7 @@ info() {
         <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
           <span part="title">${this.title}</span>
           <slot name="header-actions">
-            <ct-icon-button size="sm" variant="ghost" @click=${() => this.dialogEl?.close()}>✕</ct-icon-button>
+            <ct-button size="sm" variant="ghost" square @click=${() => this.dialogEl?.close()}>✕</ct-button>
           </slot>
         </div>
         <div class="flex flex-1 overflow-hidden">
@@ -3162,6 +3168,7 @@ info() {
       this.cacheSearch = "";
       this.cacheLimit = 100;
       this.cacheOrder = "desc";
+      this.editingItem = null;
     }
     show() {
       this.dialogEl?.show();
@@ -3180,6 +3187,43 @@ info() {
     }
     emit(name, detail) {
       emitCtEvent(this, name, detail);
+    }
+    startEdit(item) {
+      const parsed = parseCacheKey(item.key);
+      if (!parsed) {
+        return;
+      }
+      this.editingItem = {
+        key: item.key,
+        from: parsed.from,
+        to: parsed.to,
+        text: parsed.text,
+        value: item.value,
+        freq: item.freq
+      };
+      this.updateComplete.then(() => this.editDialogEl?.show());
+    }
+    saveEdit() {
+      if (!this.editingItem || !this.translateCache) {
+        return;
+      }
+      const { from, to, text, value, freq } = this.editingItem;
+      if (!from || !to || !text) {
+        return;
+      }
+      const newKey = `${from}->${to}:${text}`;
+      if (newKey !== this.editingItem.key) {
+        this.translateCache.remove(this.editingItem.key);
+      }
+      this.translateCache.set(newKey, value, freq);
+      this.editDialogEl?.close();
+      this.editingItem = null;
+      this.requestUpdate();
+    }
+    cancelEdit() {
+      this.editDialogEl?.close();
+      this.editingItem = null;
+      this.requestUpdate();
     }
     renderTranslateTab() {
       return x`
@@ -3268,7 +3312,7 @@ info() {
                   @ct-change=${(e2) => this.emit("openai-config-change", { field: "model", value: e2.detail.value })}
                 ></ct-select>
               </div>
-              <ct-icon-button size="md" variant="outlined" title="Refresh models" @click=${() => this.emit("fetch-models", void 0)}>${refreshIcon}</ct-icon-button>
+              <ct-button size="md" variant="outlined" square title="Refresh models" @click=${() => this.emit("fetch-models", void 0)}>${refreshIcon}</ct-button>
             </div>
           </label>
 
@@ -3316,13 +3360,13 @@ info() {
       <div class="flex items-center justify-between text-12px text-[#888]">
         <span>${info.totalItems} items • ${info.usedSize} / ${info.maxSize}</span>
         <div class="flex items-center gap-8px">
-          <ct-icon-button size="sm" variant="ghost" title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-icon-button>
-          <ct-icon-button size="sm" variant="ghost" title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+          <ct-button size="sm" variant="ghost" square title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-button>
+          <ct-button size="sm" variant="ghost" square title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
             @click=${() => {
       this.translateCache.clear();
       this.requestUpdate();
     }}
-          >🗑</ct-icon-button>
+          >🗑</ct-button>
         </div>
       </div>
       <div class="w-full h-8px bg-[#eee] rounded-[4px] overflow-hidden my-16px">
@@ -3349,12 +3393,12 @@ info() {
       this.requestUpdate();
     }}
         ></ct-select>
-        <ct-icon-button size="sm" variant="ghost" title="Toggle sort order"
+        <ct-button size="sm" variant="ghost" square title="Toggle sort order"
           @click=${() => {
       this.cacheOrder = this.cacheOrder === "desc" ? "asc" : "desc";
       this.requestUpdate();
     }}
-        >${this.cacheOrder === "desc" ? "↓" : "↑"}</ct-icon-button>
+        >${this.cacheOrder === "desc" ? "↓" : "↑"}</ct-button>
       </div>
     `;
       const displayed = this.cacheOrder === "desc" ? filtered : [...filtered].reverse();
@@ -3367,14 +3411,21 @@ info() {
               <div class="flex flex-col px-8px py-6px rounded-[6px] hover:bg-[#f5f5f5] group cursor-default">
                 <div class="flex items-start justify-between gap-8px">
                   <span class="flex-1 text-13px text-[#333] leading-[1.4] break-words">${parsed?.text ?? item.key}</span>
-                  <button
-                    class="shrink-0 w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c] opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s mt-1px"
-                    title="Remove entry"
-                    @click=${() => {
+                  <div class="flex items-center gap-4px opacity-0 group-hover:opacity-100 transition-all transition-duration-0.15s shrink-0 mt-1px">
+                    <button
+                      class="w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#0088cc]"
+                      title="Edit entry"
+                      @click=${() => this.startEdit(item)}
+                    >✏️</button>
+                    <button
+                      class="w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c]"
+                      title="Remove entry"
+                      @click=${() => {
         this.translateCache.remove(item.key);
         this.requestUpdate();
       }}
-                  >✕</button>
+                    >✕</button>
+                  </div>
                 </div>
                 <div class="flex items-center gap-8px text-11px text-[#999] mt-4px">
                   ${parsed ? x`
@@ -3399,6 +3450,87 @@ info() {
           ${entryList}
         </div>
       </div>
+      ${this.editingItem ? this.renderEditDialog() : ""}
+    `;
+    }
+    renderEditDialog() {
+      return x`
+      <ct-dialog id="edit-dialog" title="Edit Cache Entry">
+        <div slot="header-actions">
+          <ct-button size="sm" variant="ghost" square @click=${this.cancelEdit}>✕</ct-button>
+        </div>
+        <div class="flex flex-col gap-16px">
+          <div class="flex items-center gap-12px">
+            <label class="flex-1 flex flex-col gap-4px">
+              <span class="text-12px text-[#888] font-500">Source Language</span>
+              <ct-select
+                .value=${this.editingItem.from}
+                .options=${this.toOptions}
+                @ct-change=${(e2) => {
+      if (this.editingItem) {
+        this.editingItem.from = e2.detail.value;
+      }
+      this.requestUpdate();
+    }}
+              ></ct-select>
+            </label>
+            <span class="text-[#999] mt-24px">→</span>
+            <label class="flex-1 flex flex-col gap-4px">
+              <span class="text-12px text-[#888] font-500">Target Language</span>
+              <ct-select
+                .value=${this.editingItem.to}
+                .options=${this.toOptions}
+                @ct-change=${(e2) => {
+      if (this.editingItem) {
+        this.editingItem.to = e2.detail.value;
+      }
+      this.requestUpdate();
+    }}
+              ></ct-select>
+            </label>
+          </div>
+
+          <ct-textarea
+            label="Source Text"
+            .value=${this.editingItem.text}
+            @ct-change=${(e2) => {
+      if (this.editingItem) {
+        this.editingItem.text = e2.detail.value;
+      }
+      this.requestUpdate();
+    }}
+          ></ct-textarea>
+
+          <ct-textarea
+            label="Translation"
+            .value=${this.editingItem.value}
+            @ct-change=${(e2) => {
+      if (this.editingItem) {
+        this.editingItem.value = e2.detail.value;
+      }
+      this.requestUpdate();
+    }}
+          ></ct-textarea>
+
+          <ct-input
+            type="number"
+            label="Frequency"
+            .value=${String(this.editingItem.freq)}
+            min="0" step="1"
+            @ct-change=${(e2) => {
+      if (this.editingItem) {
+        this.editingItem.freq = Number(e2.detail.value);
+      }
+      this.requestUpdate();
+    }}
+          ></ct-input>
+
+          <div class="flex items-center justify-end gap-8px mt-8px">
+            <ct-button size="md" variant="outlined" @click=${this.cancelEdit}>Cancel</ct-button>
+            <ct-button size="md" variant="filled" @click=${this.saveEdit}>Save</ct-button>
+          </div>
+        </div>
+      </ct-dialog>
     `;
     }
     render() {
@@ -3436,7 +3568,9 @@ info() {
 .my-16px{margin-top:16px;margin-bottom:16px;}
 .mb-12px{margin-bottom:12px;}
 .mt-1px{margin-top:1px;}
+.mt-24px{margin-top:24px;}
 .mt-4px{margin-top:4px;}
+.mt-8px{margin-top:8px;}
 .box-border{box-sizing:border-box;}
 .contents{display:contents;}
 .h-20px{height:20px;}
@@ -3456,9 +3590,11 @@ info() {
 .cursor-pointer{cursor:pointer;}
 .items-start{align-items:flex-start;}
 .items-center{align-items:center;}
+.justify-end{justify-content:flex-end;}
 .justify-center{justify-content:center;}
 .justify-between{justify-content:space-between;}
 .gap-12px{gap:12px;}
+.gap-16px{gap:16px;}
 .gap-4px{gap:4px;}
 .gap-6px{gap:6px;}
 .gap-8px{gap:8px;}
@@ -3501,6 +3637,7 @@ info() {
 .text-\\[\\#999\\],
 .text-\\#999{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
 .text-\\[\\#ccc\\]{--un-text-opacity:1;color:rgb(204 204 204 / var(--un-text-opacity)) /* #ccc */;}
+.hover\\:text-\\[\\#0088cc\\]:hover{--un-text-opacity:1;color:rgb(0 136 204 / var(--un-text-opacity)) /* #0088cc */;}
 .hover\\:text-\\[\\#e74c3c\\]:hover{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
 .font-500,
 .font-medium{font-weight:500;}
@@ -3572,8 +3709,14 @@ info() {
     r()
   ], ChromeTranslateSettings.prototype, "cacheOrder", 2);
   __decorateClass$1([
+    r()
+  ], ChromeTranslateSettings.prototype, "editingItem", 2);
+  __decorateClass$1([
     e("ct-dialog")
   ], ChromeTranslateSettings.prototype, "dialogEl", 2);
+  __decorateClass$1([
+    e("#edit-dialog")
+  ], ChromeTranslateSettings.prototype, "editDialogEl", 2);
   ChromeTranslateSettings = __decorateClass$1([
     t("chrome-translate-settings")
   ], ChromeTranslateSettings);
