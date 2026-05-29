@@ -11,6 +11,9 @@ importers:
       lit:
         specifier: ^3.2.1
         version: 3.3.1
+      tinydateformat2:
+        specifier: ^1.0.0
+        version: 1.0.0
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^5.2.1
@@ -2054,6 +2057,9 @@ packages:
     resolution: {integrity: sha512-ZL6DDuAlRlLGghwcfmSn9sK3Hr6ArtyudlSAiCqQ6IfE+b+HHbydbYDIG15IfS5do+7XQQBdBiubF/cV2dnDzg==}
     engines: {node: '>=6'}
 
+  tinydateformat2@1.0.0:
+    resolution: {integrity: sha512-gXGgqEOSwGUO7H71fM8/UaGx9+6S2gfvQTjlnKR3OGVGL+upPo6m8Nd28kGagkL+9xD7GPzT9/hDw2w0LepBMQ==}
+
   tinyexec@1.0.1:
     resolution: {integrity: sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==}
 
@@ -2994,7 +3000,7 @@ snapshots:
       '@vue/compiler-ssr': 3.5.19
       '@vue/shared': 3.5.19
       estree-walker: 2.0.2
-      magic-string: 0.30.18
+      magic-string: 0.30.21
       postcss: 8.5.6
       source-map-js: 1.2.1
 
@@ -4452,6 +4458,8 @@ snapshots:
   systemjs@6.15.1: {}
 
   tapable@2.2.3: {}
+
+  tinydateformat2@1.0.0: {}
 
   tinyexec@1.0.1: {}
 

@@ -1,7 +1,6 @@
 import type { ITranslateOptions } from '../core/translator'
 import type { LFUCache } from '../utils/LFUCache'
 import type { ChromeTranslateSettings } from './ct-settings'
-import { CtConfirm } from './ct-confirm'
 import { GM_getValue, GM_setValue } from '$'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
@@ -9,10 +8,11 @@ import { OpenAITranslator } from '../core/provider/openai'
 import { useTranslate } from '../hooks/useTranslate'
 import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
+import { logger } from '../utils/logger'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
+import { CtConfirm } from './ct-confirm'
 import { checkIcon, languageIcon, settingIcon } from './icons'
 import './ct-button'
-import './ct-confirm'
 import './ct-settings'
 
 interface Config {
@@ -228,6 +228,7 @@ export class ChromeTranslateBall extends LitElement {
         t.start()
       }
     })
+    logger.info(`Translation engine initialized, from=${options.from ?? 'auto'}, to=${options.to}`)
   }
 
   private onMouseDown = (e: MouseEvent): void => {
@@ -321,9 +322,11 @@ export class ChromeTranslateBall extends LitElement {
     if (t.isTranslating()) {
       t.stop()
       t.instance.clearElements()
+      logger.info('Translate stopped (toggle off)')
     }
     else {
       t.start()
+      logger.info(`Translate started (${from}→${to})`)
     }
     this.isTranslating = t.isTranslating()
   }, 500, true)
@@ -363,6 +366,7 @@ export class ChromeTranslateBall extends LitElement {
 
   private async onSelectLanguage(target: 'from' | 'to', value: string): Promise<void> {
     this.language = { ...this.language, [target]: value }
+    logger.info(`Language changed: ${target}=${value}`)
 
     const t = this.rendererCtrl
     if (!t) {
@@ -485,12 +489,13 @@ export class ChromeTranslateBall extends LitElement {
         t.stop()
         t.instance.clearElements()
       }
-      void t.instance.translator.detectPageLanguage().then(lang => {
+      void t.instance.translator.detectPageLanguage().then((lang) => {
         t.instance.setLanguage({ from: lang, to: DEFAULT_CONFIG.language.to })
       })
     }
 
     this.settingsDialog?.close()
+    logger.info('Settings reset to default')
   }
 
   private onSettingsEvent(e: CustomEvent): void {

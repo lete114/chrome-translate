@@ -1,5 +1,6 @@
 import type { Progress } from '../progress'
 import type { ITranslateOptions, ITranslationProvider } from '../translator'
+import { logger } from '../../utils/logger'
 
 export interface IChromeTranslatorOptions {
   progress?: Progress
@@ -25,6 +26,7 @@ export class ChromeTranslator implements ITranslationProvider {
     }
 
     const availability = await (window as any).Translator.availability(languages)
+    logger.info(`Chrome translator: availability=${availability} (${options.from}→${options.to})`)
 
     if (availability === 'unavailable') {
       console.warn('Translation not supported; try a different language combination.')
@@ -58,6 +60,8 @@ export class ChromeTranslator implements ITranslationProvider {
         return translator
       }).catch((err) => {
         this.translatorCacheMap.delete(key)
+        const msg = err instanceof Error ? err.message : String(err)
+        logger.error(`Chrome translator creation failed: ${msg}`)
         console.error('Error creating translator:', err)
       })
       this.translatorCacheMap.set(key, translatorPromise)

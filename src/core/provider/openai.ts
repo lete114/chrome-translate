@@ -1,5 +1,6 @@
 import type { ITranslateOptions, ITranslationProvider } from '../translator'
 import { GM_xmlhttpRequest } from '$'
+import { logger } from '../../utils/logger'
 
 export interface IOpenAIConfig {
   apiKey: string
@@ -25,15 +26,19 @@ export class OpenAITranslator implements ITranslationProvider {
   async translate(options: ITranslateOptions & { text: string }): Promise<string> {
     const { text, from, to } = options
     const role = this.useDeveloperRole ? 'developer' : 'system'
+    logger.info(`OpenAI translate (${role}): ${text.slice(0, 40)}...`)
 
     try {
       return await this.sendRequest(role, text, from, to)
     }
     catch (err) {
       if (this.useDeveloperRole && err instanceof Error && err.message.includes('400')) {
+        logger.warn('OpenAI 400 error, retrying with system role')
         this.useDeveloperRole = false
         return await this.sendRequest('system', text, from, to)
       }
+      const msg = err instanceof Error ? err.message : String(err)
+      logger.error(`OpenAI translate error: ${msg}`)
       throw err
     }
   }
@@ -89,6 +94,7 @@ export class OpenAITranslator implements ITranslationProvider {
 
   async fetchModels(): Promise<string[]> {
     const url = `${this.config.baseUrl.replace(/\/+$/, '')}/models`
+    logger.info('Fetching models...')
 
     return new Promise<string[]>((resolve, reject) => {
       GM_xmlhttpRequest({
@@ -99,20 +105,27 @@ export class OpenAITranslator implements ITranslationProvider {
         },
         onload: (resp) => {
           if (resp.status < 200 || resp.status >= 300) {
-            reject(new Error(`Failed to fetch models (${resp.status})`))
+            const msg = `Failed to fetch models (${resp.status})`
+            logger.error(msg)
+            reject(new Error(msg))
             return
           }
           try {
             const data = JSON.parse(resp.responseText)
             const models: string[] = (data.data ?? []).map((m: { id: string }) => m.id).sort()
+            logger.info(`Fetched ${models.length} models`)
             resolve(models)
           }
           catch {
-            reject(new Error('Failed to parse models response'))
+            const msg = 'Failed to parse models response'
+            logger.error(msg)
+            reject(new Error(msg))
           }
         },
         onerror: () => {
-          reject(new Error('Network error fetching models'))
+          const msg = 'Network error fetching models'
+          logger.error(msg)
+          reject(new Error(msg))
         },
       })
     })

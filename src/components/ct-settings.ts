@@ -1,10 +1,12 @@
 import type { LFUCache } from '../utils/LFUCache'
+import type { LogLevel } from '../utils/logger'
 import type { CtDialog } from './ct-dialog'
 import type { TabItem } from './ct-tabs'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { emitCtEvent } from '../utils/emit'
 import { LANGUAGES } from '../utils/languages'
+import { logger } from '../utils/logger'
 import { parseCacheKey } from '../utils/public'
 import { refreshIcon } from './icons'
 import './ct-input'
@@ -48,6 +50,8 @@ export class ChromeTranslateSettings extends LitElement {
   @state() private cacheLimit = 100
   @state() private cacheOrder: 'desc' | 'asc' = 'desc'
   @state() private editingItem: { key: string, from: string, to: string, text: string, value: string, freq: number } | null = null
+  @state() private logLevelFilter: 'all' | LogLevel = 'all'
+  @state() private logCount = 0
 
   @query('ct-dialog') private dialogEl!: CtDialog
   @query('#edit-dialog') private editDialogEl!: CtDialog
@@ -261,9 +265,9 @@ export class ChromeTranslateSettings extends LitElement {
           <ct-button size="sm" variant="ghost" square title="Refresh" @click=${() => this.requestUpdate()}>↻</ct-button>
           <ct-button size="sm" variant="ghost" square title="Clear cache" style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
             @click=${() => {
-                this.translateCache!.clear()
-                this.requestUpdate()
-              }}
+              this.translateCache!.clear()
+              this.requestUpdate()
+            }}
           >🗑</ct-button>
         </div>
       </div>
@@ -286,15 +290,15 @@ export class ChromeTranslateSettings extends LitElement {
           .options=${limitOptions}
           class="w-68px shrink-0"
           @ct-change=${(e: CustomEvent) => {
-              this.cacheLimit = Number(e.detail.value)
-              this.requestUpdate()
-            }}
+            this.cacheLimit = Number(e.detail.value)
+            this.requestUpdate()
+          }}
         ></ct-select>
         <ct-button size="sm" variant="ghost" square title="Toggle sort order"
           @click=${() => {
-              this.cacheOrder = this.cacheOrder === 'desc' ? 'asc' : 'desc'
-              this.requestUpdate()
-            }}
+            this.cacheOrder = this.cacheOrder === 'desc' ? 'asc' : 'desc'
+            this.requestUpdate()
+          }}
         >${this.cacheOrder === 'desc' ? '↓' : '↑'}</ct-button>
       </div>
     `
@@ -321,19 +325,19 @@ export class ChromeTranslateSettings extends LitElement {
                       class="w-20px h-20px border-none bg-transparent cursor-pointer text-12px text-[#ccc] leading-none p-0 flex items-center justify-center rounded-[4px] hover:bg-[#e8e8e8] hover:text-[#e74c3c]"
                       title="Remove entry"
                       @click=${() => {
-                          this.translateCache!.remove(item.key)
-                          this.requestUpdate()
-                        }}
+                        this.translateCache!.remove(item.key)
+                        this.requestUpdate()
+                      }}
                     >✕</button>
                   </div>
                 </div>
                 <div class="flex items-center gap-8px text-11px text-[#999] mt-4px">
                   ${parsed
-                    ? html`
+                      ? html`
                       <span class="inline-flex items-center px-6px py-1px rounded-[3px] bg-[#e8f4f8] text-[#0088cc] font-medium text-10px leading-[18px]">${parsed.from} → ${parsed.to}</span>
                       <span>· freq: ${item.freq}</span>
                     `
-                    : html`<span>freq: ${item.freq}</span>`
+                      : html`<span>freq: ${item.freq}</span>`
                   }
                 </div>
               </div>
@@ -373,11 +377,11 @@ export class ChromeTranslateSettings extends LitElement {
                 .value=${this.editingItem!.from}
                 .options=${this.toOptions}
                 @ct-change=${(e: CustomEvent) => {
-                    if (this.editingItem) {
-                      this.editingItem.from = e.detail.value
-                    }
-                    this.requestUpdate()
-                  }}
+                  if (this.editingItem) {
+                    this.editingItem.from = e.detail.value
+                  }
+                  this.requestUpdate()
+                }}
               ></ct-select>
             </label>
             <span class="text-[#999] mt-24px">→</span>
@@ -387,11 +391,11 @@ export class ChromeTranslateSettings extends LitElement {
                 .value=${this.editingItem!.to}
                 .options=${this.toOptions}
                 @ct-change=${(e: CustomEvent) => {
-                    if (this.editingItem) {
-                      this.editingItem.to = e.detail.value
-                    }
-                    this.requestUpdate()
-                  }}
+                  if (this.editingItem) {
+                    this.editingItem.to = e.detail.value
+                  }
+                  this.requestUpdate()
+                }}
               ></ct-select>
             </label>
           </div>
@@ -400,22 +404,22 @@ export class ChromeTranslateSettings extends LitElement {
             label="Source Text"
             .value=${this.editingItem!.text}
             @ct-change=${(e: CustomEvent) => {
-                if (this.editingItem) {
-                  this.editingItem.text = e.detail.value
-                }
-                this.requestUpdate()
-              }}
+              if (this.editingItem) {
+                this.editingItem.text = e.detail.value
+              }
+              this.requestUpdate()
+            }}
           ></ct-textarea>
 
           <ct-textarea
             label="Translation"
             .value=${this.editingItem!.value}
             @ct-change=${(e: CustomEvent) => {
-                if (this.editingItem) {
-                  this.editingItem.value = e.detail.value
-                }
-                this.requestUpdate()
-              }}
+              if (this.editingItem) {
+                this.editingItem.value = e.detail.value
+              }
+              this.requestUpdate()
+            }}
           ></ct-textarea>
 
           <ct-input
@@ -424,11 +428,11 @@ export class ChromeTranslateSettings extends LitElement {
             .value=${String(this.editingItem!.freq)}
             min="0" step="1"
             @ct-change=${(e: CustomEvent) => {
-                if (this.editingItem) {
-                  this.editingItem.freq = Number(e.detail.value)
-                }
-                this.requestUpdate()
-              }}
+              if (this.editingItem) {
+                this.editingItem.freq = Number(e.detail.value)
+              }
+              this.requestUpdate()
+            }}
           ></ct-input>
 
           <div class="flex items-center justify-end gap-8px mt-8px">
@@ -440,11 +444,96 @@ export class ChromeTranslateSettings extends LitElement {
     `
   }
 
+  private renderLogsTab() {
+    this.logCount = logger.getAll().length
+    const allLogs = logger.getAll()
+    const filtered = this.logLevelFilter === 'all'
+      ? allLogs
+      : allLogs.filter(l => l.level === this.logLevelFilter)
+
+    const levelFilterOptions = [
+      { label: `All (${allLogs.length})`, value: 'all' },
+      { label: 'Info', value: 'info' as LogLevel },
+      { label: 'Warn', value: 'warn' as LogLevel },
+      { label: 'Error', value: 'error' as LogLevel },
+    ]
+
+    const levelColors: Record<LogLevel, string> = {
+      info: '#0088cc',
+      warn: '#e67e22',
+      error: '#e74c3c',
+    }
+
+    const levelBgColors: Record<LogLevel, string> = {
+      info: '#e8f4f8',
+      warn: '#fef3e2',
+      error: '#fde8e8',
+    }
+
+    return html`
+      <div class="flex flex-col h-full">
+        <div class="shrink-0">
+          <ct-section-header label="Operation Logs"></ct-section-header>
+          <div class="flex items-center justify-between text-12px text-[#888]">
+            <span>${this.logCount} items</span>
+            <div class="flex items-center gap-8px">
+              <ct-button size="sm" variant="ghost" square title="Refresh"
+                @click=${() => this.requestUpdate()}
+              >↻</ct-button>
+              <ct-button size="sm" variant="ghost" square title="Clear logs"
+                style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+                @click=${() => {
+                  logger.clear()
+                  this.requestUpdate()
+                }}
+              >🗑</ct-button>
+            </div>
+          </div>
+          <ct-divider class="my-16px"></ct-divider>
+          <div class="mb-12px">
+            <ct-radio-group
+              direction="horizontal"
+              name="log-level"
+              .value=${this.logLevelFilter}
+              .options=${levelFilterOptions}
+              @ct-change=${(e: CustomEvent) => {
+                this.logLevelFilter = e.detail.value
+                this.requestUpdate()
+              }}
+            ></ct-radio-group>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto min-h-0">
+          ${filtered.length > 0
+              ? html`
+              <div class="flex flex-col gap-2px">
+                ${[...filtered].reverse().map((l) => {
+                  const levelColor = levelColors[l.level]
+                  const levelBg = levelBgColors[l.level]
+                  return html`
+                    <div class="flex items-start gap-8px px-8px py-6px rounded-[4px] text-12px leading-[1.5] hover:bg-[#f9f9f9]">
+                      <span class="shrink-0 font-mono text-[#aaa] whitespace-nowrap">${l.formattedTime}</span>
+                      <span class="shrink-0 inline-flex items-center px-5px py-1px rounded-[3px] font-medium text-10px leading-[16px] whitespace-nowrap"
+                        style="color: ${levelColor}; background: ${levelBg}">${l.level}</span>
+                      <span class="flex-1 text-[#444] break-words">${l.message}</span>
+                    </div>
+                  `
+                })}
+              </div>
+            `
+              : html`<div class="text-13px text-[#888] text-center py-20px">No logs</div>`
+          }
+        </div>
+      </div>
+    `
+  }
+
   override render() {
     const tabs: TabItem[] = [
       { icon: html`<span>🌐</span>`, label: 'Translate', value: 'translate' },
       { icon: html`<span>⚙️</span>`, label: 'Provider', value: 'provider' },
       { icon: html`<span>🗃️</span>`, label: 'Cache', value: 'cache' },
+      { icon: html`<span>📋</span>`, label: 'Logs', value: 'logs' },
     ]
 
     return html`
@@ -461,8 +550,8 @@ export class ChromeTranslateSettings extends LitElement {
             <ct-button size="sm" variant="outlined"
               style="--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
               @click=${() => {
-                  this.emit('reset-default', undefined)
-                }}
+                this.emit('reset-default', undefined)
+              }}
             >Reset Config</ct-button>
           </div>
         </div>
@@ -470,7 +559,9 @@ export class ChromeTranslateSettings extends LitElement {
           ? this.renderTranslateTab()
           : this.activeTab === 'provider'
             ? this.renderProviderTab()
-            : this.renderCacheTab()}
+            : this.activeTab === 'cache'
+              ? this.renderCacheTab()
+              : this.renderLogsTab()}
       </ct-dialog>
     `
   }

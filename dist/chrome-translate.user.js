@@ -920,6 +920,65 @@
   var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
   var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  const padStart = (param) => param.toString().padStart(2, "0");
+  const oneDigit = (param) => param.startsWith("0") ? param.slice(-1) : param;
+  function tinyDateFormat(format = "HH:mm:ss", timestamp = Date.now()) {
+    const date = new Date(timestamp);
+    const year = date.getFullYear().toString();
+    const month = padStart(date.getMonth() + 1);
+    const day = padStart(date.getDate());
+    const week = date.getDay();
+    const hours = date.getHours();
+    const hours12 = hours % 12 || 12;
+    const minutes = padStart(date.getMinutes());
+    const seconds = padStart(date.getSeconds());
+    const replacements = {
+      YY: year.slice(-2),
+      YYYY: year,
+      M: oneDigit(month),
+      MM: month,
+      MMM: date.toLocaleString("default", { month: "short" }),
+      MMMM: date.toLocaleString("default", { month: "long" }),
+      D: oneDigit(day),
+      DD: day,
+      d: week ? week : 7,
+      H: hours,
+      HH: padStart(hours),
+      h: hours12,
+      hh: padStart(hours12),
+      m: oneDigit(minutes),
+      mm: minutes,
+      s: oneDigit(seconds),
+      ss: seconds
+    };
+    const reg = /YY(?:YY)?|M{1,4}|D{1,2}|d|H{1,2}|h{1,2}|m{1,2}|s{1,2}/g;
+    return format.replace(reg, (match) => replacements[match]);
+  }
+  const MAX_LOGS = 500;
+  const logs = [];
+  let nextId = 0;
+  function add(level, message) {
+    logs.push({
+      id: nextId++,
+      timestamp: Date.now(),
+      level,
+      message,
+      formattedTime: tinyDateFormat()
+    });
+    if (logs.length > MAX_LOGS) {
+      logs.shift();
+    }
+  }
+  const logger = {
+    info: (msg) => add("info", msg),
+    warn: (msg) => add("warn", msg),
+    error: (msg) => add("error", msg),
+    getAll: () => logs,
+    clear: () => {
+      logs.length = 0;
+      nextId = 0;
+    }
+  };
   class OpenAITranslator {
     constructor() {
       this.useDeveloperRole = true;
@@ -933,13 +992,17 @@
     async translate(options) {
       const { text, from, to } = options;
       const role = this.useDeveloperRole ? "developer" : "system";
+      logger.info(`OpenAI translate (${role}): ${text.slice(0, 40)}...`);
       try {
         return await this.sendRequest(role, text, from, to);
       } catch (err) {
         if (this.useDeveloperRole && err instanceof Error && err.message.includes("400")) {
+          logger.warn("OpenAI 400 error, retrying with system role");
           this.useDeveloperRole = false;
           return await this.sendRequest("system", text, from, to);
         }
+        const msg = err instanceof Error ? err.message : String(err);
+        logger.error(`OpenAI translate error: ${msg}`);
         throw err;
       }
     }
@@ -992,6 +1055,7 @@
     }
     async fetchModels() {
       const url = `${this.config.baseUrl.replace(/\/+$/, "")}/models`;
+      logger.info("Fetching models...");
       return new Promise((resolve, reject) => {
         _GM_xmlhttpRequest({
           method: "GET",
@@ -1001,19 +1065,26 @@
           },
           onload: (resp) => {
             if (resp.status < 200 || resp.status >= 300) {
-              reject(new Error(`Failed to fetch models (${resp.status})`));
+              const msg = `Failed to fetch models (${resp.status})`;
+              logger.error(msg);
+              reject(new Error(msg));
               return;
             }
             try {
               const data = JSON.parse(resp.responseText);
               const models = (data.data ?? []).map((m2) => m2.id).sort();
+              logger.info(`Fetched ${models.length} models`);
               resolve(models);
             } catch {
-              reject(new Error("Failed to parse models response"));
+              const msg = "Failed to parse models response";
+              logger.error(msg);
+              reject(new Error(msg));
             }
           },
           onerror: () => {
-            reject(new Error("Network error fetching models"));
+            const msg = "Network error fetching models";
+            logger.error(msg);
+            reject(new Error(msg));
           }
         });
       });
@@ -1168,6 +1239,7 @@
         targetLanguage: options.to
       };
       const availability = await window.Translator.availability(languages);
+      logger.info(`Chrome translator: availability=${availability} (${options.from}→${options.to})`);
       if (availability === "unavailable") {
         console.warn("Translation not supported; try a different language combination.");
         return void 0;
@@ -1197,6 +1269,8 @@
           return translator;
         }).catch((err) => {
           this.translatorCacheMap.delete(key);
+          const msg = err instanceof Error ? err.message : String(err);
+          logger.error(`Chrome translator creation failed: ${msg}`);
           console.error("Error creating translator:", err);
         });
         this.translatorCacheMap.set(key, translatorPromise);
@@ -1551,8 +1625,10 @@
         if (this.translateCache.has(key)) {
           const text = this.translateCache.get(key);
           node.translate = text;
+          logger.info(`Cache hit: ${from}→${to}:${node.text.slice(0, 40)}`);
           return;
         }
+        logger.info(`Cache miss: ${key.slice(0, 60)}`);
         node.translate = node.originalText;
         if (!isExcludedElement(node.parent)) {
           const options = { text: node.text, from, to };
@@ -1568,8 +1644,10 @@
     async translateHTML({ from, to, map, text }) {
       const key = `${from}->${to}:${text}`;
       if (this.translateCache.has(key)) {
+        logger.info(`Cache hit: ${key.slice(0, 60)}`);
         return this.translateCache.get(key);
       }
+      logger.info(`Cache miss: ${key.slice(0, 60)}`);
       const translate = await this.translator.translate({ text, from, to });
       const innerHTML = this.textExtractor.parseTextWithInlineTags(translate, map);
       this.translateCache.set(key, innerHTML);
@@ -1606,6 +1684,7 @@
       this.translateElements = [];
       this.translateContainers = [];
       this.clearLoading();
+      logger.info("Translated elements cleared");
     }
     getGroupTextNodesByParagraph(rootElement) {
       return this.textExtractor.groupTextNodesByParagraph(
@@ -1620,6 +1699,7 @@
       this.mutationObserver?.disconnect();
       this.observer = void 0;
       this.mutationObserver = void 0;
+      logger.info("Translation stopped");
     }
     start() {
       if (this.language.from === this.language.to) {
@@ -1628,6 +1708,8 @@
       this.stop();
       this.isRunning = true;
       const groupedNodes = new Map();
+      const paragraphs = this.getGroupTextNodesByParagraph(this.el);
+      logger.info(`Translation started, ${paragraphs.length} paragraphs found`);
       const observerCallback = (entries, observer) => {
         entries.forEach(async (entry) => {
           if (this.isRunning && entry.isIntersecting) {
@@ -1651,7 +1733,7 @@
         rootMargin: "50px",
         threshold: 0.1
 });
-      this.getGroupTextNodesByParagraph(this.el).forEach((group) => {
+      paragraphs.forEach((group) => {
         groupedNodes.set(group.container, group);
         this.observer?.observe(group.container);
       });
@@ -1700,8 +1782,12 @@
           cancelLoading();
           this.isRunning && this.createParagraphBilingualDisplay(textParagraph);
         }
+        const preview = (textParagraph.combinedText ?? textParagraph.textNodes[0]?.text ?? "").slice(0, 50);
+        logger.info(`Translated: ${preview}...`);
       } catch (error) {
         cancelLoading();
+        const msg = error instanceof Error ? error.message : String(error);
+        logger.error(`Translation error: ${msg}`);
         console.error("Translation error:", error);
       }
     }
@@ -3277,6 +3363,8 @@ info() {
       this.cacheLimit = 100;
       this.cacheOrder = "desc";
       this.editingItem = null;
+      this.logLevelFilter = "all";
+      this.logCount = 0;
     }
     show() {
       this.dialogEl?.show();
@@ -3641,11 +3729,86 @@ info() {
       </ct-dialog>
     `;
     }
+    renderLogsTab() {
+      this.logCount = logger.getAll().length;
+      const allLogs = logger.getAll();
+      const filtered = this.logLevelFilter === "all" ? allLogs : allLogs.filter((l2) => l2.level === this.logLevelFilter);
+      const levelFilterOptions = [
+        { label: `All (${allLogs.length})`, value: "all" },
+        { label: "Info", value: "info" },
+        { label: "Warn", value: "warn" },
+        { label: "Error", value: "error" }
+      ];
+      const levelColors = {
+        info: "#0088cc",
+        warn: "#e67e22",
+        error: "#e74c3c"
+      };
+      const levelBgColors = {
+        info: "#e8f4f8",
+        warn: "#fef3e2",
+        error: "#fde8e8"
+      };
+      return x`
+      <div class="flex flex-col h-full">
+        <div class="shrink-0">
+          <ct-section-header label="Operation Logs"></ct-section-header>
+          <div class="flex items-center justify-between text-12px text-[#888]">
+            <span>${this.logCount} entries</span>
+            <div class="flex items-center gap-8px">
+              <ct-button size="sm" variant="ghost" square title="Refresh"
+                @click=${() => this.requestUpdate()}
+              >↻</ct-button>
+              <ct-button size="sm" variant="ghost" square title="Clear logs"
+                style="--ct-btn-color:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff"
+                @click=${() => {
+      logger.clear();
+      this.requestUpdate();
+    }}
+              >🗑</ct-button>
+            </div>
+          </div>
+          <ct-divider class="my-16px"></ct-divider>
+          <div class="mb-12px">
+            <ct-radio-group
+              direction="horizontal"
+              name="log-level"
+              .value=${this.logLevelFilter}
+              .options=${levelFilterOptions}
+              @ct-change=${(e2) => {
+      this.logLevelFilter = e2.detail.value;
+      this.requestUpdate();
+    }}
+            ></ct-radio-group>
+          </div>
+        </div>
+        <div class="flex-1 overflow-y-auto min-h-0">
+          ${filtered.length > 0 ? x`
+              <div class="flex flex-col gap-2px">
+                ${[...filtered].reverse().map((l2) => {
+      const levelColor = levelColors[l2.level];
+      const levelBg = levelBgColors[l2.level];
+      return x`
+                    <div class="flex items-start gap-8px px-8px py-6px rounded-[4px] text-12px leading-[1.5] hover:bg-[#f9f9f9]">
+                      <span class="shrink-0 font-mono text-[#aaa] whitespace-nowrap">${l2.formattedTime}</span>
+                      <span class="shrink-0 inline-flex items-center px-5px py-1px rounded-[3px] font-medium text-10px leading-[16px] whitespace-nowrap"
+                        style="color: ${levelColor}; background: ${levelBg}">${l2.level}</span>
+                      <span class="flex-1 text-[#444] break-words">${l2.message}</span>
+                    </div>
+                  `;
+    })}
+              </div>
+            ` : x`<div class="text-13px text-[#888] text-center py-20px">No logs</div>`}
+        </div>
+      </div>
+    `;
+    }
     render() {
       const tabs = [
         { icon: x`<span>🌐</span>`, label: "Translate", value: "translate" },
         { icon: x`<span>⚙️</span>`, label: "Provider", value: "provider" },
-        { icon: x`<span>🗃️</span>`, label: "Cache", value: "cache" }
+        { icon: x`<span>🗃️</span>`, label: "Cache", value: "cache" },
+        { icon: x`<span>📋</span>`, label: "Logs", value: "logs" }
       ];
       return x`
       <ct-dialog title="Setting">
@@ -3668,7 +3831,7 @@ info() {
             >Reset Config</ct-button>
           </div>
         </div>
-        ${this.activeTab === "translate" ? this.renderTranslateTab() : this.activeTab === "provider" ? this.renderProviderTab() : this.renderCacheTab()}
+        ${this.activeTab === "translate" ? this.renderTranslateTab() : this.activeTab === "provider" ? this.renderProviderTab() : this.activeTab === "cache" ? this.renderCacheTab() : this.renderLogsTab()}
       </ct-dialog>
     `;
     }
@@ -3714,11 +3877,13 @@ info() {
 .justify-between{justify-content:space-between;}
 .gap-12px{gap:12px;}
 .gap-16px{gap:16px;}
+.gap-2px{gap:2px;}
 .gap-4px{gap:4px;}
 .gap-6px{gap:6px;}
 .gap-8px{gap:8px;}
 .overflow-hidden{overflow:hidden;}
 .overflow-y-auto{overflow-y:auto;}
+.whitespace-nowrap{white-space:nowrap;}
 .break-words{overflow-wrap:break-word;}
 .border-1px{border-width:1px;}
 .border-r-1px{border-right-width:1px;}
@@ -3739,9 +3904,11 @@ info() {
 .bg-transparent{background-color:transparent /* transparent */;}
 .hover\\:bg-\\[\\#e8e8e8\\]:hover{--un-bg-opacity:1;background-color:rgb(232 232 232 / var(--un-bg-opacity)) /* #e8e8e8 */;}
 .hover\\:bg-\\[\\#f5f5f5\\]:hover{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
+.hover\\:bg-\\[\\#f9f9f9\\]:hover{--un-bg-opacity:1;background-color:rgb(249 249 249 / var(--un-bg-opacity)) /* #f9f9f9 */;}
 .focus\\:bg-\\[\\#fff\\]:focus{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
 .p-0{padding:0;}
 .px-12px{padding-left:12px;padding-right:12px;}
+.px-5px{padding-left:5px;padding-right:5px;}
 .px-6px{padding-left:6px;padding-right:6px;}
 .px-8px{padding-left:8px;padding-right:8px;}
 .py-10px{padding-top:10px;padding-bottom:10px;}
@@ -3756,17 +3923,22 @@ info() {
 .text-13px{font-size:13px;}
 .text-\\[\\#0088cc\\]{--un-text-opacity:1;color:rgb(0 136 204 / var(--un-text-opacity)) /* #0088cc */;}
 .text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.text-\\[\\#444\\]{--un-text-opacity:1;color:rgb(68 68 68 / var(--un-text-opacity)) /* #444 */;}
 .text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
 .text-\\[\\#999\\],
 .text-\\#999{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
+.text-\\[\\#aaa\\]{--un-text-opacity:1;color:rgb(170 170 170 / var(--un-text-opacity)) /* #aaa */;}
 .text-\\[\\#ccc\\]{--un-text-opacity:1;color:rgb(204 204 204 / var(--un-text-opacity)) /* #ccc */;}
 .hover\\:text-\\[\\#0088cc\\]:hover{--un-text-opacity:1;color:rgb(0 136 204 / var(--un-text-opacity)) /* #0088cc */;}
 .hover\\:text-\\[\\#e74c3c\\]:hover{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
 .font-500,
 .font-medium{font-weight:500;}
 .leading-\\[1\\.4\\]{line-height:1.4;}
+.leading-\\[1\\.5\\]{line-height:1.5;}
+.leading-\\[16px\\]{line-height:16px;}
 .leading-\\[18px\\]{line-height:18px;}
 .leading-none{line-height:1;}
+.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
 .opacity-0{opacity:0;}
 .group:hover .group-hover\\:opacity-100{opacity:1;}
 .outline-none{outline:2px solid transparent;outline-offset:2px;}
@@ -3834,6 +4006,12 @@ info() {
   __decorateClass$1([
     r()
   ], ChromeTranslateSettings.prototype, "editingItem", 2);
+  __decorateClass$1([
+    r()
+  ], ChromeTranslateSettings.prototype, "logLevelFilter", 2);
+  __decorateClass$1([
+    r()
+  ], ChromeTranslateSettings.prototype, "logCount", 2);
   __decorateClass$1([
     e("ct-dialog")
   ], ChromeTranslateSettings.prototype, "dialogEl", 2);
@@ -3946,8 +4124,10 @@ info() {
         if (t2.isTranslating()) {
           t2.stop();
           t2.instance.clearElements();
+          logger.info("Translate stopped (toggle off)");
         } else {
           t2.start();
+          logger.info(`Translate started (${from}→${to})`);
         }
         this.isTranslating = t2.isTranslating();
       }, 500, true);
@@ -4043,6 +4223,7 @@ info() {
           t2.start();
         }
       });
+      logger.info(`Translation engine initialized, from=${options.from ?? "auto"}, to=${options.to}`);
     }
     onMouseMove(e2) {
       const ball = this.ballEl;
@@ -4086,6 +4267,7 @@ info() {
     }
     async onSelectLanguage(target, value) {
       this.language = { ...this.language, [target]: value };
+      logger.info(`Language changed: ${target}=${value}`);
       const t2 = this.rendererCtrl;
       if (!t2) {
         return;
@@ -4197,6 +4379,7 @@ info() {
         });
       }
       this.settingsDialog?.close();
+      logger.info("Settings reset to default");
     }
     onSettingsEvent(e2) {
       const { type, detail } = e2;
