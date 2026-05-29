@@ -26,7 +26,7 @@
    * Copyright 2019 Google LLC
    * SPDX-License-Identifier: BSD-3-Clause
    */
-  const t$2 = globalThis, e$4 = t$2.ShadowRoot && (void 0 === t$2.ShadyCSS || t$2.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, s$2 = Symbol(), o$4 = new WeakMap();
+  const t$2 = globalThis, e$4 = t$2.ShadowRoot && (void 0 === t$2.ShadyCSS || t$2.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, s$2 = Symbol(), o$5 = new WeakMap();
   let n$3 = class n {
     constructor(t2, e2, o2) {
       if (this._$cssResult$ = true, o2 !== s$2) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
@@ -37,7 +37,7 @@
       const s2 = this.t;
       if (e$4 && void 0 === t2) {
         const e2 = void 0 !== s2 && 1 === s2.length;
-        e2 && (t2 = o$4.get(s2)), void 0 === t2 && ((this.o = t2 = new CSSStyleSheet()).replaceSync(this.cssText), e2 && o$4.set(s2, t2));
+        e2 && (t2 = o$5.get(s2)), void 0 === t2 && ((this.o = t2 = new CSSStyleSheet()).replaceSync(this.cssText), e2 && o$5.set(s2, t2));
       }
       return t2;
     }
@@ -68,7 +68,7 @@
    * Copyright 2017 Google LLC
    * SPDX-License-Identifier: BSD-3-Clause
    */
-  const { is: i$2, defineProperty: e$3, getOwnPropertyDescriptor: h$1, getOwnPropertyNames: r$3, getOwnPropertySymbols: o$3, getPrototypeOf: n$2 } = Object, a$1 = globalThis, c$1 = a$1.trustedTypes, l$1 = c$1 ? c$1.emptyScript : "", p$1 = a$1.reactiveElementPolyfillSupport, d$1 = (t2, s2) => t2, u$1 = { toAttribute(t2, s2) {
+  const { is: i$2, defineProperty: e$3, getOwnPropertyDescriptor: h$1, getOwnPropertyNames: r$3, getOwnPropertySymbols: o$4, getPrototypeOf: n$2 } = Object, a$1 = globalThis, c$1 = a$1.trustedTypes, l$1 = c$1 ? c$1.emptyScript : "", p$1 = a$1.reactiveElementPolyfillSupport, d$1 = (t2, s2) => t2, u$1 = { toAttribute(t2, s2) {
     switch (s2) {
       case Boolean:
         t2 = t2 ? l$1 : null;
@@ -133,7 +133,7 @@
     static finalize() {
       if (this.hasOwnProperty(d$1("finalized"))) return;
       if (this.finalized = true, this._$Ei(), this.hasOwnProperty(d$1("properties"))) {
-        const t3 = this.properties, s2 = [...r$3(t3), ...o$3(t3)];
+        const t3 = this.properties, s2 = [...r$3(t3), ...o$4(t3)];
         for (const i2 of s2) this.createProperty(i2, t3[i2]);
       }
       const t2 = this[Symbol.metadata];
@@ -285,7 +285,7 @@
    * Copyright 2017 Google LLC
    * SPDX-License-Identifier: BSD-3-Clause
    */
-  const t$1 = globalThis, i$1 = t$1.trustedTypes, s$1 = i$1 ? i$1.createPolicy("lit-html", { createHTML: (t2) => t2 }) : void 0, e$2 = "$lit$", h = `lit$${Math.random().toFixed(9).slice(2)}$`, o$2 = "?" + h, n$1 = `<${o$2}>`, r$2 = document, l = () => r$2.createComment(""), c = (t2) => null === t2 || "object" != typeof t2 && "function" != typeof t2, a = Array.isArray, u = (t2) => a(t2) || "function" == typeof t2?.[Symbol.iterator], d = "[ 	\n\f\r]", f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, v = /-->/g, _ = />/g, m = RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ 	
+  const t$1 = globalThis, i$1 = t$1.trustedTypes, s$1 = i$1 ? i$1.createPolicy("lit-html", { createHTML: (t2) => t2 }) : void 0, e$2 = "$lit$", h = `lit$${Math.random().toFixed(9).slice(2)}$`, o$3 = "?" + h, n$1 = `<${o$3}>`, r$2 = document, l = () => r$2.createComment(""), c = (t2) => null === t2 || "object" != typeof t2 && "function" != typeof t2, a = Array.isArray, u = (t2) => a(t2) || "function" == typeof t2?.[Symbol.iterator], d = "[ 	\n\f\r]", f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, v = /-->/g, _ = />/g, m = RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), p = /'/g, g = /"/g, $ = /^(?:script|style|textarea|title)$/i, y2 = (t2) => (i2, ...s2) => ({ _$litType$: t2, strings: i2, values: s2 }), x = y2(1), b = y2(2), T = Symbol.for("lit-noChange"), E = Symbol.for("lit-nothing"), A = new WeakMap(), C = r$2.createTreeWalker(r$2, 129);
   function P(t2, i2) {
     if (!a(t2) || !t2.hasOwnProperty("raw")) throw Error("invalid template strings array");
@@ -327,7 +327,7 @@
               r2.append(t3[s3], l());
             }
           }
-        } else if (8 === r2.nodeType) if (r2.data === o$2) d2.push({ type: 2, index: c2 });
+        } else if (8 === r2.nodeType) if (r2.data === o$3) d2.push({ type: 2, index: c2 });
         else {
           let t3 = -1;
           for (; -1 !== (t3 = r2.data.indexOf(h, t3 + 1)); ) d2.push({ type: 7, index: c2 }), t3 += h.length - 1;
@@ -538,8 +538,8 @@
     }
   }
   i._$litElement$ = true, i["finalized"] = true, s.litElementHydrateSupport?.({ LitElement: i });
-  const o$1 = s.litElementPolyfillSupport;
-  o$1?.({ LitElement: i });
+  const o$2 = s.litElementPolyfillSupport;
+  o$2?.({ LitElement: i });
   (s.litElementVersions ??= []).push("4.2.1");
   /**
    * @license
@@ -556,7 +556,7 @@
    * Copyright 2017 Google LLC
    * SPDX-License-Identifier: BSD-3-Clause
    */
-  const o = { attribute: true, type: String, converter: u$1, reflect: false, hasChanged: f$1 }, r$1 = (t2 = o, e2, r2) => {
+  const o$1 = { attribute: true, type: String, converter: u$1, reflect: false, hasChanged: f$1 }, r$1 = (t2 = o$1, e2, r2) => {
     const { kind: n3, metadata: i2 } = r2;
     let s2 = globalThis.litPropertyMetadata.get(i2);
     if (void 0 === s2 && globalThis.litPropertyMetadata.set(i2, s2 = new Map()), "setter" === n3 && ((t2 = Object.create(t2)).wrapped = true), s2.set(r2.name, t2), "accessor" === n3) {
@@ -2113,6 +2113,10 @@ info() {
       clearInterval(timer);
     };
   }
+  const languageIcon = b`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
+  const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
+  const refreshIcon = b`<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4C7.58 4 4.01 7.58 4.01 12S7.58 20 12 20c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
+  const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
   const LANGUAGES = [
 { label: "EN", value: "en" },
     { label: "ZH-CN", value: "zh-CN" },
@@ -2174,10 +2178,836 @@ info() {
     { label: "KK", value: "kk" },
     { label: "MN", value: "mn" }
   ];
-  const languageIcon = b`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
-  const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
-  const refreshIcon = b`<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4C7.58 4 4.01 7.58 4.01 12S7.58 20 12 20c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
-  const settingIcon = b`<svg viewBox="0 0 1024 1024" width="20" height="20"><path fill="currentColor" d="M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"/></svg>`;
+  /**
+   * @license
+   * Copyright 2018 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
+  const o = (o2) => o2 ?? E;
+  var __defProp$3 = Object.defineProperty;
+  var __getOwnPropDesc$3 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$3 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$3(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$3(target, key, result);
+    return result;
+  };
+  let CtInput = class extends i {
+    constructor() {
+      super(...arguments);
+      this.value = "";
+      this.type = "text";
+      this.placeholder = "";
+      this.label = "";
+      this.helpText = "";
+      this.error = "";
+      this.disabled = false;
+      this.readonly = false;
+      this.min = void 0;
+      this.max = void 0;
+      this.step = void 0;
+    }
+    onChange(e2) {
+      const value = e2.target.value;
+      this.dispatchEvent(new CustomEvent("ct-change", {
+        detail: { value },
+        bubbles: true,
+        composed: true
+      }));
+    }
+    onInput(e2) {
+      const value = e2.target.value;
+      this.dispatchEvent(new CustomEvent("ct-input", {
+        detail: { value },
+        bubbles: true,
+        composed: true
+      }));
+    }
+    render() {
+      return x`
+      <label part="root">
+        ${this.label ? x`<span part="label" class="label-text">${this.label}</span>` : ""}
+        <input
+          part="input"
+          type=${this.type}
+          .value=${this.value}
+          placeholder=${this.placeholder}
+          ?disabled=${this.disabled}
+          ?readonly=${this.readonly}
+          min=${o(this.min)}
+          max=${o(this.max)}
+          step=${o(this.step)}
+          @change=${this.onChange}
+          @input=${this.onInput}
+        >
+        ${this.helpText ? x`<span part="help" class="help-text">${this.helpText}</span>` : ""}
+        ${this.error ? x`<span part="error" class="error-text">${this.error}</span>` : ""}
+      </label>
+    `;
+    }
+  };
+  CtInput.styles = i$3`
+    :host {
+      --ct-primary: #00c4b6;
+      --ct-border: #ddd;
+      --ct-bg: #fafafa;
+      --ct-bg-focus: #fff;
+      --ct-text: #333;
+      --ct-text-muted: #888;
+      --ct-radius: 6px;
+      --ct-font-size: 13px;
+      display: block;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .label-text {
+      font-size: 12px;
+      color: var(--ct-text-muted);
+      font-weight: 500;
+    }
+
+    input {
+      padding: 8px 12px;
+      border: 1px solid var(--ct-border);
+      border-radius: var(--ct-radius);
+      font-size: var(--ct-font-size);
+      color: var(--ct-text);
+      background: var(--ct-bg);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: var(--ct-primary);
+      background: var(--ct-bg-focus);
+    }
+
+    input:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .help-text,
+    .error-text {
+      font-size: 11px;
+    }
+
+    .help-text {
+      color: var(--ct-text-muted);
+    }
+
+    .error-text {
+      color: #e74c3c;
+    }
+  `;
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtInput.prototype, "value", 2);
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtInput.prototype, "type", 2);
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtInput.prototype, "placeholder", 2);
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtInput.prototype, "label", 2);
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtInput.prototype, "helpText", 2);
+  __decorateClass$3([
+    n2({ type: String })
+  ], CtInput.prototype, "error", 2);
+  __decorateClass$3([
+    n2({ type: Boolean })
+  ], CtInput.prototype, "disabled", 2);
+  __decorateClass$3([
+    n2({ type: Boolean })
+  ], CtInput.prototype, "readonly", 2);
+  __decorateClass$3([
+    n2({ type: Number })
+  ], CtInput.prototype, "min", 2);
+  __decorateClass$3([
+    n2({ type: Number })
+  ], CtInput.prototype, "max", 2);
+  __decorateClass$3([
+    n2({ type: Number })
+  ], CtInput.prototype, "step", 2);
+  CtInput = __decorateClass$3([
+    t("ct-input")
+  ], CtInput);
+  var __defProp$2 = Object.defineProperty;
+  var __getOwnPropDesc$2 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$2 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$2(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$2(target, key, result);
+    return result;
+  };
+  let CtSelect = class extends i {
+    constructor() {
+      super(...arguments);
+      this.uid = `cs-${Math.random().toString(36).slice(2, 8)}`;
+      this.value = "";
+      this.options = [];
+      this.placeholder = "Select…";
+      this.disabled = false;
+      this.loading = false;
+      this.error = "";
+      this.dropdownOpen = false;
+      this.dropup = false;
+      this.highlightIndex = -1;
+      this.onDocumentMouseDown = (e2) => {
+        if (!this.dropdownOpen) {
+          return;
+        }
+        const path = e2.composedPath();
+        const inDropdown = path.some((el) => el instanceof Element && el.getAttribute("data-dropdown") === this.uid);
+        if (!inDropdown) {
+          this.dropdownOpen = false;
+        }
+      };
+    }
+    get label() {
+      if (this.loading) {
+        return "Loading…";
+      }
+      const selected = this.options.find((o2) => o2.value === this.value);
+      return selected?.label ?? this.placeholder;
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      document.addEventListener("mousedown", this.onDocumentMouseDown);
+    }
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      document.removeEventListener("mousedown", this.onDocumentMouseDown);
+    }
+    toggle() {
+      if (this.disabled) {
+        return;
+      }
+      if (!this.dropdownOpen) {
+        const trigger = this.renderRoot.querySelector(".trigger");
+        const rect = trigger.getBoundingClientRect();
+        this.dropup = window.innerHeight - rect.bottom < 200;
+        this.highlightIndex = Math.max(0, this.options.findIndex((o2) => o2.value === this.value));
+      }
+      this.dropdownOpen = !this.dropdownOpen;
+    }
+    select(value) {
+      this.dropdownOpen = false;
+      if (value !== this.value) {
+        this.dispatchEvent(new CustomEvent("ct-change", {
+          detail: { value },
+          bubbles: true,
+          composed: true
+        }));
+      }
+    }
+    onKeydown(e2) {
+      if (!this.dropdownOpen) {
+        return;
+      }
+      switch (e2.key) {
+        case "ArrowDown":
+          e2.preventDefault();
+          this.highlightIndex = Math.min(this.highlightIndex + 1, this.options.length - 1);
+          break;
+        case "ArrowUp":
+          e2.preventDefault();
+          this.highlightIndex = Math.max(this.highlightIndex - 1, 0);
+          break;
+        case "Enter":
+        case " ":
+          e2.preventDefault();
+          if (this.highlightIndex >= 0) {
+            this.select(this.options[this.highlightIndex].value);
+          }
+          break;
+        case "Escape":
+          this.dropdownOpen = false;
+          break;
+      }
+    }
+    render() {
+      return x`
+      <div class="wrapper" data-dropdown=${this.uid} part="root">
+        <button
+          part="trigger"
+          class="trigger"
+          ?disabled=${this.disabled || this.loading}
+          @click=${this.toggle}
+          aria-haspopup="listbox"
+          aria-expanded=${this.dropdownOpen}
+        >
+          ${this.label}
+          <span part="arrow" class="arrow" style="transform: ${this.dropdownOpen ? "rotate(180deg)" : "none"}">▾</span>
+        </button>
+
+        ${this.error ? x`<div part="error" class="error-text">${this.error}</div>` : ""}
+
+        ${!this.disabled && !this.loading && this.dropdownOpen && this.options.length > 0 ? x`
+          <div
+            part="dropdown"
+            class="dropdown ${this.dropup ? "dropup" : ""}"
+            role="listbox"
+            @keydown=${this.onKeydown}
+          >
+            ${this.options.map((o2, i2) => x`
+              <div
+                part="option"
+                class="option ${o2.value === this.value ? "selected" : ""} ${i2 === this.highlightIndex ? "highlighted" : ""}"
+                role="option"
+                aria-selected=${o2.value === this.value}
+                @click=${() => this.select(o2.value)}
+                @mouseenter=${() => {
+      this.highlightIndex = i2;
+    }}
+              >${o2.label}</div>
+            `)}
+          </div>
+        ` : E}
+      </div>
+    `;
+    }
+  };
+  CtSelect.styles = i$3`
+    :host {
+      --ct-primary: #00c4b6;
+      --ct-border: #ddd;
+      --ct-bg: #f8f8f8;
+      --ct-bg-hover: #f0f0f0;
+      --ct-bg-active: #f0fdfb;
+      --ct-text: #333;
+      --ct-text-secondary: #555;
+      --ct-text-muted: #999;
+      --ct-radius: 8px;
+      --ct-font-size: 13px;
+      display: block;
+    }
+
+    .trigger {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--ct-border);
+      border-radius: var(--ct-radius);
+      background: var(--ct-bg);
+      cursor: pointer;
+      font-size: var(--ct-font-size);
+      color: var(--ct-text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .trigger:hover {
+      border-color: var(--ct-primary);
+    }
+
+    .trigger:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    .trigger:disabled:hover {
+      border-color: var(--ct-border);
+    }
+
+    .arrow {
+      font-size: 10px;
+      color: var(--ct-text-muted);
+      transition: transform 0.2s;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--ct-border);
+      border-radius: var(--ct-radius);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .dropdown.dropup {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
+    .option {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: var(--ct-font-size);
+      color: var(--ct-text-secondary);
+      transition: background 0.15s;
+    }
+
+    .option:hover,
+    .option.highlighted {
+      background: var(--ct-bg-hover);
+    }
+
+    .option.selected {
+      color: var(--ct-primary);
+      font-weight: 600;
+      background: var(--ct-bg-active);
+    }
+
+    .wrapper {
+      position: relative;
+    }
+
+    .error-text {
+      font-size: 11px;
+      color: #e74c3c;
+      line-height: 1.4;
+      padding-top: 2px;
+    }
+  `;
+  __decorateClass$2([
+    n2({ type: String })
+  ], CtSelect.prototype, "value", 2);
+  __decorateClass$2([
+    n2({ type: Array })
+  ], CtSelect.prototype, "options", 2);
+  __decorateClass$2([
+    n2({ type: String })
+  ], CtSelect.prototype, "placeholder", 2);
+  __decorateClass$2([
+    n2({ type: Boolean })
+  ], CtSelect.prototype, "disabled", 2);
+  __decorateClass$2([
+    n2({ type: Boolean })
+  ], CtSelect.prototype, "loading", 2);
+  __decorateClass$2([
+    n2({ type: String })
+  ], CtSelect.prototype, "error", 2);
+  __decorateClass$2([
+    r()
+  ], CtSelect.prototype, "dropdownOpen", 2);
+  __decorateClass$2([
+    r()
+  ], CtSelect.prototype, "dropup", 2);
+  __decorateClass$2([
+    r()
+  ], CtSelect.prototype, "highlightIndex", 2);
+  CtSelect = __decorateClass$2([
+    t("ct-select")
+  ], CtSelect);
+  var __defProp$1 = Object.defineProperty;
+  var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$1 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$1(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$1(target, key, result);
+    return result;
+  };
+  let ChromeTranslateSettings = class extends i {
+    constructor() {
+      super(...arguments);
+      this.language = { from: "auto", to: "" };
+      this.provider = "chrome";
+      this.mode = "text";
+      this.batchSize = 6;
+      this.openaiApiKey = "";
+      this.openaiBaseUrl = "https://api.openai.com/v1";
+      this.openaiModel = "gpt-4o-mini";
+      this.openaiPrompt = "";
+      this.openaiModels = [];
+      this.openaiModelsLoading = false;
+      this.openaiModelsError = "";
+      this.openaiTemperature = 0.3;
+      this.openaiMaxTokens = 1024;
+      this.activeTab = "translate";
+    }
+    show() {
+      this.dialogEl?.showModal();
+    }
+    close() {
+      this.dialogEl?.close();
+    }
+    firstUpdated() {
+      this.dialogEl.addEventListener("click", (e2) => {
+        if (e2.target === this.dialogEl) {
+          this.dialogEl.close();
+        }
+      });
+    }
+    emit(name, detail) {
+      this.dispatchEvent(new CustomEvent(name, {
+        detail,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    get fromOptions() {
+      return [{ label: "Auto", value: "auto" }, ...LANGUAGES];
+    }
+    get toOptions() {
+      return [...LANGUAGES];
+    }
+    get modelOptions() {
+      return this.openaiModels.map((m2) => ({ label: m2, value: m2 }));
+    }
+    renderSidebar() {
+      return x`
+      <div class="max-[500px]:w-[60px] flex-[0_0_auto] border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-140px">
+        <div
+          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === "translate" ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
+          @click=${() => {
+      this.activeTab = "translate";
+    }}
+        >
+          <span class="text-16px">🌐</span>
+          <span class="max-[500px]:hidden whitespace-nowrap">Translate</span>
+        </div>
+        <div
+          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === "provider" ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
+          @click=${() => {
+      this.activeTab = "provider";
+    }}
+        >
+          <span class="text-16px">⚙️</span>
+          <span class="max-[500px]:hidden whitespace-nowrap">Provider</span>
+        </div>
+      </div>
+    `;
+    }
+    renderRadio(name, value, checked, label, onChange) {
+      return x`
+      <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${checked ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}">
+        <input class="hidden" type="radio" name=${name} value=${value} ?checked=${checked} @change=${onChange}>
+        <span>${label}</span>
+      </label>
+    `;
+    }
+    renderTranslateTab() {
+      return x`
+      <div class="text-13px font-600 text-[#888] mb-10px">Language</div>
+      <div class="flex items-center gap-12px">
+        <div class="flex-1">
+          <ct-select
+            .value=${this.language.from}
+            .options=${this.fromOptions}
+            @ct-change=${(e2) => this.emit("language-change", { target: "from", value: e2.detail.value })}
+          ></ct-select>
+        </div>
+        <span class="text-#999">→</span>
+        <div class="flex-1">
+          <ct-select
+            .value=${this.language.to}
+            .options=${this.toOptions}
+            @ct-change=${(e2) => this.emit("language-change", { target: "to", value: e2.detail.value })}
+          ></ct-select>
+        </div>
+      </div>
+
+      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+
+      <div class="text-13px font-600 text-[#888] mb-10px">Translation Mode</div>
+      <div class="flex gap-12px" style="flex-direction:column;gap:6px;">
+        ${this.renderRadio("mode", "text", this.mode === "text", "Text", () => this.emit("mode-change", { value: "text" }))}
+        ${this.renderRadio("mode", "html", this.mode === "html", "HTML", () => this.emit("mode-change", { value: "html" }))}
+      </div>
+
+      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+
+      <div class="text-13px font-600 text-[#888] mb-10px">Performance</div>
+      <ct-input
+        type="number"
+        label="Max concurrent requests"
+        .value=${String(this.batchSize)}
+        min="1" max="20" step="1"
+        @ct-change=${(e2) => this.emit("batch-size-change", { value: Number(e2.detail.value) })}
+      ></ct-input>
+    `;
+    }
+    renderProviderTab() {
+      return x`
+      <div class="text-13px font-600 text-[#888] mb-10px">Translation Provider</div>
+      <div class="flex gap-12px">
+        ${this.renderRadio("provider", "chrome", this.provider === "chrome", "Chrome AI", () => this.emit("provider-change", { value: "chrome" }))}
+        ${this.renderRadio("provider", "openai", this.provider === "openai", "OpenAI API", () => this.emit("provider-change", { value: "openai" }))}
+      </div>
+
+      ${this.provider === "openai" ? x`
+        <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
+        <div class="text-13px font-600 text-[#888] mb-10px">OpenAI Configuration</div>
+        <div class="flex flex-col gap-12px">
+          <ct-input
+            type="password"
+            label="API Key"
+            placeholder="sk-..."
+            .value=${this.openaiApiKey}
+            @ct-change=${(e2) => this.emit("openai-config-change", { field: "apiKey", value: e2.detail.value })}
+          ></ct-input>
+
+          <ct-input
+            type="text"
+            label="Base URL"
+            .value=${this.openaiBaseUrl}
+            @ct-change=${(e2) => this.emit("openai-config-change", { field: "baseUrl", value: e2.detail.value })}
+          ></ct-input>
+
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">Model</span>
+            <div class="flex gap-6px items-start">
+              <div class="flex-1 min-w-0">
+                <ct-select
+                  .value=${this.openaiModel}
+                  .options=${this.modelOptions}
+                  ?loading=${this.openaiModelsLoading}
+                  error=${this.openaiModelsError}
+                  placeholder=${this.openaiModelsLoading ? "Loading models…" : "Select a model"}
+                  @ct-change=${(e2) => this.emit("openai-config-change", { field: "model", value: e2.detail.value })}
+                ></ct-select>
+              </div>
+              <button
+                @click=${() => this.emit("fetch-models", void 0)}
+                class="shrink-0 w-36px h-38px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#fafafa] cursor-pointer text-[#00c4b6] flex items-center justify-center p-0 box-border"
+                title="Refresh models"
+              >${refreshIcon}</button>
+            </div>
+          </label>
+
+          <ct-input
+            type="number"
+            label="Temperature"
+            .value=${String(this.openaiTemperature)}
+            min="0" step="0.1"
+            @ct-change=${(e2) => this.emit("openai-config-change", { field: "temperature", value: e2.detail.value })}
+          ></ct-input>
+
+          <ct-input
+            type="number"
+            label="Max Tokens"
+            .value=${String(this.openaiMaxTokens)}
+            min="0" step="1"
+            @ct-change=${(e2) => this.emit("openai-config-change", { field: "maxTokens", value: e2.detail.value })}
+          ></ct-input>
+
+          <label class="flex flex-col gap-4px">
+            <span class="text-12px text-[#888] font-500">System Prompt</span>
+            <textarea
+              class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] min-h-120px box-border resize-y font-[inherit] [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]"
+              .value=${this.openaiPrompt}
+              @change=${(e2) => this.emit("openai-config-change", { field: "prompt", value: e2.target.value })}
+              placeholder="Optional: custom system prompt for translation"
+            ></textarea>
+          </label>
+        </div>
+      ` : E}
+    `;
+    }
+    render() {
+      return x`
+      <dialog class="border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden open:flex open:flex-col open:h-full">
+        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
+          <span>Setting</span>
+          <button class="w-28px h-28px border-none bg-[#f5f5f5] rounded-[50%] cursor-pointer flex items-center justify-center text-14px text-[#999] [&:hover]-bg-[#e8e8e8] [&:hover]-text-[#333]" @click=${() => this.dialogEl?.close()}>✕</button>
+        </div>
+        <div class="flex flex-1 overflow-hidden">
+          ${this.renderSidebar()}
+          <div class="flex-1 min-h-0 p-20px overflow-y-auto">
+            ${this.activeTab === "translate" ? this.renderTranslateTab() : this.renderProviderTab()}
+          </div>
+        </div>
+      </dialog>
+    `;
+    }
+  };
+  ChromeTranslateSettings.styles = i$3`
+    :host {
+      all: initial;
+      display: contents;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.mx-0{margin-left:0;margin-right:0;}
+.my-16px{margin-top:16px;margin-bottom:16px;}
+.mb-10px{margin-bottom:10px;}
+.box-border{box-sizing:border-box;}
+.contents{display:contents;}
+.hidden{display:none;}
+.h-1px{height:1px;}
+.h-28px{height:28px;}
+.h-38px{height:38px;}
+.min-h-0{min-height:0;}
+.min-h-120px{min-height:120px;}
+.min-w-0{min-width:0;}
+.w-\\[100\\%\\]{width:100%;}
+.w-140px{width:140px;}
+.w-28px{width:28px;}
+.w-36px{width:36px;}
+.w-600px{width:600px;}
+.open\\:h-full[open]{height:100%;}
+.flex{display:flex;}
+.open\\:flex[open]{display:flex;}
+.flex-\\[0_0_auto\\]{flex:0 0 auto;}
+.flex-1{flex:1 1 0%;}
+.shrink-0{flex-shrink:0;}
+.flex-col{flex-direction:column;}
+.open\\:flex-col[open]{flex-direction:column;}
+.cursor-pointer{cursor:pointer;}
+.select-none{-webkit-user-select:none;user-select:none;}
+.resize-y{resize:vertical;}
+.items-start{align-items:flex-start;}
+.items-center{align-items:center;}
+.justify-center{justify-content:center;}
+.justify-between{justify-content:space-between;}
+.gap-12px{gap:12px;}
+.gap-2px{gap:2px;}
+.gap-4px{gap:4px;}
+.gap-6px{gap:6px;}
+.gap-8px{gap:8px;}
+.overflow-hidden{overflow:hidden;}
+.overflow-y-auto{overflow-y:auto;}
+.whitespace-nowrap{white-space:nowrap;}
+.border-1px{border-width:1px;}
+.border-b-1px{border-bottom-width:1px;}
+.border-l-3px{border-left-width:3px;}
+.border-r-1px{border-right-width:1px;}
+.\\[\\&\\:focus\\]-border-\\[\\#00c4b6\\]:focus,
+.\\[\\&\\:hover\\]-border-\\[\\#00c4b6\\]:hover{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
+.border-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;border-color:rgb(0 196 182 / var(--un-border-opacity)) !important;}
+.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
+.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
+.border-l-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;--un-border-left-opacity:var(--un-border-opacity) !important;border-left-color:rgb(0 196 182 / var(--un-border-left-opacity)) !important;}
+.border-l-transparent{border-left-color:transparent;}
+.border-r-\\[\\#eee\\]{--un-border-opacity:1;--un-border-right-opacity:var(--un-border-opacity);border-right-color:rgb(238 238 238 / var(--un-border-right-opacity));}
+.rounded-\\[12px\\]{border-radius:12px;}
+.rounded-\\[50\\%\\]{border-radius:50%;}
+.rounded-\\[6px\\]{border-radius:6px;}
+.rounded-\\[8px\\]{border-radius:8px;}
+.border-none{border-style:none;}
+.border-solid{border-style:solid;}
+.border-b-solid{border-bottom-style:solid;}
+.border-l-solid{border-left-style:solid;}
+.border-r-solid{border-right-style:solid;}
+.\\[\\&\\:focus\\]-bg-\\[\\#fff\\]:focus{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
+.\\[\\&\\:hover\\]-bg-\\[\\#e8e8e8\\]:hover{--un-bg-opacity:1;background-color:rgb(232 232 232 / var(--un-bg-opacity)) /* #e8e8e8 */;}
+.\\[\\&\\:hover\\]-bg-\\[\\#f5f5f5\\]:hover,
+.bg-\\[\\#f5f5f5\\]{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
+.bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;}
+.bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
+.bg-\\[\\#fafafa\\]{--un-bg-opacity:1;background-color:rgb(250 250 250 / var(--un-bg-opacity)) /* #fafafa */;}
+.p-0{padding:0;}
+.p-20px{padding:20px;}
+.px-0{padding-left:0;padding-right:0;}
+.px-12px{padding-left:12px;padding-right:12px;}
+.px-14px{padding-left:14px;padding-right:14px;}
+.px-16px{padding-left:16px;padding-right:16px;}
+.px-20px{padding-left:20px;padding-right:20px;}
+.py-10px{padding-top:10px;padding-bottom:10px;}
+.py-12px{padding-top:12px;padding-bottom:12px;}
+.py-16px{padding-top:16px;padding-bottom:16px;}
+.py-8px{padding-top:8px;padding-bottom:8px;}
+.text-12px{font-size:12px;}
+.text-13px{font-size:13px;}
+.text-14px{font-size:14px;}
+.text-16px{font-size:16px;}
+.\\[\\&\\:hover\\]-text-\\[\\#333\\]:hover,
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.text-\\[\\#00c4b6\\]{--un-text-opacity:1;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */;}
+.text-\\[\\#00c4b6\\]\\!{--un-text-opacity:1 !important;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */ !important;}
+.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
+.text-\\[\\#666\\]{--un-text-opacity:1;color:rgb(102 102 102 / var(--un-text-opacity)) /* #666 */;}
+.text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
+.text-\\[\\#999\\],
+.text-\\#999{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
+.font-500{font-weight:500;}
+.font-600{font-weight:600;}
+.font-\\[inherit\\]{font-family:inherit;}
+.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);}
+.outline-none{outline:2px solid transparent;outline-offset:2px;}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-border-color{transition-property:border-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.15s{transition-duration:0.15s;}
+.transition-duration-0\\.2s{transition-duration:0.2s;}
+@media (max-width: 500px){
+.max-\\[500px\\]\\:hidden{display:none;}
+.max-\\[500px\\]\\:w-\\[60px\\]{width:60px;}
+.max-\\[500px\\]\\:justify-center{justify-content:center;}
+.max-\\[500px\\]\\:px-2{padding-left:0.5rem;padding-right:0.5rem;}
+.max-\\[500px\\]\\:py-\\[10px\\]{padding-top:10px;padding-bottom:10px;}
+};
+  `;
+  __decorateClass$1([
+    n2({ type: Object })
+  ], ChromeTranslateSettings.prototype, "language", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "provider", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "mode", 2);
+  __decorateClass$1([
+    n2({ type: Number })
+  ], ChromeTranslateSettings.prototype, "batchSize", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "openaiApiKey", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "openaiBaseUrl", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "openaiModel", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "openaiPrompt", 2);
+  __decorateClass$1([
+    n2({ type: Array })
+  ], ChromeTranslateSettings.prototype, "openaiModels", 2);
+  __decorateClass$1([
+    n2({ type: Boolean })
+  ], ChromeTranslateSettings.prototype, "openaiModelsLoading", 2);
+  __decorateClass$1([
+    n2({ type: String })
+  ], ChromeTranslateSettings.prototype, "openaiModelsError", 2);
+  __decorateClass$1([
+    n2({ type: Number })
+  ], ChromeTranslateSettings.prototype, "openaiTemperature", 2);
+  __decorateClass$1([
+    n2({ type: Number })
+  ], ChromeTranslateSettings.prototype, "openaiMaxTokens", 2);
+  __decorateClass$1([
+    r()
+  ], ChromeTranslateSettings.prototype, "activeTab", 2);
+  __decorateClass$1([
+    e("dialog")
+  ], ChromeTranslateSettings.prototype, "dialogEl", 2);
+  ChromeTranslateSettings = __decorateClass$1([
+    t("chrome-translate-settings")
+  ], ChromeTranslateSettings);
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __decorateClass = (decorators, target, key, kind) => {
@@ -2209,7 +3039,6 @@ info() {
       super(...arguments);
       this.moving = false;
       this.isTranslating = false;
-      this.activeDropdown = null;
       this.provider = "chrome";
       this.openaiApiKey = "";
       this.openaiBaseUrl = "https://api.openai.com/v1";
@@ -2218,9 +3047,6 @@ info() {
       this.openaiModels = [];
       this.openaiModelsLoading = false;
       this.openaiModelsError = "";
-      this.modelDropdownOpen = false;
-      this.modelDropdownUp = false;
-      this.activeTab = "translate";
       this.mode = DEFAULT_CONFIG.mode;
       this.batchSize = DEFAULT_CONFIG.batchSize;
       this.openaiTemperature = DEFAULT_CONFIG.openai.temperature;
@@ -2291,7 +3117,7 @@ info() {
         this.isTranslating = t2.isTranslating();
       }, 500, true);
       this.onOpenSetting = () => {
-        this.dialogEl?.showModal();
+        this.settingsDialog?.show();
         if (this.provider === "openai") {
           if (this.openaiPrompt === "") {
             this.openaiPrompt = DEFAULT_CONFIG.openai.prompt;
@@ -2300,25 +3126,6 @@ info() {
           if (this.openaiModels.length === 0) {
             void this.fetchModels();
           }
-        }
-      };
-      this.onDocumentMouseDown = (e2) => {
-        if (this.modelDropdownOpen) {
-          const modelDropdownEl = e2.composedPath().find(
-            (el) => el instanceof Element && el.getAttribute("data-dropdown") === "model"
-          );
-          if (!modelDropdownEl) {
-            this.modelDropdownOpen = false;
-          }
-        }
-        if (!this.activeDropdown) {
-          return;
-        }
-        const dropdownEl = e2.composedPath().find(
-          (el) => el instanceof Element && el.getAttribute("data-dropdown") === this.activeDropdown
-        );
-        if (!dropdownEl) {
-          this.activeDropdown = null;
         }
       };
     }
@@ -2344,14 +3151,12 @@ info() {
       this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
       document.addEventListener("mousemove", this.throttledMouseMove);
       document.addEventListener("mouseup", this.onMouseUp);
-      document.addEventListener("mousedown", this.onDocumentMouseDown);
       void this.initTranslate();
     }
     disconnectedCallback() {
       super.disconnectedCallback();
       document.removeEventListener("mousemove", this.throttledMouseMove);
       document.removeEventListener("mouseup", this.onMouseUp);
-      document.removeEventListener("mousedown", this.onDocumentMouseDown);
       this.throttledMouseMove.cancel();
       this.cleanupUrlWatch?.();
       this.cleanupScrollbarWatch?.();
@@ -2369,11 +3174,6 @@ info() {
       this.setScrollbarProperty(this.ballEl);
       ball.getBoundingClientRect();
       ball.style.transition = "all 0.3s ease";
-      this.dialogEl.addEventListener("click", (e2) => {
-        if (e2.target === this.dialogEl) {
-          this.dialogEl.close();
-        }
-      });
     }
     setScrollbarProperty(el) {
       el.style.setProperty("--scrollbar-width", `${SCROLLBAR_INFO.width}px`);
@@ -2448,12 +3248,8 @@ info() {
         this.openaiModelsLoading = false;
       }
     }
-    toggleDropdown(target) {
-      this.activeDropdown = this.activeDropdown === target ? null : target;
-    }
     async onSelectLanguage(target, value) {
       this.language = { ...this.language, [target]: value };
-      this.activeDropdown = null;
       const t2 = this.rendererCtrl;
       if (!t2) {
         return;
@@ -2499,78 +3295,6 @@ info() {
         openai
       });
     }
-    toggleModelDropdown() {
-      if (!this.modelDropdownOpen) {
-        const trigger = this.renderRoot.querySelector(".model-select-trigger");
-        if (trigger) {
-          const rect = trigger.getBoundingClientRect();
-          const spaceBelow = window.innerHeight - rect.bottom;
-          this.modelDropdownUp = spaceBelow < 200;
-        }
-      }
-      this.modelDropdownOpen = !this.modelDropdownOpen;
-    }
-    onSelectModel(value) {
-      this.openaiModel = value;
-      this.modelDropdownOpen = false;
-      this.onOpenAIConfigChange("model", value);
-    }
-    renderModelSelect() {
-      const label = this.openaiModel;
-      const disabled = this.openaiModelsLoading || !!this.openaiModelsError;
-      return x`
-      <div class="relative" data-dropdown="model">
-        <button
-          class="model-select-trigger w-full px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-border-color transition-duration-0.2s [&:hover]-border-[#00c4b6] [&:disabled]-op-70 [&:disabled]-cursor-default [&:disabled]:hover-border-[#ddd]"
-          ?disabled=${disabled}
-          @click=${this.toggleModelDropdown}
-        >
-          ${this.openaiModelsLoading ? "Loading models…" : label}
-          <span class="text-#999">▾</span>
-        </button>
-        ${this.openaiModelsError ? x`<div class="text-11px text-[#e74c3c] lh-[1.4] pt-2px">${this.openaiModelsError}</div>` : E}
-        ${!disabled && this.modelDropdownOpen ? x`
-          <div class="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10 data-[dropup=true]:top-auto data-[dropup=true]:bottom-[calc(100%+4px)]" data-dropup=${String(this.modelDropdownUp)}>
-            ${this.openaiModels.map((m2) => x`
-              <div
-                class="px-12px py-8px cursor-pointer text-13px text-[#555] [&:hover]-bg-[#f0f0f0] ${m2 === this.openaiModel ? "text-[#00c4b6]! font-600 bg-[#f0fdfb]" : ""}"
-                @click=${() => this.onSelectModel(m2)}
-              >${m2}</div>
-            `)}
-          </div>
-        ` : E}
-      </div>
-    `;
-    }
-    renderSelect(target) {
-      const options = target === "from" ? [{ label: "Auto", value: "auto" }, ...LANGUAGES] : [...LANGUAGES];
-      const current = this.language[target];
-      const label = options.find((o2) => o2.value === current)?.label ?? current;
-      return x`
-      <div class="relative" data-dropdown=${target}>
-        <button
-          class="w-[100%] px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-border-color transition-duration-0.2s [&:hover]-border-[#00c4b6] [&:disabled]-op-70 [&:disabled]-cursor-default [&:disabled]:hover-border-[#ddd]"
-          @click=${() => this.toggleDropdown(target)}
-        >
-          ${label}
-          <span class="text-#999">▾</span>
-        </button>
-        <div
-          class="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10"
-          ?hidden=${this.activeDropdown !== target}
-        >
-          ${options.map((o2) => x`
-            <div
-              class="px-12px py-8px cursor-pointer text-13px text-[#555] [&:hover]-bg-[#f0f0f0] ${o2.value === current ? "text-[#00c4b6]! font-600 bg-[#f0fdfb]" : ""}"
-              @click=${() => {
-      void this.onSelectLanguage(target, o2.value);
-    }}
-            >${o2.label}</div>
-          `)}
-        </div>
-      </div>
-    `;
-    }
     onModeChange(value) {
       this.mode = value;
       if (this.rendererCtrl) {
@@ -2591,134 +3315,28 @@ info() {
         batchSize: value
       });
     }
-    onBatchSizeInput(e2) {
-      const v2 = Number(e2.target.value);
-      if (v2 > 0) {
-        this.onBatchSizeChange(v2);
-      } else {
-        e2.target.value = String(this.batchSize);
+    onSettingsEvent(e2) {
+      const { type, detail } = e2;
+      switch (type) {
+        case "language-change":
+          void this.onSelectLanguage(detail.target, detail.value);
+          break;
+        case "mode-change":
+          this.onModeChange(detail.value);
+          break;
+        case "batch-size-change":
+          this.onBatchSizeChange(detail.value);
+          break;
+        case "provider-change":
+          this.onProviderChange(detail.value);
+          break;
+        case "openai-config-change":
+          this.onOpenAIConfigChange(detail.field, detail.value);
+          break;
+        case "fetch-models":
+          void this.fetchModels();
+          break;
       }
-    }
-    onTemperatureInput(e2) {
-      const v2 = Number(e2.target.value);
-      this.openaiTemperature = v2;
-      this.onOpenAIConfigChange("temperature", String(v2));
-    }
-    onMaxTokensInput(e2) {
-      const v2 = Number(e2.target.value);
-      this.openaiMaxTokens = v2;
-      this.onOpenAIConfigChange("maxTokens", String(v2));
-    }
-    renderSidebar() {
-      return x`
-      <div class="max-[500px]:w-[60px] flex-[0_0_auto] border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-140px">
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === "translate" ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
-          @click=${() => {
-      this.activeTab = "translate";
-    }}
-        >
-          <span class="text-16px">🌐</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Translate</span>
-        </div>
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === "provider" ? "border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}"
-          @click=${() => {
-      this.activeTab = "provider";
-    }}
-        >
-          <span class="text-16px">⚙️</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Provider</span>
-        </div>
-      </div>
-    `;
-    }
-    renderTranslateTab() {
-      return x`
-      <div class="text-13px font-600 text-[#888] mb-10px">Language</div>
-      <div class="flex items-center gap-12px">
-        <div class="flex-1">${this.renderSelect("from")}</div>
-        <span class="text-#999">→</span>
-        <div class="flex-1">${this.renderSelect("to")}</div>
-      </div>
-
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Mode</div>
-      <div class="flex gap-12px" style="flex-direction:column;gap:6px;">
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.mode === "text" ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}">
-          <input class="hidden" type="radio" name="mode" value="text" ?checked=${this.mode === "text"} @change=${() => this.onModeChange("text")}>
-          <span>Text</span>
-        </label>
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.mode === "html" ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}">
-          <input class="hidden" type="radio" name="mode" value="html" ?checked=${this.mode === "html"} @change=${() => this.onModeChange("html")}>
-          <span>HTML</span>
-        </label>
-      </div>
-
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-
-      <div class="text-13px font-600 text-[#888] mb-10px">Performance</div>
-      <label class="flex flex-col gap-4px">
-        <span class="text-12px text-[#888] font-500">Max concurrent requests</span>
-        <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="1" max="20" step="1" .value=${String(this.batchSize)} @change=${this.onBatchSizeInput}>
-      </label>
-    `;
-    }
-    renderProviderTab() {
-      return x`
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Provider</div>
-      <div class="flex gap-12px">
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.provider === "chrome" ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}">
-          <input class="hidden" type="radio" name="provider" value="chrome" ?checked=${this.provider === "chrome"} @change=${() => this.onProviderChange("chrome")}>
-          <span>Chrome AI</span>
-        </label>
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.provider === "openai" ? "border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600" : ""}">
-          <input class="hidden" type="radio" name="provider" value="openai" ?checked=${this.provider === "openai"} @change=${() => this.onProviderChange("openai")}>
-          <span>OpenAI API</span>
-        </label>
-      </div>
-
-      ${this.provider === "openai" ? x`
-        <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-        <div class="text-13px font-600 text-[#888] mb-10px">OpenAI Configuration</div>
-        <div class="flex flex-col gap-12px">
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">API Key</span>
-            <input type="password" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiApiKey} @change=${(e2) => this.onOpenAIConfigChange("apiKey", e2.target.value)} placeholder="sk-...">
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Base URL</span>
-            <input type="text" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiBaseUrl} @change=${(e2) => this.onOpenAIConfigChange("baseUrl", e2.target.value)}>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Model</span>
-            <div class="flex gap-6px items-start">
-              <div class="flex-1 min-w-0">${this.renderModelSelect()}</div>
-              <button
-                @click=${() => {
-      void this.fetchModels();
-    }}
-                class="shrink-0 w-36px h-38px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#fafafa] cursor-pointer text-[#00c4b6] flex items-center justify-center p-0 box-border"
-                title="Refresh models"
-              >${refreshIcon}</button>
-            </div>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Temperature</span>
-            <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="0" step="0.1" .value=${String(this.openaiTemperature)} @change=${this.onTemperatureInput}>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Max Tokens</span>
-            <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="0" step="1" .value=${String(this.openaiMaxTokens)} @change=${this.onMaxTokensInput}>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">System Prompt</span>
-            <textarea class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] min-h-120px box-border resize-y font-[inherit] [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiPrompt} @change=${(e2) => this.onOpenAIConfigChange("prompt", e2.target.value)} placeholder="Optional: custom system prompt for translation"></textarea>
-          </label>
-        </div>
-      ` : E}
-    `;
     }
     render() {
       return x`
@@ -2744,18 +3362,27 @@ info() {
           </div>
         </div>
 
-        <dialog class="[&::backdrop]-bg-[rgba(0,0,0,0.3)] open:flex open:flex-col open:h-full border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden">
-          <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
-            <span>Setting</span>
-            <button class="w-28px h-28px border-none bg-[#f5f5f5] rounded-[50%] cursor-pointer flex items-center justify-center text-14px text-[#999] [&:hover]-bg-[#e8e8e8] [&:hover]-text-[#333]" @click=${() => this.dialogEl?.close()}>✕</button>
-          </div>
-          <div class="flex flex-1 overflow-hidden">
-            ${this.renderSidebar()}
-            <div class="flex-1 min-h-0 p-20px overflow-y-auto">
-              ${this.activeTab === "translate" ? this.renderTranslateTab() : this.renderProviderTab()}
-            </div>
-          </div>
-        </dialog>
+        <chrome-translate-settings
+          .language=${this.language}
+          .provider=${this.provider}
+          .mode=${this.mode}
+          .batchSize=${this.batchSize}
+          .openaiApiKey=${this.openaiApiKey}
+          .openaiBaseUrl=${this.openaiBaseUrl}
+          .openaiModel=${this.openaiModel}
+          .openaiPrompt=${this.openaiPrompt}
+          .openaiModels=${this.openaiModels}
+          .openaiModelsLoading=${this.openaiModelsLoading}
+          .openaiModelsError=${this.openaiModelsError}
+          .openaiTemperature=${this.openaiTemperature}
+          .openaiMaxTokens=${this.openaiMaxTokens}
+          @language-change=${this.onSettingsEvent}
+          @mode-change=${this.onSettingsEvent}
+          @batch-size-change=${this.onSettingsEvent}
+          @provider-change=${this.onSettingsEvent}
+          @openai-config-change=${this.onSettingsEvent}
+          @fetch-models=${this.onSettingsEvent}
+        ></chrome-translate-settings>
       </div>
     `;
     }
@@ -2818,156 +3445,35 @@ info() {
 .relative{position:relative;}
 .static{position:static;}
 .bottom-\\[-2px\\]{bottom:-2px;}
-.data-\\[dropup\\=true\\]\\:bottom-\\[calc\\(100\\%\\+4px\\)\\][data-dropup=true]{bottom:calc(100% + 4px);}
-.data-\\[dropup\\=true\\]\\:top-auto[data-dropup=true]{top:auto;}
-.left-0{left:0;}
 .right-0{right:0;}
-.top-\\[calc\\(100\\%\\+4px\\)\\]{top:calc(100% + 4px);}
-.z-10{z-index:10;}
-.mx-0{margin-left:0;margin-right:0;}
-.my-16px{margin-top:16px;margin-bottom:16px;}
-.mb-10px{margin-bottom:10px;}
-.box-border{box-sizing:border-box;}
-.hidden{display:none;}
 .h-\\[12px\\]{height:12px;}
-.h-\\[28px\\],
-.h-28px{height:28px;}
+.h-\\[28px\\]{height:28px;}
 .h-\\[calc\\(var\\(--size\\)-4px\\)\\]{height:calc(var(--size) - 4px);}
-.h-1px{height:1px;}
-.h-38px{height:38px;}
 .h-5{height:1.25rem;}
-.max-h-200px{max-height:200px;}
-.min-h-0{min-height:0;}
-.min-h-120px{min-height:120px;}
-.min-w-0{min-width:0;}
-.w-\\[100\\%\\],
-.w-full{width:100%;}
 .w-\\[12px\\]{width:12px;}
-.w-\\[28px\\],
-.w-28px{width:28px;}
+.w-\\[28px\\]{width:28px;}
 .w-\\[calc\\(var\\(--size\\)-4px\\)\\]{width:calc(var(--size) - 4px);}
-.w-140px{width:140px;}
-.w-36px{width:36px;}
 .w-5{width:1.25rem;}
-.w-600px{width:600px;}
-.open\\:h-full[open]{height:100%;}
 .flex{display:flex;}
-.open\\:flex[open]{display:flex;}
-.flex-\\[0_0_auto\\]{flex:0 0 auto;}
-.flex-1{flex:1 1 0%;}
-.shrink-0{flex-shrink:0;}
-.flex-col{flex-direction:column;}
-.open\\:flex-col[open]{flex-direction:column;}
 .transform{transform:translateX(var(--un-translate-x)) translateY(var(--un-translate-y)) translateZ(var(--un-translate-z)) rotate(var(--un-rotate)) rotateX(var(--un-rotate-x)) rotateY(var(--un-rotate-y)) rotateZ(var(--un-rotate-z)) skewX(var(--un-skew-x)) skewY(var(--un-skew-y)) scaleX(var(--un-scale-x)) scaleY(var(--un-scale-y)) scaleZ(var(--un-scale-z));}
-.\\[\\&\\:disabled\\]-cursor-default:disabled{cursor:default;}
 .cursor-pointer{cursor:pointer;}
 .touch-none{touch-action:none;}
 .select-none{-webkit-user-select:none;user-select:none;}
-.resize-y{resize:vertical;}
-.items-start{align-items:flex-start;}
 .items-center{align-items:center;}
 .justify-center{justify-content:center;}
-.justify-between{justify-content:space-between;}
-.gap-12px{gap:12px;}
-.gap-2px{gap:2px;}
-.gap-4px{gap:4px;}
-.gap-6px{gap:6px;}
-.gap-8px{gap:8px;}
-.overflow-hidden{overflow:hidden;}
-.overflow-y-auto{overflow-y:auto;}
-.whitespace-nowrap{white-space:nowrap;}
-.border-1px{border-width:1px;}
-.border-b-1px{border-bottom-width:1px;}
-.border-l-3px{border-left-width:3px;}
-.border-r-1px{border-right-width:1px;}
-.\\[\\&\\:focus\\]-border-\\[\\#00c4b6\\]:focus,
-.\\[\\&\\:hover\\]-border-\\[\\#00c4b6\\]:hover{--un-border-opacity:1;border-color:rgb(0 196 182 / var(--un-border-opacity));}
-.border-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;border-color:rgb(0 196 182 / var(--un-border-opacity)) !important;}
-.border-\\[\\#ddd\\]{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
-.\\[\\&\\:disabled\\]\\:hover-border-\\[\\#ddd\\]:hover:disabled{--un-border-opacity:1;border-color:rgb(221 221 221 / var(--un-border-opacity));}
-.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
-.border-l-\\[\\#00c4b6\\]\\!{--un-border-opacity:1 !important;--un-border-left-opacity:var(--un-border-opacity) !important;border-left-color:rgb(0 196 182 / var(--un-border-left-opacity)) !important;}
-.border-l-transparent{border-left-color:transparent;}
-.border-r-\\[\\#eee\\]{--un-border-opacity:1;--un-border-right-opacity:var(--un-border-opacity);border-right-color:rgb(238 238 238 / var(--un-border-right-opacity));}
-.rounded-\\[12px\\]{border-radius:12px;}
 .rounded-\\[20px\\]{border-radius:20px;}
-.rounded-\\[50\\%\\]{border-radius:50%;}
-.rounded-\\[6px\\]{border-radius:6px;}
-.rounded-\\[8px\\]{border-radius:8px;}
 .rounded-full{border-radius:9999px;}
 .rounded-full\\!{border-radius:9999px !important;}
-.border-none{border-style:none;}
-.border-solid{border-style:solid;}
-.border-b-solid{border-bottom-style:solid;}
-.border-l-solid{border-left-style:solid;}
-.border-r-solid{border-right-style:solid;}
-.\\[\\&\\:\\:backdrop\\]-bg-\\[rgba\\(0\\,0\\,0\\,0\\.3\\)\\]::backdrop{--un-bg-opacity:0.3;background-color:rgba(0, 0, 0, var(--un-bg-opacity)) /* rgba(0,0,0,0.3) */;}
-.\\[\\&\\:focus\\]-bg-\\[\\#fff\\]:focus,
-.bg-\\[\\#fff\\],
-.bg-white{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
-.\\[\\&\\:hover\\]-bg-\\[\\#e8e8e8\\]:hover{--un-bg-opacity:1;background-color:rgb(232 232 232 / var(--un-bg-opacity)) /* #e8e8e8 */;}
-.\\[\\&\\:hover\\]-bg-\\[\\#f0f0f0\\]:hover{--un-bg-opacity:1;background-color:rgb(240 240 240 / var(--un-bg-opacity)) /* #f0f0f0 */;}
-.\\[\\&\\:hover\\]-bg-\\[\\#f5f5f5\\]:hover,
-.bg-\\[\\#f5f5f5\\]{--un-bg-opacity:1;background-color:rgb(245 245 245 / var(--un-bg-opacity)) /* #f5f5f5 */;}
 .bg-\\[\\#00c4b6\\]{--un-bg-opacity:1;background-color:rgb(0 196 182 / var(--un-bg-opacity)) /* #00c4b6 */;}
-.bg-\\[\\#eee\\]{--un-bg-opacity:1;background-color:rgb(238 238 238 / var(--un-bg-opacity)) /* #eee */;}
-.bg-\\[\\#f0fdfb\\]{--un-bg-opacity:1;background-color:rgb(240 253 251 / var(--un-bg-opacity)) /* #f0fdfb */;}
-.bg-\\[\\#f8f8f8\\]{--un-bg-opacity:1;background-color:rgb(248 248 248 / var(--un-bg-opacity)) /* #f8f8f8 */;}
-.bg-\\[\\#fafafa\\]{--un-bg-opacity:1;background-color:rgb(250 250 250 / var(--un-bg-opacity)) /* #fafafa */;}
 .bg-\\[rgba\\(0\\,200\\,0\\,\\.8\\)\\]{--un-bg-opacity:.8;background-color:rgba(0, 200, 0, var(--un-bg-opacity)) /* rgba(0,200,0,.8) */;}
-.p-0{padding:0;}
+.bg-white{--un-bg-opacity:1;background-color:rgb(255 255 255 / var(--un-bg-opacity)) /* #fff */;}
 .p-0\\!{padding:0 !important;}
-.p-20px{padding:20px;}
 .px{padding-left:1rem;padding-right:1rem;}
-.px-0{padding-left:0;padding-right:0;}
-.px-12px{padding-left:12px;padding-right:12px;}
-.px-14px{padding-left:14px;padding-right:14px;}
-.px-16px{padding-left:16px;padding-right:16px;}
-.px-20px{padding-left:20px;padding-right:20px;}
-.py-10px{padding-top:10px;padding-bottom:10px;}
-.py-12px{padding-top:12px;padding-bottom:12px;}
-.py-16px{padding-top:16px;padding-bottom:16px;}
-.py-8px{padding-top:8px;padding-bottom:8px;}
-.pt-2px{padding-top:2px;}
-.text-11px{font-size:11px;}
-.text-12px{font-size:12px;}
-.text-13px{font-size:13px;}
-.text-14px{font-size:14px;}
-.text-16px{font-size:16px;}
-.\\[\\&\\:hover\\]-text-\\[\\#333\\]:hover,
-.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
-.text-\\[\\#00c4b6\\]{--un-text-opacity:1;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */;}
-.text-\\[\\#00c4b6\\]\\!{--un-text-opacity:1 !important;color:rgb(0 196 182 / var(--un-text-opacity)) /* #00c4b6 */ !important;}
-.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
-.text-\\[\\#666\\]{--un-text-opacity:1;color:rgb(102 102 102 / var(--un-text-opacity)) /* #666 */;}
-.text-\\[\\#888\\]{--un-text-opacity:1;color:rgb(136 136 136 / var(--un-text-opacity)) /* #888 */;}
-.text-\\[\\#999\\],
-.text-\\#999{--un-text-opacity:1;color:rgb(153 153 153 / var(--un-text-opacity)) /* #999 */;}
-.text-\\[\\#e74c3c\\]{--un-text-opacity:1;color:rgb(231 76 60 / var(--un-text-opacity)) /* #e74c3c */;}
 .text-black{--un-text-opacity:1;color:rgb(0 0 0 / var(--un-text-opacity)) /* #000 */;}
 .text-white{--un-text-opacity:1;color:rgb(255 255 255 / var(--un-text-opacity)) /* #fff */;}
-.font-500{font-weight:500;}
-.font-600{font-weight:600;}
-.lh-\\[1\\.4\\]{line-height:1.4;}
-.font-\\[inherit\\]{font-family:inherit;}
-.\\[\\&\\:disabled\\]-op-70:disabled{opacity:0.7;}
-.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);}
 .shadow-\\[0_8px_16px_rgba\\(0\\,0\\,0\\,\\.25\\)\\]{--un-shadow:0 8px 16px var(--un-shadow-color, rgba(0, 0, 0, .25));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);}
-.shadow-\\[0_8px_24px_rgba\\(0\\,0\\,0\\,\\.12\\)\\]{--un-shadow:0 8px 24px var(--un-shadow-color, rgba(0, 0, 0, .12));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);}
-.outline-none{outline:2px solid transparent;outline-offset:2px;}
 .transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-border-color{transition-property:border-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-duration-0\\.15s{transition-duration:0.15s;}
-.transition-duration-0\\.2s{transition-duration:0.2s;}
-.ease{transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);}
-@media (max-width: 500px){
-.max-\\[500px\\]\\:hidden{display:none;}
-.max-\\[500px\\]\\:w-\\[60px\\]{width:60px;}
-.max-\\[500px\\]\\:justify-center{justify-content:center;}
-.max-\\[500px\\]\\:px-2{padding-left:0.5rem;padding-right:0.5rem;}
-.max-\\[500px\\]\\:py-\\[10px\\]{padding-top:10px;padding-bottom:10px;}
-};
+.ease{transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);};
   `;
   __decorateClass([
     r()
@@ -2978,9 +3484,6 @@ info() {
   __decorateClass([
     r()
   ], ChromeTranslateBall.prototype, "language", 2);
-  __decorateClass([
-    r()
-  ], ChromeTranslateBall.prototype, "activeDropdown", 2);
   __decorateClass([
     r()
   ], ChromeTranslateBall.prototype, "provider", 2);
@@ -3007,15 +3510,6 @@ info() {
   ], ChromeTranslateBall.prototype, "openaiModelsError", 2);
   __decorateClass([
     r()
-  ], ChromeTranslateBall.prototype, "modelDropdownOpen", 2);
-  __decorateClass([
-    r()
-  ], ChromeTranslateBall.prototype, "modelDropdownUp", 2);
-  __decorateClass([
-    r()
-  ], ChromeTranslateBall.prototype, "activeTab", 2);
-  __decorateClass([
-    r()
   ], ChromeTranslateBall.prototype, "mode", 2);
   __decorateClass([
     r()
@@ -3030,8 +3524,8 @@ info() {
     e(".ct-ball")
   ], ChromeTranslateBall.prototype, "ballEl", 2);
   __decorateClass([
-    e("dialog")
-  ], ChromeTranslateBall.prototype, "dialogEl", 2);
+    e("chrome-translate-settings")
+  ], ChromeTranslateBall.prototype, "settingsDialog", 2);
   ChromeTranslateBall = __decorateClass([
     t("chrome-translate-ball")
   ], ChromeTranslateBall);

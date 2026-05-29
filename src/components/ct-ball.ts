@@ -1,4 +1,5 @@
 import type { ITranslateOptions } from '../core/translator'
+import type { ChromeTranslateSettings } from './ct-settings'
 import { GM_getValue, GM_setValue } from '$'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
@@ -6,9 +7,9 @@ import { OpenAITranslator } from '../core/provider/openai'
 import { useTranslate } from '../hooks/useTranslate'
 import { useWatchUrlChange } from '../hooks/useWatchUrlChange'
 import { SCROLLBAR_INFO, STORAGE_CONFIG_KEY } from '../utils/constant'
-import { LANGUAGES } from '../utils/languages'
 import { clamp, debounce, throttle, watchScrollbarChange } from '../utils/public'
-import { checkIcon, languageIcon, refreshIcon, settingIcon } from './icons'
+import { checkIcon, languageIcon, settingIcon } from './icons'
+import './ct-settings'
 
 interface Config {
   position: { x: string, y: string }
@@ -102,7 +103,6 @@ export class ChromeTranslateBall extends LitElement {
   @state() private moving = false
   @state() private isTranslating = false
   @state() private language!: { from: string, to: string }
-  @state() private activeDropdown: 'from' | 'to' | null = null
   @state() private provider: 'chrome' | 'openai' = 'chrome'
   @state() private openaiApiKey = ''
   @state() private openaiBaseUrl = 'https://api.openai.com/v1'
@@ -111,16 +111,13 @@ export class ChromeTranslateBall extends LitElement {
   @state() private openaiModels: string[] = []
   @state() private openaiModelsLoading = false
   @state() private openaiModelsError = ''
-  @state() private modelDropdownOpen = false
-  @state() private modelDropdownUp = false
-  @state() private activeTab: 'translate' | 'provider' = 'translate'
   @state() private mode: 'text' | 'html' = DEFAULT_CONFIG.mode
   @state() private batchSize = DEFAULT_CONFIG.batchSize
   @state() private openaiTemperature = DEFAULT_CONFIG.openai.temperature
   @state() private openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens
 
   @query('.ct-ball') private ballEl!: HTMLElement
-  @query('dialog') private dialogEl!: HTMLDialogElement
+  @query('chrome-translate-settings') private settingsDialog!: ChromeTranslateSettings
 
   private config = GM_getValue<Config>(STORAGE_CONFIG_KEY, DEFAULT_CONFIG)
   private openaiProvider = new OpenAITranslator()
@@ -156,7 +153,6 @@ export class ChromeTranslateBall extends LitElement {
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16)
     document.addEventListener('mousemove', this.throttledMouseMove)
     document.addEventListener('mouseup', this.onMouseUp)
-    document.addEventListener('mousedown', this.onDocumentMouseDown)
     void this.initTranslate()
   }
 
@@ -164,7 +160,6 @@ export class ChromeTranslateBall extends LitElement {
     super.disconnectedCallback()
     document.removeEventListener('mousemove', this.throttledMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)
-    document.removeEventListener('mousedown', this.onDocumentMouseDown)
     this.throttledMouseMove.cancel()
     this.cleanupUrlWatch?.()
     this.cleanupScrollbarWatch?.()
@@ -185,12 +180,6 @@ export class ChromeTranslateBall extends LitElement {
 
     ball.getBoundingClientRect()
     ball.style.transition = 'all 0.3s ease'
-
-    this.dialogEl.addEventListener('click', (e: MouseEvent) => {
-      if (e.target === this.dialogEl) {
-        this.dialogEl.close()
-      }
-    })
   }
 
   private setScrollbarProperty(el: HTMLElement): void {
@@ -354,7 +343,7 @@ export class ChromeTranslateBall extends LitElement {
   }
 
   private onOpenSetting = (): void => {
-    this.dialogEl?.showModal()
+    this.settingsDialog?.show()
     if (this.provider === 'openai') {
       if (this.openaiPrompt === '') {
         this.openaiPrompt = DEFAULT_CONFIG.openai.prompt
@@ -366,34 +355,8 @@ export class ChromeTranslateBall extends LitElement {
     }
   }
 
-  private onDocumentMouseDown = (e: MouseEvent): void => {
-    if (this.modelDropdownOpen) {
-      const modelDropdownEl = (e.composedPath() as Element[]).find(
-        el => el instanceof Element && el.getAttribute('data-dropdown') === 'model',
-      )
-      if (!modelDropdownEl) {
-        this.modelDropdownOpen = false
-      }
-    }
-
-    if (!this.activeDropdown) {
-      return
-    }
-    const dropdownEl = (e.composedPath() as Element[]).find(
-      el => el instanceof Element && el.getAttribute('data-dropdown') === this.activeDropdown,
-    )
-    if (!dropdownEl) {
-      this.activeDropdown = null
-    }
-  }
-
-  private toggleDropdown(target: 'from' | 'to'): void {
-    this.activeDropdown = this.activeDropdown === target ? null : target
-  }
-
   private async onSelectLanguage(target: 'from' | 'to', value: string): Promise<void> {
     this.language = { ...this.language, [target]: value }
-    this.activeDropdown = null
 
     const t = this.rendererCtrl
     if (!t) {
@@ -449,89 +412,6 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
-  private toggleModelDropdown(): void {
-    if (!this.modelDropdownOpen) {
-      const trigger = this.renderRoot.querySelector<HTMLElement>('.model-select-trigger')
-      if (trigger) {
-        const rect = trigger.getBoundingClientRect()
-        const spaceBelow = window.innerHeight - rect.bottom
-        this.modelDropdownUp = spaceBelow < 200
-      }
-    }
-
-    this.modelDropdownOpen = !this.modelDropdownOpen
-  }
-
-  private onSelectModel(value: string): void {
-    this.openaiModel = value
-    this.modelDropdownOpen = false
-    this.onOpenAIConfigChange('model', value)
-  }
-
-  private renderModelSelect() {
-    const label = this.openaiModel
-    const disabled = this.openaiModelsLoading || !!this.openaiModelsError
-
-    return html`
-      <div class="relative" data-dropdown="model">
-        <button
-          class="model-select-trigger w-full px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-border-color transition-duration-0.2s [&:hover]-border-[#00c4b6] [&:disabled]-op-70 [&:disabled]-cursor-default [&:disabled]:hover-border-[#ddd]"
-          ?disabled=${disabled}
-          @click=${this.toggleModelDropdown}
-        >
-          ${this.openaiModelsLoading ? 'Loading models…' : label}
-          <span class="text-#999">▾</span>
-        </button>
-        ${this.openaiModelsError
-          ? html`<div class="text-11px text-[#e74c3c] lh-[1.4] pt-2px">${this.openaiModelsError}</div>`
-          : nothing}
-        ${!disabled && this.modelDropdownOpen
-          ? html`
-          <div class="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10 data-[dropup=true]:top-auto data-[dropup=true]:bottom-[calc(100%+4px)]" data-dropup=${String(this.modelDropdownUp)}>
-            ${this.openaiModels.map(m => html`
-              <div
-                class="px-12px py-8px cursor-pointer text-13px text-[#555] [&:hover]-bg-[#f0f0f0] ${m === this.openaiModel ? 'text-[#00c4b6]! font-600 bg-[#f0fdfb]' : ''}"
-                @click=${() => this.onSelectModel(m)}
-              >${m}</div>
-            `)}
-          </div>
-        `
-          : nothing}
-      </div>
-    `
-  }
-
-  private renderSelect(target: 'from' | 'to') {
-    const options = target === 'from'
-      ? [{ label: 'Auto', value: 'auto' }, ...LANGUAGES]
-      : [...LANGUAGES]
-    const current = this.language[target]
-    const label = options.find(o => o.value === current)?.label ?? current
-
-    return html`
-      <div class="relative" data-dropdown=${target}>
-        <button
-          class="w-[100%] px-12px py-10px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#f8f8f8] cursor-pointer text-13px text-[#333] flex items-center justify-between gap-4px transition-border-color transition-duration-0.2s [&:hover]-border-[#00c4b6] [&:disabled]-op-70 [&:disabled]-cursor-default [&:disabled]:hover-border-[#ddd]"
-          @click=${() => this.toggleDropdown(target)}
-        >
-          ${label}
-          <span class="text-#999">▾</span>
-        </button>
-        <div
-          class="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#fff] border-1px border-solid border-[#ddd] rounded-[8px] shadow-[0_8px_24px_rgba(0,0,0,.12)] max-h-200px overflow-y-auto z-10"
-          ?hidden=${this.activeDropdown !== target}
-        >
-          ${options.map(o => html`
-            <div
-              class="px-12px py-8px cursor-pointer text-13px text-[#555] [&:hover]-bg-[#f0f0f0] ${o.value === current ? 'text-[#00c4b6]! font-600 bg-[#f0fdfb]' : ''}"
-              @click=${() => { void this.onSelectLanguage(target, o.value) }}
-            >${o.label}</div>
-          `)}
-        </div>
-      </div>
-    `
-  }
-
   private onModeChange(value: 'text' | 'html'): void {
     this.mode = value
     if (this.rendererCtrl) {
@@ -554,136 +434,28 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
-  private onBatchSizeInput(e: Event): void {
-    const v = Number((e.target as HTMLInputElement).value)
-    if (v > 0) {
-      this.onBatchSizeChange(v)
+  private onSettingsEvent(e: CustomEvent): void {
+    const { type, detail } = e
+    switch (type) {
+      case 'language-change':
+        void this.onSelectLanguage(detail.target, detail.value)
+        break
+      case 'mode-change':
+        this.onModeChange(detail.value)
+        break
+      case 'batch-size-change':
+        this.onBatchSizeChange(detail.value)
+        break
+      case 'provider-change':
+        this.onProviderChange(detail.value)
+        break
+      case 'openai-config-change':
+        this.onOpenAIConfigChange(detail.field, detail.value)
+        break
+      case 'fetch-models':
+        void this.fetchModels()
+        break
     }
-    else {
-      (e.target as HTMLInputElement).value = String(this.batchSize)
-    }
-  }
-
-  private onTemperatureInput(e: Event): void {
-    const v = Number((e.target as HTMLInputElement).value)
-    this.openaiTemperature = v
-    this.onOpenAIConfigChange('temperature', String(v))
-  }
-
-  private onMaxTokensInput(e: Event): void {
-    const v = Number((e.target as HTMLInputElement).value)
-    this.openaiMaxTokens = v
-    this.onOpenAIConfigChange('maxTokens', String(v))
-  }
-
-  private renderSidebar(): unknown {
-    return html`
-      <div class="max-[500px]:w-[60px] flex-[0_0_auto] border-r-1px border-r-solid border-r-[#eee] px-0 py-12px flex flex-col gap-2px w-140px">
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === 'translate' ? 'border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}"
-          @click=${() => { this.activeTab = 'translate' }}
-        >
-          <span class="text-16px">🌐</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Translate</span>
-        </div>
-        <div
-          class="max-[500px]:px-2 max-[500px]:py-[10px] max-[500px]:justify-center [&:hover]-bg-[#f5f5f5] [&:hover]-text-[#333] flex items-center gap-8px px-16px py-10px cursor-pointer text-13px text-[#666] border-l-3px border-l-solid border-l-transparent transition-all transition-duration-0.15s select-none ${this.activeTab === 'provider' ? 'border-l-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}"
-          @click=${() => { this.activeTab = 'provider' }}
-        >
-          <span class="text-16px">⚙️</span>
-          <span class="max-[500px]:hidden whitespace-nowrap">Provider</span>
-        </div>
-      </div>
-    `
-  }
-
-  private renderTranslateTab(): unknown {
-    return html`
-      <div class="text-13px font-600 text-[#888] mb-10px">Language</div>
-      <div class="flex items-center gap-12px">
-        <div class="flex-1">${this.renderSelect('from')}</div>
-        <span class="text-#999">→</span>
-        <div class="flex-1">${this.renderSelect('to')}</div>
-      </div>
-
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Mode</div>
-      <div class="flex gap-12px" style="flex-direction:column;gap:6px;">
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.mode === 'text' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
-          <input class="hidden" type="radio" name="mode" value="text" ?checked=${this.mode === 'text'} @change=${() => this.onModeChange('text')}>
-          <span>Text</span>
-        </label>
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.mode === 'html' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
-          <input class="hidden" type="radio" name="mode" value="html" ?checked=${this.mode === 'html'} @change=${() => this.onModeChange('html')}>
-          <span>HTML</span>
-        </label>
-      </div>
-
-      <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-
-      <div class="text-13px font-600 text-[#888] mb-10px">Performance</div>
-      <label class="flex flex-col gap-4px">
-        <span class="text-12px text-[#888] font-500">Max concurrent requests</span>
-        <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="1" max="20" step="1" .value=${String(this.batchSize)} @change=${this.onBatchSizeInput}>
-      </label>
-    `
-  }
-
-  private renderProviderTab(): unknown {
-    return html`
-      <div class="text-13px font-600 text-[#888] mb-10px">Translation Provider</div>
-      <div class="flex gap-12px">
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.provider === 'chrome' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
-          <input class="hidden" type="radio" name="provider" value="chrome" ?checked=${this.provider === 'chrome'} @change=${() => this.onProviderChange('chrome')}>
-          <span>Chrome AI</span>
-        </label>
-        <label class="flex-1 flex items-center gap-8px px-14px py-10px border-1px border-solid border-[#ddd] rounded-[8px] cursor-pointer text-13px text-[#555] transition-all transition-duration-0.2s [&:hover]-border-[#00c4b6] ${this.provider === 'openai' ? 'border-[#00c4b6]! bg-[#f0fdfb] text-[#00c4b6]! font-600' : ''}">
-          <input class="hidden" type="radio" name="provider" value="openai" ?checked=${this.provider === 'openai'} @change=${() => this.onProviderChange('openai')}>
-          <span>OpenAI API</span>
-        </label>
-      </div>
-
-      ${this.provider === 'openai'
-        ? html`
-        <div class="h-1px bg-[#eee] mx-0 my-16px"></div>
-        <div class="text-13px font-600 text-[#888] mb-10px">OpenAI Configuration</div>
-        <div class="flex flex-col gap-12px">
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">API Key</span>
-            <input type="password" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiApiKey} @change=${(e: Event) => this.onOpenAIConfigChange('apiKey', (e.target as HTMLInputElement).value)} placeholder="sk-...">
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Base URL</span>
-            <input type="text" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiBaseUrl} @change=${(e: Event) => this.onOpenAIConfigChange('baseUrl', (e.target as HTMLInputElement).value)}>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Model</span>
-            <div class="flex gap-6px items-start">
-              <div class="flex-1 min-w-0">${this.renderModelSelect()}</div>
-              <button
-                @click=${() => { void this.fetchModels() }}
-                class="shrink-0 w-36px h-38px border-1px border-solid border-[#ddd] rounded-[8px] bg-[#fafafa] cursor-pointer text-[#00c4b6] flex items-center justify-center p-0 box-border"
-                title="Refresh models"
-              >${refreshIcon}</button>
-            </div>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Temperature</span>
-            <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="0" step="0.1" .value=${String(this.openaiTemperature)} @change=${this.onTemperatureInput}>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">Max Tokens</span>
-            <input type="number" class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] box-border [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" min="0" step="1" .value=${String(this.openaiMaxTokens)} @change=${this.onMaxTokensInput}>
-          </label>
-          <label class="flex flex-col gap-4px">
-            <span class="text-12px text-[#888] font-500">System Prompt</span>
-            <textarea class="px-12px py-8px border-1px border-solid border-[#ddd] rounded-[6px] text-13px text-[#333] bg-[#fafafa] outline-none transition-border-color transition-duration-0.2s w-[100%] min-h-120px box-border resize-y font-[inherit] [&:focus]-border-[#00c4b6] [&:focus]-bg-[#fff]" .value=${this.openaiPrompt} @change=${(e: Event) => this.onOpenAIConfigChange('prompt', (e.target as HTMLInputElement).value)} placeholder="Optional: custom system prompt for translation"></textarea>
-          </label>
-        </div>
-      `
-        : nothing}
-    `
   }
 
   override render() {
@@ -712,18 +484,27 @@ export class ChromeTranslateBall extends LitElement {
           </div>
         </div>
 
-        <dialog class="[&::backdrop]-bg-[rgba(0,0,0,0.3)] open:flex open:flex-col open:h-full border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] w-600px p-0 overflow-hidden">
-          <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
-            <span>Setting</span>
-            <button class="w-28px h-28px border-none bg-[#f5f5f5] rounded-[50%] cursor-pointer flex items-center justify-center text-14px text-[#999] [&:hover]-bg-[#e8e8e8] [&:hover]-text-[#333]" @click=${() => this.dialogEl?.close()}>✕</button>
-          </div>
-          <div class="flex flex-1 overflow-hidden">
-            ${this.renderSidebar()}
-            <div class="flex-1 min-h-0 p-20px overflow-y-auto">
-              ${this.activeTab === 'translate' ? this.renderTranslateTab() : this.renderProviderTab()}
-            </div>
-          </div>
-        </dialog>
+        <chrome-translate-settings
+          .language=${this.language}
+          .provider=${this.provider}
+          .mode=${this.mode}
+          .batchSize=${this.batchSize}
+          .openaiApiKey=${this.openaiApiKey}
+          .openaiBaseUrl=${this.openaiBaseUrl}
+          .openaiModel=${this.openaiModel}
+          .openaiPrompt=${this.openaiPrompt}
+          .openaiModels=${this.openaiModels}
+          .openaiModelsLoading=${this.openaiModelsLoading}
+          .openaiModelsError=${this.openaiModelsError}
+          .openaiTemperature=${this.openaiTemperature}
+          .openaiMaxTokens=${this.openaiMaxTokens}
+          @language-change=${this.onSettingsEvent}
+          @mode-change=${this.onSettingsEvent}
+          @batch-size-change=${this.onSettingsEvent}
+          @provider-change=${this.onSettingsEvent}
+          @openai-config-change=${this.onSettingsEvent}
+          @fetch-models=${this.onSettingsEvent}
+        ></chrome-translate-settings>
       </div>
     `
   }
