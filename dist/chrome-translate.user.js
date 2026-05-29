@@ -30,42 +30,42 @@
     }
     return target;
   };
-  const _sfc_main$3 = {};
-  const _hoisted_1$3 = { viewBox: "0 0 1024 1024" };
+  const _sfc_main$4 = {};
+  const _hoisted_1$4 = { viewBox: "0 0 1024 1024" };
   function _sfc_render$2(_ctx, _cache) {
-    return vue.openBlock(), vue.createElementBlock("svg", _hoisted_1$3, [..._cache[0] || (_cache[0] = [
+    return vue.openBlock(), vue.createElementBlock("svg", _hoisted_1$4, [..._cache[0] || (_cache[0] = [
       vue.createElementVNode("path", {
         fill: "currentColor",
         d: "M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"
       }, null, -1)
     ])]);
   }
-  const checkIcon = _export_sfc(_sfc_main$3, [["render", _sfc_render$2]]);
-  const _sfc_main$2 = {};
-  const _hoisted_1$2 = { viewBox: "0 0 24 24" };
+  const checkIcon = _export_sfc(_sfc_main$4, [["render", _sfc_render$2]]);
+  const _sfc_main$3 = {};
+  const _hoisted_1$3 = { viewBox: "0 0 24 24" };
   function _sfc_render$1(_ctx, _cache) {
-    return vue.openBlock(), vue.createElementBlock("svg", _hoisted_1$2, [..._cache[0] || (_cache[0] = [
+    return vue.openBlock(), vue.createElementBlock("svg", _hoisted_1$3, [..._cache[0] || (_cache[0] = [
       vue.createElementVNode("path", {
         fill: "currentColor",
         d: " M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"
       }, null, -1)
     ])]);
   }
-  const languageIcon = _export_sfc(_sfc_main$2, [["render", _sfc_render$1]]);
-  const _sfc_main$1 = {};
-  const _hoisted_1$1 = {
+  const languageIcon = _export_sfc(_sfc_main$3, [["render", _sfc_render$1]]);
+  const _sfc_main$2 = {};
+  const _hoisted_1$2 = {
     xmlns: "http://www.w3.org/2000/svg",
     viewBox: "0 0 1024 1024"
   };
   function _sfc_render(_ctx, _cache) {
-    return vue.openBlock(), vue.createElementBlock("svg", _hoisted_1$1, [..._cache[0] || (_cache[0] = [
+    return vue.openBlock(), vue.createElementBlock("svg", _hoisted_1$2, [..._cache[0] || (_cache[0] = [
       vue.createElementVNode("path", {
         fill: "currentColor",
         d: "M600.704 64a32 32 0 0 1 30.464 22.208l35.2 109.376c14.784 7.232 28.928 15.36 42.432 24.512l112.384-24.192a32 32 0 0 1 34.432 15.36L944.32 364.8a32 32 0 0 1-4.032 37.504l-77.12 85.12a357.12 357.12 0 0 1 0 49.024l77.12 85.248a32 32 0 0 1 4.032 37.504l-88.704 153.6a32 32 0 0 1-34.432 15.296L708.8 803.904c-13.44 9.088-27.648 17.28-42.368 24.512l-35.264 109.376A32 32 0 0 1 600.704 960H423.296a32 32 0 0 1-30.464-22.208L357.696 828.48a351.616 351.616 0 0 1-42.56-24.64l-112.32 24.256a32 32 0 0 1-34.432-15.36L79.68 659.2a32 32 0 0 1 4.032-37.504l77.12-85.248a357.12 357.12 0 0 1 0-48.896l-77.12-85.248A32 32 0 0 1 79.68 364.8l88.704-153.6a32 32 0 0 1 34.432-15.296l112.32 24.256c13.568-9.152 27.776-17.408 42.56-24.64l35.2-109.312A32 32 0 0 1 423.232 64H600.64zm-23.424 64H446.72l-36.352 113.088-24.512 11.968a294.113 294.113 0 0 0-34.816 20.096l-22.656 15.36-116.224-25.088-65.28 113.152 79.68 88.192-1.92 27.136a293.12 293.12 0 0 0 0 40.192l1.92 27.136-79.808 88.192 65.344 113.152 116.224-25.024 22.656 15.296a294.113 294.113 0 0 0 34.816 20.096l24.512 11.968L446.72 896h130.688l36.48-113.152 24.448-11.904a288.282 288.282 0 0 0 34.752-20.096l22.592-15.296 116.288 25.024 65.28-113.152-79.744-88.192 1.92-27.136a293.12 293.12 0 0 0 0-40.256l-1.92-27.136 79.808-88.128-65.344-113.152-116.288 24.96-22.592-15.232a287.616 287.616 0 0 0-34.752-20.096l-24.448-11.904L577.344 128zM512 320a192 192 0 1 1 0 384 192 192 0 0 1 0-384m0 64a128 128 0 1 0 0 256 128 128 0 0 0 0-256"
       }, null, -1)
     ])]);
   }
-  const settingIcon = _export_sfc(_sfc_main$1, [["render", _sfc_render]]);
+  const settingIcon = _export_sfc(_sfc_main$2, [["render", _sfc_render]]);
   class Progress {
     globalBaseTitle;
     offset;
@@ -1215,25 +1215,30 @@ isStrictlyExcludedElement(element, excludeSelectors = []) {
     }
     async translate(options) {
       const translator = await this.getTranslator({ from: options.from, to: options.to });
+      if (!translator) {
+        throw new Error("Translator is not available");
+      }
       return translator.translate(options.text);
     }
     async createTranslator(options) {
+      const api = window.Translator;
+      if (!api) {
+        return void 0;
+      }
       const languages = {
         sourceLanguage: options.from,
         targetLanguage: options.to
       };
-      const availability = await window.Translator.availability(
-        languages
-      );
+      const availability = await api.availability(languages);
       if (availability === "unavailable") {
         console.warn(
           `Translation not supported; try a different language combination.`
         );
         return void 0;
       } else if (availability === "available") {
-        return window.Translator.create(languages);
+        return api.create(languages);
       }
-      return window.Translator.create({
+      return api.create({
         ...languages,
         monitor: (monitor) => {
           const progess = this.progress?.createProgressElement({ title: "Downloading Translator..." });
@@ -1263,7 +1268,11 @@ isStrictlyExcludedElement(element, excludeSelectors = []) {
       return translatorPromise;
     }
     async detectLanguage(text) {
-      const detector = await window.LanguageDetector.create({
+      const api = window.LanguageDetector;
+      if (!api) {
+        throw new Error("LanguageDetector is not available");
+      }
+      const detector = await api.create({
         monitor: (monitor) => {
           const progress = this.progress?.createProgressElement({ title: "Downloading LanguageDetector..." });
           monitor.addEventListener("downloadprogress", (e3) => {
@@ -1280,8 +1289,13 @@ isStrictlyExcludedElement(element, excludeSelectors = []) {
       if (lang) {
         return lang;
       }
-      const textContent = document.body.textContent;
-      return textContent ? this.detectLanguage(textContent) : "en";
+      const textContent = document.body?.textContent;
+      if (!textContent) return "en";
+      try {
+        return await this.detectLanguage(textContent);
+      } catch {
+        return "en";
+      }
     }
   }
   class LFUCache {
@@ -6693,24 +6707,24 @@ fallbackPlacements: this.flipFallbackPlacements,
   WaPopup = __decorateClass([
     t$1("wa-popup")
   ], WaPopup);
-  const _hoisted_1 = {
+  const _hoisted_1$1 = {
     ref: "root",
     class: "ct-root"
   };
-  const _hoisted_2 = { class: "ct-icon" };
-  const _hoisted_3 = {
+  const _hoisted_2$1 = { class: "ct-icon" };
+  const _hoisted_3$1 = {
     ref: "dialog",
     label: "Setting",
     "light-dismiss": ""
   };
-  const _hoisted_4 = { class: "ct-setting-dialog" };
+  const _hoisted_4$1 = { class: "ct-setting-dialog" };
   const _hoisted_5 = { class: "ct-setting-dialog-from" };
   const _hoisted_6 = ["value"];
   const _hoisted_7 = { class: "ct-setting-dialog-to" };
   const _hoisted_8 = ["value"];
   const _hoisted_9 = { class: "ct-setting-mode" };
   const threshold = 5;
-  const _sfc_main = vue.defineComponent({
+  const _sfc_main$1 = vue.defineComponent({
     __name: "ball.ce",
     setup(__props) {
       const rootRef = vue.useTemplateRef("root");
@@ -6882,7 +6896,7 @@ fallbackPlacements: this.flipFallbackPlacements,
         }
       });
       return (_ctx, _cache) => {
-        return vue.openBlock(), vue.createElementBlock("div", _hoisted_1, [
+        return vue.openBlock(), vue.createElementBlock("div", _hoisted_1$1, [
           vue.createElementVNode("div", {
             ref: "ball",
             class: vue.normalizeClass(["ct-ball", { "ct-moving": states.moving }]),
@@ -6894,7 +6908,7 @@ fallbackPlacements: this.flipFallbackPlacements,
             onMouseup: vue.withModifiers(onMouseUp, ["stop", "prevent"]),
             onContextmenu: _cache[1] || (_cache[1] = ($event) => $event.preventDefault())
           }, [
-            vue.createElementVNode("div", _hoisted_2, [
+            vue.createElementVNode("div", _hoisted_2$1, [
               vue.createVNode(languageIcon, { class: "ct-language-icon" }),
               states.isTranslating ? (vue.openBlock(), vue.createBlock(checkIcon, {
                 key: 0,
@@ -6914,8 +6928,8 @@ fallbackPlacements: this.flipFallbackPlacements,
               ])
             ])
           ], 34),
-          vue.createElementVNode("wa-dialog", _hoisted_3, [
-            vue.createElementVNode("div", _hoisted_4, [
+          vue.createElementVNode("wa-dialog", _hoisted_3$1, [
+            vue.createElementVNode("div", _hoisted_4$1, [
               vue.createElementVNode("div", _hoisted_5, [
                 vue.withDirectives(vue.createElementVNode("wa-select", {
                   "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => states.language.from = $event),
@@ -6973,10 +6987,209 @@ fallbackPlacements: this.flipFallbackPlacements,
       };
     }
   });
-  const _style_0 = ".ct-root[data-v-d674b6ca]{--size: 40px;--bg: #fff;-webkit-user-select:none;user-select:none;touch-action:none}.ct-root .ct-ball[data-v-d674b6ca]{--x: 0px;--y: calc(50vh - var(--size)/2);position:fixed;z-index:999999999;top:0;width:var(--size);height:var(--size);background-color:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:none;transform:translate(var(--x),var(--y))}.ct-root .ct-ball.ct-moving[data-v-d674b6ca]{border-radius:50%;padding:unset!important}.ct-root .ct-ball.ct-moving .ct-setting-wrap[data-v-d674b6ca]{display:none}.ct-root .ct-ball .ct-icon[data-v-d674b6ca]{--size: 28px;width:var(--size);height:var(--size);position:relative;display:flex;align-items:center;justify-content:center;border-radius:50%;background-color:#00c4b6}.ct-root .ct-ball .ct-icon .ct-language-icon[data-v-d674b6ca]{width:20px;height:20px}.ct-root .ct-ball .ct-icon .ct-check-icon[data-v-d674b6ca]{position:absolute;bottom:-2px;right:0;width:10px;height:10px;border-radius:50%;background-color:#00c800cc;color:#fff}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-d674b6ca]{left:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-d674b6ca]:hover{left:6px}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-d674b6ca]{right:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-d674b6ca]:hover{right:6px}.ct-root .ct-ball .ct-setting-wrap[data-v-d674b6ca]{--x: 0px;--y: calc(50vh - var(--size)/2);position:absolute;-webkit-user-select:none;user-select:none;touch-action:none;transition:all .3s ease;top:calc(var(--size));padding-top:10px;color:#000}.ct-root .ct-ball .ct-setting-wrap .ct-setting[data-v-d674b6ca]{width:calc(var(--size) - 4px);height:calc(var(--size) - 4px);background-color:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;border-radius:20px}.ct-root .ct-ball .ct-setting-wrap .ct-setting .ct-setting-icon[data-v-d674b6ca]{width:20px;height:20px}.ct-root .ct-ball[data-side=left][data-v-d674b6ca]{border-top-right-radius:20px;border-bottom-right-radius:20px}.ct-root .ct-ball[data-side=left]:hover[data-v-d674b6ca]{--x: 0;padding-left:10px}.ct-root .ct-ball[data-side=left]:hover .ct-setting-wrap[data-v-d674b6ca]{left:6px}.ct-root .ct-ball[data-side=right][data-v-d674b6ca]{--x: calc(100vw - var(--size) - var(--scrollbar-width));--offset: calc(var(--scrollbar-width) + 10px);border-top-left-radius:20px;border-bottom-left-radius:20px;padding-right:var(--offset)}.ct-root .ct-ball[data-side=right]:hover[data-v-d674b6ca]{--x: calc(100vw - var(--size) - var(--offset))}.ct-root .ct-ball[data-side=right]:hover .ct-setting-wrap[data-v-d674b6ca]{right:calc(var(--scrollbar-width) + 6px)}.ct-root .ct-ball[data-side=right] .ct-icon .ct-check-icon[data-v-d674b6ca]{left:0;right:unset}.ct-root .ct-setting-dialog[data-v-d674b6ca]{display:flex}.ct-root .ct-setting-dialog .ct-setting-dialgo-icon[data-v-d674b6ca]{width:40px;display:flex;align-items:center;justify-content:center;color:#999}.ct-root .ct-setting-dialog .ct-setting-dialog-from[data-v-d674b6ca],.ct-root .ct-setting-dialog .ct-setting-dialog-to[data-v-d674b6ca]{flex:1;height:40px;display:flex;align-items:center;justify-content:center;background-color:#eee;border-radius:10px}.ct-root .ct-setting-mode[data-v-d674b6ca]{margin-top:12px}.ct-root .ct-setting-mode label[data-v-d674b6ca]{display:block;margin-bottom:4px;font-size:12px;color:#666}.ct-root .ct-setting-mode wa-select[data-v-d674b6ca]{width:100%}";
-  const ball = _export_sfc(_sfc_main, [["styles", [_style_0]], ["__scopeId", "data-v-d674b6ca"]]);
+  const _style_0$1 = ".ct-root[data-v-d674b6ca]{--size: 40px;--bg: #fff;-webkit-user-select:none;user-select:none;touch-action:none}.ct-root .ct-ball[data-v-d674b6ca]{--x: 0px;--y: calc(50vh - var(--size)/2);position:fixed;z-index:999999999;top:0;width:var(--size);height:var(--size);background-color:var(--bg);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:none;transform:translate(var(--x),var(--y))}.ct-root .ct-ball.ct-moving[data-v-d674b6ca]{border-radius:50%;padding:unset!important}.ct-root .ct-ball.ct-moving .ct-setting-wrap[data-v-d674b6ca]{display:none}.ct-root .ct-ball .ct-icon[data-v-d674b6ca]{--size: 28px;width:var(--size);height:var(--size);position:relative;display:flex;align-items:center;justify-content:center;border-radius:50%;background-color:#00c4b6}.ct-root .ct-ball .ct-icon .ct-language-icon[data-v-d674b6ca]{width:20px;height:20px}.ct-root .ct-ball .ct-icon .ct-check-icon[data-v-d674b6ca]{position:absolute;bottom:-2px;right:0;width:10px;height:10px;border-radius:50%;background-color:#00c800cc;color:#fff}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-d674b6ca]{left:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=left] .ct-setting-wrap[data-v-d674b6ca]:hover{left:6px}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-d674b6ca]{right:calc(var(--size) * -1)}.ct-root .ct-ball[data-side=right] .ct-setting-wrap[data-v-d674b6ca]:hover{right:6px}.ct-root .ct-ball .ct-setting-wrap[data-v-d674b6ca]{--x: 0px;--y: calc(50vh - var(--size)/2);position:absolute;-webkit-user-select:none;user-select:none;touch-action:none;transition:all .3s ease;top:calc(var(--size));padding-top:10px;color:#000}.ct-root .ct-ball .ct-setting-wrap .ct-setting[data-v-d674b6ca]{width:calc(var(--size) - 4px);height:calc(var(--size) - 4px);background-color:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px #00000040;border-radius:20px}.ct-root .ct-ball .ct-setting-wrap .ct-setting .ct-setting-icon[data-v-d674b6ca]{width:20px;height:20px}.ct-root .ct-ball[data-side=left][data-v-d674b6ca]{border-top-right-radius:20px;border-bottom-right-radius:20px}.ct-root .ct-ball[data-side=left]:hover[data-v-d674b6ca]{--x: 0;padding-left:10px}.ct-root .ct-ball[data-side=left]:hover .ct-setting-wrap[data-v-d674b6ca]{left:6px}.ct-root .ct-ball[data-side=right][data-v-d674b6ca]{--x: calc(100vw - var(--size) - var(--scrollbar-width));--offset: calc(var(--scrollbar-width) + 10px);border-top-left-radius:20px;border-bottom-left-radius:20px;padding-right:var(--offset)}.ct-root .ct-ball[data-side=right]:hover[data-v-d674b6ca]{--x: calc(100vw - var(--size) - var(--offset))}.ct-root .ct-ball[data-side=right]:hover .ct-setting-wrap[data-v-d674b6ca]{right:calc(var(--scrollbar-width) + 6px)}.ct-root .ct-ball[data-side=right] .ct-icon .ct-check-icon[data-v-d674b6ca]{left:0;right:unset}.ct-root .ct-setting-dialog[data-v-d674b6ca]{display:flex}.ct-root .ct-setting-dialog .ct-setting-dialgo-icon[data-v-d674b6ca]{width:40px;display:flex;align-items:center;justify-content:center;color:#999}.ct-root .ct-setting-dialog .ct-setting-dialog-from[data-v-d674b6ca],.ct-root .ct-setting-dialog .ct-setting-dialog-to[data-v-d674b6ca]{flex:1;height:40px;display:flex;align-items:center;justify-content:center;background-color:#eee;border-radius:10px}.ct-root .ct-setting-mode[data-v-d674b6ca]{margin-top:12px}.ct-root .ct-setting-mode label[data-v-d674b6ca]{display:block;margin-bottom:4px;font-size:12px;color:#666}.ct-root .ct-setting-mode wa-select[data-v-d674b6ca]{width:100%}";
+  const ball = _export_sfc(_sfc_main$1, [["styles", [_style_0$1]], ["__scopeId", "data-v-d674b6ca"]]);
+  const _hoisted_1 = {
+    key: 0,
+    class: "ct-sel-status"
+  };
+  const _hoisted_2 = {
+    key: 1,
+    class: "ct-sel-status ct-sel-error"
+  };
+  const _hoisted_3 = { class: "ct-sel-text ct-sel-original" };
+  const _hoisted_4 = { class: "ct-sel-text ct-sel-translated" };
+  const _sfc_main = vue.defineComponent({
+    __name: "selection.ce",
+    setup(__props) {
+      const config = _GM_getValue(STORAGE_CONFIG_KEY, {
+        language: { from: "auto", to: "" }
+      });
+      const translator = new Translator();
+      const cache2 = new LFUCache("ct-selection-cache");
+      const state = vue.reactive({
+        phase: "hidden",
+        selectedText: "",
+        translatedText: "",
+        loading: false,
+        error: "",
+        posX: 0,
+        posY: 0
+      });
+      const rootRef = vue.ref();
+      function getSelectedText() {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed || !sel.rangeCount) return "";
+        return sel.toString().trim();
+      }
+      function getSelectionRect() {
+        const sel = window.getSelection();
+        if (!sel || !sel.rangeCount) return null;
+        const rect = sel.getRangeAt(0).getBoundingClientRect();
+        if (!rect || rect.width === 0 && rect.height === 0) return null;
+        return { x: rect.right, y: rect.top, cx: rect.left + rect.width / 2 };
+      }
+      function onMouseDown(e3) {
+        if (rootRef.value?.contains(e3.target)) {
+          return;
+        }
+        if (state.phase === "popup" || state.phase === "button") {
+          state.phase = "hidden";
+        }
+      }
+      function onMouseUp() {
+        if (state.phase !== "hidden") {
+          return;
+        }
+        const text = getSelectedText();
+        if (!text || text.length > 2e3) return;
+        const pos = getSelectionRect();
+        if (!pos) return;
+        state.selectedText = text;
+        state.posX = pos.x;
+        state.posY = pos.y;
+        state.phase = "button";
+      }
+      function onKeyDown(e3) {
+        if (e3.key === "Escape" && state.phase !== "hidden") {
+          state.phase = "hidden";
+        }
+      }
+      function dismiss() {
+        state.phase = "hidden";
+      }
+      function onScroll() {
+        dismiss();
+      }
+      async function onTranslate() {
+        if (!window.Translator?.availability) {
+          state.error = "Translator API is not available（需要 Chrome 138+）";
+          state.phase = "popup";
+          window.getSelection()?.removeAllRanges();
+          return;
+        }
+        state.loading = true;
+        state.error = "";
+        state.phase = "popup";
+        state.posY = state.posY + 20;
+        window.getSelection()?.removeAllRanges();
+        try {
+          const from = config.language.from;
+          const to = config.language.to || navigator.languages[0];
+          let sourceLang = from;
+          if (sourceLang === "auto") {
+            sourceLang = await translator.detectLanguage(state.selectedText);
+          }
+          if (sourceLang === to) {
+            state.translatedText = state.selectedText;
+            return;
+          }
+          const cacheKey = `${sourceLang}:${to}:${state.selectedText}`;
+          const cached = cache2.get(cacheKey);
+          if (cached) {
+            state.translatedText = cached;
+            return;
+          }
+          const result = await translator.translate({
+            from: sourceLang,
+            to,
+            text: state.selectedText
+          });
+          cache2.set(cacheKey, result);
+          state.translatedText = result;
+        } catch (e3) {
+          state.error = e3.message || "翻译失败";
+        } finally {
+          state.loading = false;
+        }
+      }
+      vue.onMounted(() => {
+        document.addEventListener("mousedown", onMouseDown);
+        document.addEventListener("mouseup", onMouseUp);
+        document.addEventListener("keydown", onKeyDown);
+        window.addEventListener("scroll", onScroll, true);
+        window.addEventListener("resize", onScroll);
+      });
+      vue.onBeforeUnmount(() => {
+        document.removeEventListener("mousedown", onMouseDown);
+        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("keydown", onKeyDown);
+        window.removeEventListener("scroll", onScroll, true);
+        window.removeEventListener("resize", onScroll);
+      });
+      return (_ctx, _cache) => {
+        return vue.openBlock(), vue.createElementBlock("div", {
+          ref_key: "rootRef",
+          ref: rootRef,
+          class: "ct-sel-root"
+        }, [
+          state.phase === "button" ? (vue.openBlock(), vue.createElementBlock("button", {
+            key: 0,
+            class: "ct-sel-btn",
+            style: vue.normalizeStyle({ left: state.posX + "px", top: state.posY + "px" }),
+            onMousedown: _cache[0] || (_cache[0] = vue.withModifiers(() => {
+            }, ["stop"])),
+            onMouseup: _cache[1] || (_cache[1] = vue.withModifiers(() => {
+            }, ["stop"])),
+            onClick: vue.withModifiers(onTranslate, ["stop"])
+          }, [..._cache[3] || (_cache[3] = [
+            vue.createStaticVNode('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-v-071d441d><path d="M5 8l6 6" data-v-071d441d></path><path d="M4 14l6-6 2-3" data-v-071d441d></path><path d="M2 5h12" data-v-071d441d></path><path d="M7 2h1" data-v-071d441d></path><path d="M14 22l2.5-5L19 22" data-v-071d441d></path><path d="M12 17h8" data-v-071d441d></path></svg>', 1)
+          ])], 36)) : vue.createCommentVNode("", true),
+          state.phase === "popup" ? (vue.openBlock(), vue.createElementBlock("div", {
+            key: 1,
+            class: "ct-sel-popup",
+            style: vue.normalizeStyle({ left: state.posX + "px", top: state.posY + "px" }),
+            onMousedown: _cache[2] || (_cache[2] = vue.withModifiers(() => {
+            }, ["stop"]))
+          }, [
+            vue.createElementVNode("button", {
+              class: "ct-sel-close",
+              onClick: vue.withModifiers(dismiss, ["stop"])
+            }, [..._cache[4] || (_cache[4] = [
+              vue.createElementVNode("svg", {
+                width: "12",
+                height: "12",
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                "stroke-width": "2.5",
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round"
+              }, [
+                vue.createElementVNode("line", {
+                  x1: "18",
+                  y1: "6",
+                  x2: "6",
+                  y2: "18"
+                }),
+                vue.createElementVNode("line", {
+                  x1: "6",
+                  y1: "6",
+                  x2: "18",
+                  y2: "18"
+                })
+              ], -1)
+            ])]),
+            state.loading ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_1, [..._cache[5] || (_cache[5] = [
+              vue.createElementVNode("span", { class: "ct-sel-spinner" }, null, -1),
+              vue.createElementVNode("span", null, "翻译中...", -1)
+            ])])) : state.error ? (vue.openBlock(), vue.createElementBlock("div", _hoisted_2, vue.toDisplayString(state.error), 1)) : (vue.openBlock(), vue.createElementBlock(vue.Fragment, { key: 2 }, [
+              vue.createElementVNode("div", _hoisted_3, vue.toDisplayString(state.selectedText), 1),
+              _cache[6] || (_cache[6] = vue.createElementVNode("div", { class: "ct-sel-divider" }, null, -1)),
+              vue.createElementVNode("div", _hoisted_4, vue.toDisplayString(state.translatedText), 1)
+            ], 64))
+          ], 36)) : vue.createCommentVNode("", true)
+        ], 512);
+      };
+    }
+  });
+  const _style_0 = ".ct-sel-root[data-v-071d441d]{position:static}.ct-sel-btn[data-v-071d441d]{position:fixed;z-index:2147483647;width:32px;height:32px;border:2px solid #fff;border-radius:50%;background:#00c4b6;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px #0000004d;transform:translate(-50%,-50%);transition:transform .12s ease;padding:0;outline:none}.ct-sel-btn[data-v-071d441d]:hover{background:#00a89a;transform:translate(-50%,-50%) scale(1.1)}.ct-sel-btn[data-v-071d441d]:active{transform:translate(-50%,-50%) scale(.92)}.ct-sel-popup[data-v-071d441d]{position:fixed;z-index:2147483647;min-width:200px;max-width:420px;max-height:320px;background:#fff;border-radius:10px;box-shadow:0 4px 24px #0003;padding:14px 16px;transform:translate(-50%);overflow-y:auto;color:#333;font-size:14px;line-height:1.5}.ct-sel-close[data-v-071d441d]{position:absolute;top:6px;right:6px;width:22px;height:22px;border:none;border-radius:50%;background:#f0f0f0;color:#888;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:background .15s}.ct-sel-close[data-v-071d441d]:hover{background:#e0e0e0;color:#555}.ct-sel-text[data-v-071d441d]{word-break:break-word;white-space:pre-wrap;padding-right:20px}.ct-sel-original[data-v-071d441d]{color:#888;font-size:13px;margin-bottom:6px}.ct-sel-translated[data-v-071d441d]{color:#222;font-size:15px;font-weight:500}.ct-sel-divider[data-v-071d441d]{height:1px;background:#eee;margin:6px 0}.ct-sel-status[data-v-071d441d]{display:flex;align-items:center;gap:8px;padding:8px 0;color:#888;font-size:13px}.ct-sel-error[data-v-071d441d]{color:#e74c3c}.ct-sel-spinner[data-v-071d441d]{width:16px;height:16px;border:2px solid #e0e0e0;border-top-color:#00c4b6;border-radius:50%;animation:ct-spin-071d441d .6s linear infinite;flex-shrink:0}@keyframes ct-spin-071d441d{to{transform:rotate(360deg)}}";
+  const selection = _export_sfc(_sfc_main, [["styles", [_style_0]], ["__scopeId", "data-v-071d441d"]]);
   customElements.define("chrome-translate-ball", vue.defineCustomElement(ball));
+  customElements.define("chrome-translate-selection", vue.defineCustomElement(selection));
   const ballEl = document.createElement("chrome-translate-ball");
   document.documentElement.appendChild(ballEl);
+  const selectionEl = document.createElement("chrome-translate-selection");
+  document.documentElement.appendChild(selectionEl);
 
 })(Vue);
