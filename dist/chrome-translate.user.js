@@ -18,6 +18,9 @@
 (function () {
   'use strict';
 
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   /**
    * @license
    * Copyright 2019 Google LLC
@@ -607,319 +610,6 @@
       } });
     };
   }
-  function emitCtEvent(host, name, detail) {
-    host.dispatchEvent(new CustomEvent(name, {
-      detail,
-      bubbles: true,
-      composed: true
-    }));
-  }
-  var __defProp$a = Object.defineProperty;
-  var __getOwnPropDesc$b = Object.getOwnPropertyDescriptor;
-  var __decorateClass$b = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$b(target, key) : target;
-    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-      if (decorator = decorators[i2])
-        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$a(target, key, result);
-    return result;
-  };
-  let CtButton = class extends i {
-    constructor() {
-      super(...arguments);
-      this.size = "sm";
-      this.variant = "ghost";
-      this.square = false;
-      this.title = "";
-      this.disabled = false;
-    }
-    onClick() {
-      if (this.disabled) {
-        return;
-      }
-      emitCtEvent(this, "ct-click", void 0);
-    }
-    render() {
-      return x`
-      <button
-        part="button"
-        class="flex items-center justify-center box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
-        ?disabled=${this.disabled}
-        title=${this.title}
-        @click=${this.onClick}
-      >
-        <slot></slot>
-      </button>
-    `;
-    }
-  };
-  CtButton.styles = i$3`
-    :host([size="sm"]) button { min-width: 28px; height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; gap: 4px; }
-    :host([size="md"]) button { min-width: 36px; height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; gap: 6px; }
-    :host([size="sm"][square]) button { width: 28px; padding: 0; border-radius: 50%; }
-    :host([size="md"][square]) button { width: 36px; padding: 0; }
-    :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
-    :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
-    :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
-    :host([variant="outlined"]) button:hover { border-color: var(--ct-btn-hover-border, #00c4b6); }
-    :host([variant="filled"]) button { border: none; background: var(--ct-btn-bg, #00c4b6); color: var(--ct-btn-color, #fff); }
-    :host([variant="filled"]) button:hover { opacity: 0.9; }
-
-    /* layer: preflights */
-*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
-/* layer: default */
-.static{position:static;}
-.box-border{box-sizing:border-box;}
-.flex{display:flex;}
-.cursor-pointer{cursor:pointer;}
-.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed;}
-.items-center{align-items:center;}
-.justify-center{justify-content:center;}
-.border{border-width:1px;}
-.leading-none{line-height:1;}
-.disabled\\:op-50:disabled{opacity:0.5;}
-.focus-visible\\:outline-2:focus-visible{outline-width:2px;}
-.focus-visible\\:outline-\\[\\#00c4b6\\]:focus-visible{--un-outline-color-opacity:1;outline-color:rgb(0 196 182 / var(--un-outline-color-opacity)) /* #00c4b6 */;}
-.focus-visible\\:outline-offset-2:focus-visible{outline-offset:2px;}
-.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
-.transition-duration-0\\.2s{transition-duration:0.2s;};
-  `;
-  __decorateClass$b([
-    n2({ type: String, reflect: true })
-  ], CtButton.prototype, "size", 2);
-  __decorateClass$b([
-    n2({ type: String, reflect: true })
-  ], CtButton.prototype, "variant", 2);
-  __decorateClass$b([
-    n2({ type: Boolean, reflect: true })
-  ], CtButton.prototype, "square", 2);
-  __decorateClass$b([
-    n2({ type: String })
-  ], CtButton.prototype, "title", 2);
-  __decorateClass$b([
-    n2({ type: Boolean })
-  ], CtButton.prototype, "disabled", 2);
-  CtButton = __decorateClass$b([
-    t("ct-button")
-  ], CtButton);
-  var __defProp$9 = Object.defineProperty;
-  var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
-  var __decorateClass$a = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
-    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-      if (decorator = decorators[i2])
-        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$9(target, key, result);
-    return result;
-  };
-  let CtDialog = class extends i {
-    constructor() {
-      super(...arguments);
-      this.title = "";
-      this.width = "600px";
-      this.height = "100%";
-    }
-    show() {
-      this.dialogEl?.showModal();
-    }
-    close() {
-      this.dialogEl?.close();
-    }
-    firstUpdated() {
-      this.dialogEl.addEventListener("click", (e2) => {
-        if (e2.target === this.dialogEl) {
-          this.dialogEl.close();
-        }
-      });
-      this.dialogEl.addEventListener("close", () => {
-        emitCtEvent(this, "ct-close", void 0);
-      });
-    }
-    render() {
-      return x`
-      <dialog part="dialog" class="[&[open]]-flex [&[open]]-flex-col border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] p-0 overflow-hidden" style="width: ${this.width}; height: ${this.height}">
-        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
-          <span part="title">${this.title}</span>
-          <slot name="header-actions">
-            <ct-button size="sm" variant="ghost" square @click=${() => this.dialogEl?.close()}>✕</ct-button>
-          </slot>
-        </div>
-        <div class="flex flex-1 overflow-hidden">
-          <div part="sidebar" class="flex flex-col flex-[0_0_auto]">
-            <slot name="sidebar"></slot>
-          </div>
-          <div part="main" class="flex-1 min-h-0 p-20px overflow-y-auto">
-            <slot></slot>
-          </div>
-        </div>
-      </dialog>
-    `;
-    }
-  };
-  CtDialog.styles = i$3`
-    :host {
-      display: contents;
-    }
-
-    dialog::backdrop {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    /* layer: preflights */
-*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
-/* layer: default */
-.static{position:static;}
-.contents{display:contents;}
-.min-h-0{min-height:0;}
-.\\[\\&\\[open\\]\\]-flex[open],
-.flex{display:flex;}
-.flex-\\[0_0_auto\\]{flex:0 0 auto;}
-.flex-1{flex:1 1 0%;}
-.\\[\\&\\[open\\]\\]-flex-col[open],
-.flex-col{flex-direction:column;}
-.items-center{align-items:center;}
-.justify-between{justify-content:space-between;}
-.overflow-hidden{overflow:hidden;}
-.overflow-y-auto{overflow-y:auto;}
-.border-b-1px{border-bottom-width:1px;}
-.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
-.rounded-\\[12px\\]{border-radius:12px;}
-.border-none{border-style:none;}
-.border-b-solid{border-bottom-style:solid;}
-.p-0{padding:0;}
-.p-20px{padding:20px;}
-.px-20px{padding-left:20px;padding-right:20px;}
-.py-16px{padding-top:16px;padding-bottom:16px;}
-.text-16px{font-size:16px;}
-.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
-.font-600{font-weight:600;}
-.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);};
-  `;
-  __decorateClass$a([
-    n2({ type: String })
-  ], CtDialog.prototype, "title", 2);
-  __decorateClass$a([
-    n2({ type: String })
-  ], CtDialog.prototype, "width", 2);
-  __decorateClass$a([
-    n2({ type: String })
-  ], CtDialog.prototype, "height", 2);
-  __decorateClass$a([
-    e("dialog")
-  ], CtDialog.prototype, "dialogEl", 2);
-  CtDialog = __decorateClass$a([
-    t("ct-dialog")
-  ], CtDialog);
-  var __defProp$8 = Object.defineProperty;
-  var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
-  var __decorateClass$9 = (decorators, target, key, kind) => {
-    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
-    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
-      if (decorator = decorators[i2])
-        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-    if (kind && result) __defProp$8(target, key, result);
-    return result;
-  };
-  let CtConfirm = class extends i {
-    constructor() {
-      super(...arguments);
-      this.title = "";
-      this.message = "";
-      this.confirmText = "Confirm";
-      this.cancelText = "Cancel";
-      this.danger = false;
-    }
-    static show(options) {
-      return new Promise((resolve) => {
-        const el = document.createElement("ct-confirm");
-        Object.assign(el, options);
-        el.resolve = resolve;
-        document.body.appendChild(el);
-        void el.updateComplete.then(() => {
-          el.dialogEl?.show();
-        });
-      });
-    }
-    onConfirm() {
-      this.resolve(true);
-      this.remove();
-    }
-    onCancel() {
-      this.resolve(false);
-      this.remove();
-    }
-    render() {
-      const dangerStyle = this.danger ? "--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff" : "";
-      return x`
-      <ct-dialog
-        .title=${this.title}
-        width="360px"
-        height="fit-content"
-        @ct-close=${this.onCancel}
-      >
-        <div class="text-14px text-[#555] leading-[1.5]">
-          ${this.message}
-        </div>
-        <div class="flex items-center justify-end gap-8px mt-16px">
-          <ct-button
-            size="md" variant="outlined"
-            @click=${this.onCancel}
-          >${this.cancelText}</ct-button>
-          <ct-button
-            size="md"
-            variant=${this.danger ? "outlined" : "filled"}
-            style=${dangerStyle}
-            @click=${this.onConfirm}
-          >${this.confirmText}</ct-button>
-        </div>
-      </ct-dialog>
-    `;
-    }
-  };
-  CtConfirm.styles = i$3`
-    :host {
-      all: initial;
-      display: contents;
-    }
-
-    /* layer: preflights */
-*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
-/* layer: default */
-.static{position:static;}
-.mt-16px{margin-top:16px;}
-.contents{display:contents;}
-.flex{display:flex;}
-.items-center{align-items:center;}
-.justify-end{justify-content:flex-end;}
-.gap-8px{gap:8px;}
-.text-14px{font-size:14px;}
-.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
-.leading-\\[1\\.5\\]{line-height:1.5;};
-  `;
-  __decorateClass$9([
-    n2({ type: String })
-  ], CtConfirm.prototype, "title", 2);
-  __decorateClass$9([
-    n2({ type: String })
-  ], CtConfirm.prototype, "message", 2);
-  __decorateClass$9([
-    n2({ type: String })
-  ], CtConfirm.prototype, "confirmText", 2);
-  __decorateClass$9([
-    n2({ type: String })
-  ], CtConfirm.prototype, "cancelText", 2);
-  __decorateClass$9([
-    n2({ type: Boolean })
-  ], CtConfirm.prototype, "danger", 2);
-  __decorateClass$9([
-    e("ct-dialog")
-  ], CtConfirm.prototype, "dialogEl", 2);
-  CtConfirm = __decorateClass$9([
-    t("ct-confirm")
-  ], CtConfirm);
-  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   const padStart = (param) => param.toString().padStart(2, "0");
   const oneDigit = (param) => param.startsWith("0") ? param.slice(-1) : param;
   function tinyDateFormat(format = "HH:mm:ss", timestamp = Date.now()) {
@@ -2520,6 +2210,316 @@ info() {
       clearInterval(timer);
     };
   }
+  function emitCtEvent(host, name, detail) {
+    host.dispatchEvent(new CustomEvent(name, {
+      detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+  var __defProp$a = Object.defineProperty;
+  var __getOwnPropDesc$b = Object.getOwnPropertyDescriptor;
+  var __decorateClass$b = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$b(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$a(target, key, result);
+    return result;
+  };
+  let CtButton = class extends i {
+    constructor() {
+      super(...arguments);
+      this.size = "sm";
+      this.variant = "ghost";
+      this.square = false;
+      this.title = "";
+      this.disabled = false;
+    }
+    onClick() {
+      if (this.disabled) {
+        return;
+      }
+      emitCtEvent(this, "ct-click", void 0);
+    }
+    render() {
+      return x`
+      <button
+        part="button"
+        class="flex items-center justify-center box-border cursor-pointer transition-all transition-duration-0.2s leading-none disabled:op-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-[#00c4b6] focus-visible:outline-offset-2"
+        ?disabled=${this.disabled}
+        title=${this.title}
+        @click=${this.onClick}
+      >
+        <slot></slot>
+      </button>
+    `;
+    }
+  };
+  CtButton.styles = i$3`
+    :host([size="sm"]) button { min-width: 28px; height: 28px; padding: 0 8px; font-size: 12px; border-radius: 6px; gap: 4px; }
+    :host([size="md"]) button { min-width: 36px; height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; gap: 6px; }
+    :host([size="sm"][square]) button { width: 28px; padding: 0; border-radius: 50%; }
+    :host([size="md"][square]) button { width: 36px; padding: 0; }
+    :host([variant="ghost"]) button { border: none; background: var(--ct-btn-bg, #f5f5f5); color: var(--ct-btn-color, #999); }
+    :host([variant="ghost"]) button:hover { background: var(--ct-btn-hover-bg, #e8e8e8); color: var(--ct-btn-hover-color, #333); }
+    :host([variant="outlined"]) button { border: 1px solid var(--ct-btn-border, #ddd); background: var(--ct-btn-bg, #fafafa); color: var(--ct-btn-color, #00c4b6); }
+    :host([variant="outlined"]) button:hover { border-color: var(--ct-btn-hover-border, #00c4b6); }
+    :host([variant="filled"]) button { border: none; background: var(--ct-btn-bg, #00c4b6); color: var(--ct-btn-color, #fff); }
+    :host([variant="filled"]) button:hover { opacity: 0.9; }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.box-border{box-sizing:border-box;}
+.flex{display:flex;}
+.cursor-pointer{cursor:pointer;}
+.disabled\\:cursor-not-allowed:disabled{cursor:not-allowed;}
+.items-center{align-items:center;}
+.justify-center{justify-content:center;}
+.border{border-width:1px;}
+.leading-none{line-height:1;}
+.disabled\\:op-50:disabled{opacity:0.5;}
+.focus-visible\\:outline-2:focus-visible{outline-width:2px;}
+.focus-visible\\:outline-\\[\\#00c4b6\\]:focus-visible{--un-outline-color-opacity:1;outline-color:rgb(0 196 182 / var(--un-outline-color-opacity)) /* #00c4b6 */;}
+.focus-visible\\:outline-offset-2:focus-visible{outline-offset:2px;}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;}
+.transition-duration-0\\.2s{transition-duration:0.2s;};
+  `;
+  __decorateClass$b([
+    n2({ type: String, reflect: true })
+  ], CtButton.prototype, "size", 2);
+  __decorateClass$b([
+    n2({ type: String, reflect: true })
+  ], CtButton.prototype, "variant", 2);
+  __decorateClass$b([
+    n2({ type: Boolean, reflect: true })
+  ], CtButton.prototype, "square", 2);
+  __decorateClass$b([
+    n2({ type: String })
+  ], CtButton.prototype, "title", 2);
+  __decorateClass$b([
+    n2({ type: Boolean })
+  ], CtButton.prototype, "disabled", 2);
+  CtButton = __decorateClass$b([
+    t("ct-button")
+  ], CtButton);
+  var __defProp$9 = Object.defineProperty;
+  var __getOwnPropDesc$a = Object.getOwnPropertyDescriptor;
+  var __decorateClass$a = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$a(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$9(target, key, result);
+    return result;
+  };
+  let CtDialog = class extends i {
+    constructor() {
+      super(...arguments);
+      this.title = "";
+      this.width = "min(800px, calc(100vw - 80px))";
+      this.height = "min(600px, calc(100vh - 80px))";
+    }
+    show() {
+      this.dialogEl?.showModal();
+    }
+    close() {
+      this.dialogEl?.close();
+    }
+    firstUpdated() {
+      this.dialogEl.addEventListener("click", (e2) => {
+        if (e2.target === this.dialogEl) {
+          this.dialogEl.close();
+        }
+      });
+      this.dialogEl.addEventListener("close", () => {
+        emitCtEvent(this, "ct-close", void 0);
+      });
+    }
+    render() {
+      return x`
+      <dialog part="dialog" class="[&[open]]-flex [&[open]]-flex-col border-none rounded-[12px] shadow-[0_16px_48px_rgba(0,0,0,.2)] p-0 overflow-hidden" style="width: ${this.width}; height: ${this.height}">
+        <div class="flex items-center justify-between px-20px py-16px border-b-1px border-b-solid border-b-[#eee] text-16px font-600 text-[#333]">
+          <span part="title">${this.title}</span>
+          <slot name="header-actions">
+            <ct-button size="sm" variant="ghost" square @click=${() => this.dialogEl?.close()}>✕</ct-button>
+          </slot>
+        </div>
+        <div class="flex flex-1 overflow-hidden">
+          <div part="sidebar" class="flex flex-col flex-[0_0_auto]">
+            <slot name="sidebar"></slot>
+          </div>
+          <div part="main" class="flex-1 min-h-0 p-20px overflow-y-auto">
+            <slot></slot>
+          </div>
+        </div>
+      </dialog>
+    `;
+    }
+  };
+  CtDialog.styles = i$3`
+    :host {
+      display: contents;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.contents{display:contents;}
+.min-h-0{min-height:0;}
+.\\[\\&\\[open\\]\\]-flex[open],
+.flex{display:flex;}
+.flex-\\[0_0_auto\\]{flex:0 0 auto;}
+.flex-1{flex:1 1 0%;}
+.\\[\\&\\[open\\]\\]-flex-col[open],
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.overflow-hidden{overflow:hidden;}
+.overflow-y-auto{overflow-y:auto;}
+.border-b-1px{border-bottom-width:1px;}
+.border-b-\\[\\#eee\\]{--un-border-opacity:1;--un-border-bottom-opacity:var(--un-border-opacity);border-bottom-color:rgb(238 238 238 / var(--un-border-bottom-opacity));}
+.rounded-\\[12px\\]{border-radius:12px;}
+.border-none{border-style:none;}
+.border-b-solid{border-bottom-style:solid;}
+.p-0{padding:0;}
+.p-20px{padding:20px;}
+.px-20px{padding-left:20px;padding-right:20px;}
+.py-16px{padding-top:16px;padding-bottom:16px;}
+.text-16px{font-size:16px;}
+.text-\\[\\#333\\]{--un-text-opacity:1;color:rgb(51 51 51 / var(--un-text-opacity)) /* #333 */;}
+.font-600{font-weight:600;}
+.shadow-\\[0_16px_48px_rgba\\(0\\,0\\,0\\,\\.2\\)\\]{--un-shadow:0 16px 48px var(--un-shadow-color, rgba(0, 0, 0, .2));box-shadow:var(--un-ring-offset-shadow), var(--un-ring-shadow), var(--un-shadow);};
+  `;
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtDialog.prototype, "title", 2);
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtDialog.prototype, "width", 2);
+  __decorateClass$a([
+    n2({ type: String })
+  ], CtDialog.prototype, "height", 2);
+  __decorateClass$a([
+    e("dialog")
+  ], CtDialog.prototype, "dialogEl", 2);
+  CtDialog = __decorateClass$a([
+    t("ct-dialog")
+  ], CtDialog);
+  var __defProp$8 = Object.defineProperty;
+  var __getOwnPropDesc$9 = Object.getOwnPropertyDescriptor;
+  var __decorateClass$9 = (decorators, target, key, kind) => {
+    var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc$9(target, key) : target;
+    for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+      if (decorator = decorators[i2])
+        result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+    if (kind && result) __defProp$8(target, key, result);
+    return result;
+  };
+  let CtConfirm = class extends i {
+    constructor() {
+      super(...arguments);
+      this.title = "";
+      this.message = "";
+      this.confirmText = "Confirm";
+      this.cancelText = "Cancel";
+      this.danger = false;
+    }
+    static show(options) {
+      return new Promise((resolve) => {
+        const el = document.createElement("ct-confirm");
+        Object.assign(el, options);
+        el.resolve = resolve;
+        document.body.appendChild(el);
+        void el.updateComplete.then(() => {
+          el.dialogEl?.show();
+        });
+      });
+    }
+    onConfirm() {
+      this.resolve(true);
+      this.remove();
+    }
+    onCancel() {
+      this.resolve(false);
+      this.remove();
+    }
+    render() {
+      const dangerStyle = this.danger ? "--ct-btn-color:#e74c3c;--ct-btn-border:#e74c3c;--ct-btn-hover-bg:#e74c3c;--ct-btn-hover-color:#fff" : "";
+      return x`
+      <ct-dialog
+        .title=${this.title}
+        width="360px"
+        height="fit-content"
+        @ct-close=${this.onCancel}
+      >
+        <div class="text-14px text-[#555] leading-[1.5]">
+          ${this.message}
+        </div>
+        <div class="flex items-center justify-end gap-8px mt-16px">
+          <ct-button
+            size="md" variant="outlined"
+            @click=${this.onCancel}
+          >${this.cancelText}</ct-button>
+          <ct-button
+            size="md"
+            variant=${this.danger ? "outlined" : "filled"}
+            style=${dangerStyle}
+            @click=${this.onConfirm}
+          >${this.confirmText}</ct-button>
+        </div>
+      </ct-dialog>
+    `;
+    }
+  };
+  CtConfirm.styles = i$3`
+    :host {
+      all: initial;
+      display: contents;
+    }
+
+    /* layer: preflights */
+*,::before,::after{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}::backdrop{--un-rotate:0;--un-rotate-x:0;--un-rotate-y:0;--un-rotate-z:0;--un-scale-x:1;--un-scale-y:1;--un-scale-z:1;--un-skew-x:0;--un-skew-y:0;--un-translate-x:0;--un-translate-y:0;--un-translate-z:0;--un-pan-x: ;--un-pan-y: ;--un-pinch-zoom: ;--un-scroll-snap-strictness:proximity;--un-ordinal: ;--un-slashed-zero: ;--un-numeric-figure: ;--un-numeric-spacing: ;--un-numeric-fraction: ;--un-border-spacing-x:0;--un-border-spacing-y:0;--un-ring-offset-shadow:0 0 rgb(0 0 0 / 0);--un-ring-shadow:0 0 rgb(0 0 0 / 0);--un-shadow-inset: ;--un-shadow:0 0 rgb(0 0 0 / 0);--un-ring-inset: ;--un-ring-offset-width:0px;--un-ring-offset-color:#fff;--un-ring-width:0px;--un-ring-color:rgb(147 197 253 / 0.5);--un-blur: ;--un-brightness: ;--un-contrast: ;--un-drop-shadow: ;--un-grayscale: ;--un-hue-rotate: ;--un-invert: ;--un-saturate: ;--un-sepia: ;--un-backdrop-blur: ;--un-backdrop-brightness: ;--un-backdrop-contrast: ;--un-backdrop-grayscale: ;--un-backdrop-hue-rotate: ;--un-backdrop-invert: ;--un-backdrop-opacity: ;--un-backdrop-saturate: ;--un-backdrop-sepia: ;}
+/* layer: default */
+.static{position:static;}
+.mt-16px{margin-top:16px;}
+.contents{display:contents;}
+.flex{display:flex;}
+.items-center{align-items:center;}
+.justify-end{justify-content:flex-end;}
+.gap-8px{gap:8px;}
+.text-14px{font-size:14px;}
+.text-\\[\\#555\\]{--un-text-opacity:1;color:rgb(85 85 85 / var(--un-text-opacity)) /* #555 */;}
+.leading-\\[1\\.5\\]{line-height:1.5;};
+  `;
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "title", 2);
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "message", 2);
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "confirmText", 2);
+  __decorateClass$9([
+    n2({ type: String })
+  ], CtConfirm.prototype, "cancelText", 2);
+  __decorateClass$9([
+    n2({ type: Boolean })
+  ], CtConfirm.prototype, "danger", 2);
+  __decorateClass$9([
+    e("ct-dialog")
+  ], CtConfirm.prototype, "dialogEl", 2);
+  CtConfirm = __decorateClass$9([
+    t("ct-confirm")
+  ], CtConfirm);
   const languageIcon = b`<svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>`;
   const checkIcon = b`<svg viewBox="0 0 1024 1024" width="10" height="10"><path fill="currentColor" d="M406.656 706.944 195.84 496.256a32 32 0 1 0-45.248 45.248l256 256 512-512a32 32 0 0 0-45.248-45.248L406.592 706.944z"/></svg>`;
   const refreshIcon = b`<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M17.65 6.35A7.958 7.958 0 0 0 12 4C7.58 4 4.01 7.58 4.01 12S7.58 20 12 20c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
@@ -3754,7 +3754,7 @@ info() {
         <div class="shrink-0">
           <ct-section-header label="Operation Logs"></ct-section-header>
           <div class="flex items-center justify-between text-12px text-[#888]">
-            <span>${this.logCount} entries</span>
+            <span>${this.logCount} items</span>
             <div class="flex items-center gap-8px">
               <ct-button size="sm" variant="ghost" square title="Refresh"
                 @click=${() => this.requestUpdate()}

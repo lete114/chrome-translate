@@ -18,8 +18,8 @@ export class CtDialog extends LitElement {
   `
 
   @property({ type: String }) title = ''
-  @property({ type: String }) width = '600px'
-  @property({ type: String }) height = '100%'
+  @property({ type: String }) width = 'min(800px, calc(100vw - 80px))'
+  @property({ type: String }) height = 'min(600px, calc(100vh - 80px))'
 
   @query('dialog') private dialogEl!: HTMLDialogElement
 
