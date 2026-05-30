@@ -33,6 +33,7 @@ export class ChromeTranslateSettings extends LitElement {
   @property({ type: Object }) language: { from: string, to: string } = { from: 'auto', to: '' }
   @property({ type: String }) provider: 'chrome' | 'openai' = 'chrome'
   @property({ type: String }) mode: 'text' | 'html' = 'text'
+  @property({ type: String }) displayMode: 'bilingual' | 'replace' = 'bilingual'
   @property({ type: Number }) batchSize = 6
   @property({ type: String }) openaiApiKey = ''
   @property({ type: String }) openaiBaseUrl = 'https://api.openai.com/v1'
@@ -150,6 +151,17 @@ export class ChromeTranslateSettings extends LitElement {
         .value=${this.mode}
         .options=${[{ label: 'Text', value: 'text' }, { label: 'HTML', value: 'html' }]}
         @ct-change=${(e: CustomEvent) => this.emit('mode-change', { value: e.detail.value })}
+      ></ct-radio-group>
+
+      <ct-divider class="my-16px"></ct-divider>
+
+      <ct-section-header label="Display Mode"></ct-section-header>
+      <ct-radio-group
+        direction="vertical"
+        name="displayMode"
+        .value=${this.displayMode}
+        .options=${[{ label: 'Bilingual', value: 'bilingual' }, { label: 'Replace', value: 'replace' }]}
+        @ct-change=${(e: CustomEvent) => this.emit('display-mode-change', { value: e.detail.value })}
       ></ct-radio-group>
 
       <ct-divider class="my-16px"></ct-divider>

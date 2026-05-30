@@ -21,6 +21,7 @@ interface Config {
   language: { from: string, to: string }
   provider: 'chrome' | 'openai'
   mode: 'text' | 'html'
+  displayMode: 'bilingual' | 'replace'
   batchSize: number
   openai: {
     apiKey: string
@@ -38,6 +39,7 @@ const DEFAULT_CONFIG: Config = {
   language: { from: 'auto', to: '' },
   provider: 'chrome',
   mode: 'text',
+  displayMode: 'bilingual',
   batchSize: 6,
   openai: {
     apiKey: '',
@@ -116,6 +118,7 @@ export class ChromeTranslateBall extends LitElement {
   @state() private openaiModelsLoading = false
   @state() private openaiModelsError = ''
   @state() private mode: 'text' | 'html' = DEFAULT_CONFIG.mode
+  @state() private displayMode: 'bilingual' | 'replace' = DEFAULT_CONFIG.displayMode
   @state() private batchSize = DEFAULT_CONFIG.batchSize
   @state() private openaiTemperature = DEFAULT_CONFIG.openai.temperature
   @state() private openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens
@@ -147,6 +150,7 @@ export class ChromeTranslateBall extends LitElement {
     this.language = { ...this.config.language }
     this.provider = this.config.provider
     this.mode = this.config.mode
+    this.displayMode = this.config.displayMode
     this.batchSize = this.config.batchSize
     this.openaiApiKey = this.config.openai.apiKey
     this.openaiBaseUrl = this.config.openai.baseUrl
@@ -203,6 +207,7 @@ export class ChromeTranslateBall extends LitElement {
     this.translateCache = t.instance.translateCache
     t.instance.useHTML = this.mode === 'html'
     t.instance.batchSize = this.batchSize
+    t.instance.mode = this.displayMode
 
     const translator = t.instance.translator
     translator.registerProvider('openai', this.openaiProvider)
@@ -433,6 +438,17 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
+  private onDisplayModeChange(value: 'bilingual' | 'replace'): void {
+    this.displayMode = value
+    if (this.rendererCtrl) {
+      this.rendererCtrl.instance.mode = value
+    }
+    GM_setValue(STORAGE_CONFIG_KEY, {
+      ...this.config,
+      displayMode: value,
+    })
+  }
+
   private onBatchSizeChange(value: number): void {
     this.batchSize = value
     if (this.rendererCtrl) {
@@ -467,6 +483,7 @@ export class ChromeTranslateBall extends LitElement {
     this.language = { ...DEFAULT_CONFIG.language }
     this.provider = DEFAULT_CONFIG.provider
     this.mode = DEFAULT_CONFIG.mode
+    this.displayMode = DEFAULT_CONFIG.displayMode
     this.batchSize = DEFAULT_CONFIG.batchSize
     this.openaiApiKey = DEFAULT_CONFIG.openai.apiKey
     this.openaiBaseUrl = DEFAULT_CONFIG.openai.baseUrl
@@ -484,6 +501,7 @@ export class ChromeTranslateBall extends LitElement {
     if (t) {
       t.instance.useHTML = DEFAULT_CONFIG.mode === 'html'
       t.instance.batchSize = DEFAULT_CONFIG.batchSize
+      t.instance.mode = DEFAULT_CONFIG.displayMode
       t.instance.translator.setProvider('chrome')
       if (t.isTranslating()) {
         t.stop()
@@ -506,6 +524,9 @@ export class ChromeTranslateBall extends LitElement {
         break
       case 'mode-change':
         this.onModeChange(detail.value)
+        break
+      case 'display-mode-change':
+        this.onDisplayModeChange(detail.value)
         break
       case 'batch-size-change':
         this.onBatchSizeChange(detail.value)
@@ -555,6 +576,7 @@ export class ChromeTranslateBall extends LitElement {
           .language=${this.language}
           .provider=${this.provider}
           .mode=${this.mode}
+          .displayMode=${this.displayMode}
           .batchSize=${this.batchSize}
           .openaiApiKey=${this.openaiApiKey}
           .openaiBaseUrl=${this.openaiBaseUrl}
@@ -568,6 +590,7 @@ export class ChromeTranslateBall extends LitElement {
           .translateCache=${this.translateCache}
           @language-change=${this.onSettingsEvent}
           @mode-change=${this.onSettingsEvent}
+          @display-mode-change=${this.onSettingsEvent}
           @batch-size-change=${this.onSettingsEvent}
           @provider-change=${this.onSettingsEvent}
           @openai-config-change=${this.onSettingsEvent}
