@@ -16,16 +16,13 @@ export class ChromeTranslator implements ITranslationProvider {
 
   async translate(options: ITranslateOptions & { text: string }): Promise<string> {
     const translator = await this.getTranslator({ from: options.from, to: options.to })
-    if (!translator) {
-      throw new Error('Translator is not available')
-    }
     return translator.translate(options.text)
   }
 
   private async createTranslator(options: ITranslateOptions) {
     const api = (window as any).Translator
     if (!api) {
-      return undefined
+      throw new Error('Translator API is not available (requires Chrome 138+)')
     }
 
     const languages = {
@@ -37,12 +34,13 @@ export class ChromeTranslator implements ITranslationProvider {
     logger.info(`Chrome translator: availability=${availability} (${options.from}→${options.to})`)
 
     if (availability === 'unavailable') {
-      console.warn('Translation not supported; try a different language combination.')
-      return undefined
+      throw new Error(`Translation from ${options.from} to ${options.to} is not supported by Chrome API`)
     }
-    else if (availability === 'available') {
+
+    if (availability === 'available') {
       return api.create(languages)
     }
+
     return api.create({
       ...languages,
       monitor: (monitor: any) => {
@@ -60,17 +58,9 @@ export class ChromeTranslator implements ITranslationProvider {
     let translatorPromise = this.translatorCacheMap.get(key)
 
     if (!translatorPromise) {
-      translatorPromise = this.createTranslator(options).then((translator) => {
-        if (!translator) {
-          this.translatorCacheMap.delete(key)
-          throw new Error('Translator creation failed')
-        }
-        return translator
-      }).catch((err) => {
+      translatorPromise = this.createTranslator(options).catch((err) => {
         this.translatorCacheMap.delete(key)
-        const msg = err instanceof Error ? err.message : String(err)
-        logger.error(`Chrome translator creation failed: ${msg}`)
-        console.error('Error creating translator:', err)
+        throw err
       })
       this.translatorCacheMap.set(key, translatorPromise)
     }

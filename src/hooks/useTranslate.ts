@@ -57,3 +57,5 @@ export async function useTranslate(options: Partial<ITranslateOptions> = {}): Pr
     stop: () => rendererInstance?.stop?.(),
   }
 }
+
+export { cache, translatorInstance }

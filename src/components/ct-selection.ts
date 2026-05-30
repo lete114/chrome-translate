@@ -1,13 +1,11 @@
 import { GM_getValue } from '$'
-import { css, html, LitElement } from 'lit'
+import { css, html, LitElement, nothing } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { Translator } from '../core/translator'
-import { LFUCache } from '../utils/LFUCache'
+import { OpenAITranslator } from '../core/provider/openai'
+import { cache, translatorInstance } from '../hooks/useTranslate'
 import { STORAGE_CONFIG_KEY } from '../utils/constant'
-
-interface SelectionConfig {
-  language: { from: string; to: string }
-}
+import { logger } from '../utils/logger'
+import { closeIcon, languageIcon } from './icons'
 
 type Phase = 'hidden' | 'button' | 'popup'
 
@@ -19,129 +17,17 @@ export class ChromeTranslateSelection extends LitElement {
       display: block !important;
     }
 
-    .ct-sel-btn {
-      position: fixed;
-      z-index: 2147483647;
-      width: 32px;
-      height: 32px;
-      border: 2px solid #fff;
-      border-radius: 50%;
-      background: #00c4b6;
-      color: #fff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      transform: translate(-50%, -50%);
-      transition: transform 0.12s ease;
-      padding: 0;
-      outline: none;
-    }
-
-    .ct-sel-btn:hover {
-      background: #00a89a;
-      transform: translate(-50%, -50%) scale(1.1);
-    }
-
-    .ct-sel-btn:active {
-      transform: translate(-50%, -50%) scale(0.92);
-    }
-
-    .ct-sel-popup {
-      position: fixed;
-      z-index: 2147483647;
-      min-width: 200px;
-      max-width: 420px;
-      max-height: 320px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-      padding: 14px 16px;
-      transform: translate(-50%, 0);
-      overflow-y: auto;
-      color: #333;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .ct-sel-close {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 22px;
-      height: 22px;
-      border: none;
-      border-radius: 50%;
-      background: #f0f0f0;
-      color: #888;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      transition: background 0.15s;
-    }
-
-    .ct-sel-close:hover {
-      background: #e0e0e0;
-      color: #555;
-    }
-
-    .ct-sel-text {
-      word-break: break-word;
-      white-space: pre-wrap;
-      padding-right: 20px;
-    }
-
-    .ct-sel-original {
-      color: #888;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-
-    .ct-sel-translated {
-      color: #222;
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .ct-sel-divider {
-      height: 1px;
-      background: #eee;
-      margin: 6px 0;
-    }
-
-    .ct-sel-status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      color: #888;
-      font-size: 13px;
-    }
-
-    .ct-sel-error {
-      color: #e74c3c;
-    }
-
-    .ct-sel-spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid #e0e0e0;
-      border-top-color: #00c4b6;
-      border-radius: 50%;
-      animation: ct-spin 0.6s linear infinite;
-      flex-shrink: 0;
-    }
-
     @keyframes ct-spin {
       to { transform: rotate(360deg); }
     }
+
+    @unocss-placeholder;
   `
 
-  private translator = new Translator()
-  private cache = new LFUCache<string>('ct-selection-cache')
+  private translator = translatorInstance
+  private cache = cache
+  private showButtonTimer: ReturnType<typeof setTimeout> | undefined
+  private detectedFrom: string | null = null
 
   @state() private phase: Phase = 'hidden'
   @state() private selectedText = ''
@@ -153,103 +39,178 @@ export class ChromeTranslateSelection extends LitElement {
 
   private getSelectedText(): string {
     const sel = window.getSelection()
-    if (!sel || sel.isCollapsed || !sel.rangeCount) return ''
+    if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      return ''
+    }
     return sel.toString().trim()
   }
 
-  private getSelectionRect(): { x: number; y: number } | null {
+  private getSelectionRect(): { x: number, y: number } | null {
     const sel = window.getSelection()
-    if (!sel || !sel.rangeCount) return null
+    if (!sel || !sel.rangeCount) {
+      return null
+    }
     const rect = sel.getRangeAt(0).getBoundingClientRect()
-    if (!rect || (rect.width === 0 && rect.height === 0)) return null
+    if (!rect || (rect.width === 0 && rect.height === 0)) {
+      return null
+    }
     return { x: rect.right, y: rect.top }
   }
 
   private onMouseDown = (e: MouseEvent): void => {
-    if (this.phase === 'hidden') return
+    clearTimeout(this.showButtonTimer)
+    if (this.phase === 'hidden') {
+      return
+    }
     const target = e.target as Node
-    if (this.renderRoot.contains(target)) return
+    if (this.renderRoot.contains(target)) {
+      return
+    }
     this.phase = 'hidden'
   }
 
   private onMouseUp = (): void => {
-    if (this.phase !== 'hidden') return
+    if (this.phase !== 'hidden') {
+      return
+    }
+    const stored = GM_getValue(STORAGE_CONFIG_KEY, {}) as any
+    if (stored?.selectionTranslate === false) {
+      return
+    }
     const text = this.getSelectedText()
-    if (!text || text.length > 2000) return
+    if (!text || text.length > 2000) {
+      return
+    }
     const pos = this.getSelectionRect()
-    if (!pos) return
+    if (!pos) {
+      return
+    }
     this.selectedText = text
-    this.posX = pos.x
-    this.posY = pos.y
-    this.phase = 'button'
+    this.posX = pos.x + 12
+    this.posY = pos.y - 20
+    clearTimeout(this.showButtonTimer)
+    this.showButtonTimer = setTimeout(() => {
+      logger.info(`Selection translate button shown (${text.length} chars)`)
+      this.phase = 'button'
+    }, 500)
   }
 
   private onKeyDown = (e: KeyboardEvent): void => {
     if (e.key === 'Escape' && this.phase !== 'hidden') {
+      clearTimeout(this.showButtonTimer)
       this.phase = 'hidden'
     }
   }
 
   private onScroll = (): void => {
+    clearTimeout(this.showButtonTimer)
     this.phase = 'hidden'
   }
 
-  private async onTranslate(): Promise<void> {
-    if (!(window as any).Translator?.availability) {
-      this.error = 'Translator API is not available（需要 Chrome 138+）'
-      this.phase = 'popup'
-      window.getSelection()?.removeAllRanges()
-      return
-    }
+  private async onTranslate(e: Event): Promise<void> {
+    const btn = e.currentTarget as HTMLElement
+    const btnRect = btn.getBoundingClientRect()
+    this.posX = btnRect.left + btnRect.width / 2
+    this.posY = btnRect.bottom + 8
+
+    const margin = 8
+    this.posX = Math.max(margin, Math.min(innerWidth - margin, this.posX))
+    this.posY = Math.max(margin, Math.min(innerHeight - margin, this.posY))
 
     this.loading = true
     this.error = ''
     this.phase = 'popup'
-    this.posY = this.posY + 20
     window.getSelection()?.removeAllRanges()
 
     try {
-      const config = GM_getValue<SelectionConfig>(STORAGE_CONFIG_KEY, {
-        language: { from: 'auto', to: '' },
-      })
+      const stored = GM_getValue(STORAGE_CONFIG_KEY, {}) as any
+      const language = stored?.language
 
-      const from = config.language.from
-      const to = config.language.to || navigator.languages[0]
-
-      let sourceLang = from
-      if (sourceLang === 'auto') {
-        sourceLang = await this.translator.detectLanguage(this.selectedText)
+      if (!language?.to) {
+        logger.info('Selection translate skipped (no target language configured)')
+        return
       }
 
-      if (sourceLang === to) {
+      let from = language.from
+      if (from === 'auto') {
+        if (!this.detectedFrom) {
+          this.detectedFrom = await this.translator.detectPageLanguage()
+        }
+        from = this.detectedFrom
+      }
+
+      if (from && from === language.to) {
+        logger.info(`Selection translate skipped (${from} === ${language.to})`)
         this.translatedText = this.selectedText
         return
       }
 
-      const cacheKey = `${sourceLang}:${to}:${this.selectedText}`
+      logger.info(`Selection translate started (${from}→${language.to})`)
+
+      let openaiProvider = this.translator.getProvider('openai') as OpenAITranslator | undefined
+      if (!openaiProvider) {
+        openaiProvider = new OpenAITranslator()
+        this.translator.registerProvider('openai', openaiProvider)
+      }
+
+      if (stored?.openai) {
+        openaiProvider.updateConfig(stored.openai)
+      }
+
+      if (stored?.provider === 'openai') {
+        this.translator.setProvider('openai')
+      }
+      else {
+        this.translator.setProvider('chrome')
+      }
+
+      const cacheKey = `${from}->${language.to}:${this.selectedText}`
       const cached = this.cache.get(cacheKey)
       if (cached) {
+        logger.info(`Selection translate cache hit (${from}→${language.to})`)
         this.translatedText = cached
         return
       }
 
       const result = await this.translator.translate({
-        from: sourceLang,
-        to,
+        from,
+        to: language.to,
         text: this.selectedText,
       })
 
       this.cache.set(cacheKey, result)
       this.translatedText = result
-    } catch (e: any) {
-      this.error = e.message || '翻译失败'
-    } finally {
+      logger.info(`Selection translate completed (${from}→${language.to})`)
+    }
+    catch (e: any) {
+      const msg = typeof e === 'string' ? e : e?.message ?? ''
+      logger.error(`Selection translate failed: ${msg}`)
+      if (!msg) {
+        this.error = 'Translation failed. Check your provider configuration.'
+      }
+      else {
+        this.error = msg
+      }
+    }
+    finally {
       this.loading = false
     }
   }
 
   private onClose(): void {
     this.phase = 'hidden'
+  }
+
+  private onBtnMouseDown(e: Event): void {
+    e.stopPropagation()
+  }
+
+  private onBtnMouseUp(e: Event): void {
+    e.stopPropagation()
+  }
+
+  private onPopupMouseDown(e: Event): void {
+    e.stopPropagation()
   }
 
   override connectedCallback(): void {
@@ -273,52 +234,54 @@ export class ChromeTranslateSelection extends LitElement {
   override render() {
     return html`
       <div>
-        ${this.phase === 'button' ? html`
+        ${this.phase === 'button'
+          ? html`
           <button
-            class="ct-sel-btn"
-            style="left: ${this.posX}px; top: ${this.posY}px"
-            @mousedown=${(e: Event) => e.stopPropagation()}
-            @mouseup=${(e: Event) => e.stopPropagation()}
+            class="fixed z-[2147483647] w-10 h-10 bg-white rounded-full border-none cursor-pointer flex items-center justify-center p-0 outline-none shadow-[0_8px_16px_rgba(0,0,0,.25)] hover:shadow-[0_12px_24px_rgba(0,0,0,.35)] active:shadow-[0_4px_8px_rgba(0,0,0,.2)] hover:[--sel-btn-y:calc(-50%_-_2px)] active:[--sel-btn-y:calc(-50%_+_1px)] transition-all duration-100 ease-out"
+            style="left: ${this.posX}px; top: ${this.posY}px; --sel-btn-y: -50%; transform: translate(-50%, var(--sel-btn-y))"
+            @mousedown=${this.onBtnMouseDown}
+            @mouseup=${this.onBtnMouseUp}
             @click=${this.onTranslate}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 8l6 6" />
-              <path d="M4 14l6-6 2-3" />
-              <path d="M2 5h12" />
-              <path d="M7 2h1" />
-              <path d="M14 22l2.5-5L19 22" />
-              <path d="M12 17h8" />
-            </svg>
+            <div class="w-[28px] h-[28px] rounded-full bg-[#00c4b6] text-white flex items-center justify-center hover:bg-[#00a89a] transition-colors duration-100">${languageIcon}</div>
           </button>
-        ` : nothing}
+        `
+          : nothing}
 
-        ${this.phase === 'popup' ? html`
+        ${this.phase === 'popup'
+          ? html`
           <div
-            class="ct-sel-popup"
-            style="left: ${this.posX}px; top: ${this.posY}px"
-            @mousedown=${(e: Event) => e.stopPropagation()}
+            class="fixed gap-8px z-[2147483647] w-[420px] max-h-[320px] bg-white rounded-[10px] shadow-[0_4px_24px_rgba(0,0,0,.2)] flex flex-col p-[14px_16px] text-[#333] text-[14px] leading-[1.5]"
+            style="left: ${this.posX}px; top: ${this.posY}px; transform: translate(-50%, 0)"
+            @mousedown=${this.onPopupMouseDown}
           >
-            <button class="ct-sel-close" @click=${this.onClose}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+            <div class="flex items-center justify-end flex-shrink-0">
+              <button class="w-[22px] h-[22px] border-none rounded-full bg-[#f0f0f0] text-[#888] cursor-pointer flex items-center justify-center p-0 hover:bg-[#e0e0e0] hover:text-[#555] transition-[background_0.15s]" @click=${this.onClose}>
+                ${closeIcon}
+              </button>
+            </div>
 
-            ${this.loading ? html`
-              <div class="ct-sel-status">
-                <span class="ct-sel-spinner"></span>
-                <span>翻译中...</span>
-              </div>
-            ` : this.error ? html`
-              <div class="ct-sel-status ct-sel-error">${this.error}</div>
-            ` : html`
-              <div class="ct-sel-text ct-sel-original">${this.selectedText}</div>
-              <div class="ct-sel-divider"></div>
-              <div class="ct-sel-text ct-sel-translated">${this.translatedText}</div>
-            `}
+            <div class="flex-1 overflow-y-auto min-h-0">
+              ${this.loading
+                ? html`
+                <div class="flex items-center gap-2 py-2 text-[#888] text-[13px]">
+                  <span class="w-4 h-4 border-2 border-[#e0e0e0] border-t-[#00c4b6] rounded-full flex-shrink-0 animate-[ct-spin_0.6s_linear_infinite]"></span>
+                  <span>Translating...</span>
+                </div>
+              `
+                : this.error
+                  ? html`
+                <div class="flex items-center gap-2 py-2 text-[#e74c3c] text-[13px]">${this.error}</div>
+              `
+                  : html`
+                <div class="break-words whitespace-pre-wrap text-[#222] text-[15px] font-medium">${this.translatedText}</div>
+                <div class="h-[1px] bg-[#eee] my-[6px]"></div>
+                <div class="break-words whitespace-pre-wrap text-[#888] text-[13px] mb-[6px]">${this.selectedText}</div>
+              `}
+            </div>
           </div>
-        ` : nothing}
+        `
+          : nothing}
       </div>
     `
   }

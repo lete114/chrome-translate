@@ -14,6 +14,7 @@ import './ct-select'
 import './ct-textarea'
 import './ct-button'
 import './ct-radio-group'
+import './ct-switch'
 import './ct-divider'
 import './ct-section-header'
 import './ct-tabs'
@@ -35,6 +36,7 @@ export class ChromeTranslateSettings extends LitElement {
   @property({ type: String }) mode: 'text' | 'html' = 'text'
   @property({ type: String }) displayMode: 'bilingual' | 'replace' = 'bilingual'
   @property({ type: Number }) batchSize = 6
+  @property({ type: Boolean }) selectionTranslate = true
   @property({ type: String }) openaiApiKey = ''
   @property({ type: String }) openaiBaseUrl = 'https://api.openai.com/v1'
   @property({ type: String }) openaiModel = 'gpt-4o-mini'
@@ -174,6 +176,17 @@ export class ChromeTranslateSettings extends LitElement {
         min="1" max="20" step="1"
         @ct-change=${(e: CustomEvent) => this.emit('batch-size-change', { value: Number(e.detail.value) })}
       ></ct-input>
+
+      <ct-divider class="my-16px"></ct-divider>
+
+      <ct-section-header label="Selection Translate"></ct-section-header>
+      <label class="flex items-center justify-between cursor-pointer">
+        <span class="text-13px text-[#555]">Enable translation on text selection</span>
+        <ct-switch
+          .checked=${this.selectionTranslate}
+          @ct-change=${(e: CustomEvent) => this.emit('selection-translate-change', { value: e.detail.value })}
+        ></ct-switch>
+      </label>
     `
   }
 

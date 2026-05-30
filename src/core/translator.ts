@@ -30,24 +30,41 @@ export class Translator {
     return this.providers.get(name)
   }
 
+  private get currentProvider(): ITranslationProvider {
+    const provider = this.providers.get(this.current)
+    if (!provider) {
+      throw new Error(`Current provider "${this.current}" not found`)
+    }
+    return provider
+  }
+
+  async translate(options: ITranslateOptions & { text: string }): Promise<string> {
+    return this.currentProvider.translate(options)
+  }
+
+  private detectorPromise: Promise<any> | null = null
+
   async detectLanguage(text: string): Promise<string> {
     const api = (window as any).LanguageDetector
     if (!api) {
       throw new Error('LanguageDetector is not available')
     }
-    const detector = await api.create({
-      monitor: (monitor: any) => {
-        const progress = (this.providers.get('chrome') as any)?.progress
-        if (progress) {
-          const p = progress.createProgressElement({ title: 'Downloading LanguageDetector...' })
-          monitor.addEventListener('downloadprogress', (e: any) => {
-            const percentage = Math.floor(e.loaded * 100)
-            p?.showProgress(percentage)
-          })
-        }
-      },
-    })
+    if (!this.detectorPromise) {
+      this.detectorPromise = api.create({
+        monitor: (monitor: any) => {
+          const progress = (this.providers.get('chrome') as any)?.progress
+          if (progress) {
+            const p = progress.createProgressElement({ title: 'Downloading LanguageDetector...' })
+            monitor.addEventListener('downloadprogress', (e: any) => {
+              const percentage = Math.floor(e.loaded * 100)
+              p?.showProgress(percentage)
+            })
+          }
+        },
+      })
+    }
 
+    const detector = await this.detectorPromise
     const langs = (await detector.detect(text)) as {
       detectedLanguage: string
       confidence: number
@@ -61,10 +78,13 @@ export class Translator {
       return lang
     }
     const textContent = document.body?.textContent
-    if (!textContent) return 'en'
+    if (!textContent) {
+      return 'en'
+    }
     try {
       return await this.detectLanguage(textContent)
-    } catch {
+    }
+    catch {
       return 'en'
     }
   }

@@ -1,3 +1,4 @@
+import type { Mode } from '../utils/constant'
 import type { LFUCache } from '../utils/LFUCache'
 import type { ITextNodeInfo, ITextParagraph, TCombinedTextMap, TextExtractor } from './textExtractor'
 import type { ITranslateOptions, Translator } from './translator'
@@ -24,7 +25,7 @@ export class Renderer {
   language: ITranslateOptions
   el: HTMLElement
   useHTML = false
-  mode: 'bilingual' | 'replace' = 'bilingual'
+  mode: Mode = 'bilingual'
   isRunning = false
   batchSize = 6
   private activeCount = 0
@@ -90,7 +91,7 @@ export class Renderer {
     this.language = { from, to }
   }
 
-  setMode(mode: 'bilingual' | 'replace') {
+  setMode(mode: Mode) {
     this.mode = mode
   }
 
@@ -231,7 +232,8 @@ export class Renderer {
         cancelLoading()
         if (this.mode === 'bilingual') {
           this.isRunning && this.createParagraphBilingualDisplayHTML(textParagraph)
-        } else {
+        }
+        else {
           this.isRunning && this.createParagraphReplaceDisplay(textParagraph)
         }
       }
@@ -241,7 +243,8 @@ export class Renderer {
         cancelLoading()
         if (this.mode === 'bilingual') {
           this.isRunning && this.createParagraphBilingualDisplay(textParagraph)
-        } else {
+        }
+        else {
           this.isRunning && this.createParagraphReplaceDisplay(textParagraph)
         }
       }
@@ -428,7 +431,8 @@ export class Renderer {
 
     if (textParagraph.translate) {
       container.innerHTML = textParagraph.translate
-    } else {
+    }
+    else {
       for (const info of textParagraph.textNodes) {
         const { node, translate, originalText } = info
         if (translate && translate !== originalText) {

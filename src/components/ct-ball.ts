@@ -1,4 +1,5 @@
 import type { ITranslateOptions } from '../core/translator'
+import type { Mode } from '../utils/constant'
 import type { LFUCache } from '../utils/LFUCache'
 import type { ChromeTranslateSettings } from './ct-settings'
 import { GM_getValue, GM_setValue } from '$'
@@ -21,7 +22,8 @@ interface Config {
   language: { from: string, to: string }
   provider: 'chrome' | 'openai'
   mode: 'text' | 'html'
-  displayMode: 'bilingual' | 'replace'
+  displayMode: Mode
+  selectionTranslate: boolean
   batchSize: number
   openai: {
     apiKey: string
@@ -40,6 +42,7 @@ const DEFAULT_CONFIG: Config = {
   provider: 'chrome',
   mode: 'text',
   displayMode: 'bilingual',
+  selectionTranslate: true,
   batchSize: 6,
   openai: {
     apiKey: '',
@@ -118,8 +121,9 @@ export class ChromeTranslateBall extends LitElement {
   @state() private openaiModelsLoading = false
   @state() private openaiModelsError = ''
   @state() private mode: 'text' | 'html' = DEFAULT_CONFIG.mode
-  @state() private displayMode: 'bilingual' | 'replace' = DEFAULT_CONFIG.displayMode
+  @state() private displayMode: Mode = DEFAULT_CONFIG.displayMode
   @state() private batchSize = DEFAULT_CONFIG.batchSize
+  @state() private selectionTranslate = DEFAULT_CONFIG.selectionTranslate
   @state() private openaiTemperature = DEFAULT_CONFIG.openai.temperature
   @state() private openaiMaxTokens = DEFAULT_CONFIG.openai.maxTokens
   @state() private translateCache?: LFUCache<string>
@@ -152,6 +156,7 @@ export class ChromeTranslateBall extends LitElement {
     this.mode = this.config.mode
     this.displayMode = this.config.displayMode
     this.batchSize = this.config.batchSize
+    this.selectionTranslate = this.config.selectionTranslate
     this.openaiApiKey = this.config.openai.apiKey
     this.openaiBaseUrl = this.config.openai.baseUrl
     this.openaiModel = this.config.openai.model
@@ -438,7 +443,7 @@ export class ChromeTranslateBall extends LitElement {
     })
   }
 
-  private onDisplayModeChange(value: 'bilingual' | 'replace'): void {
+  private onDisplayModeChange(value: Mode): void {
     this.displayMode = value
     if (this.rendererCtrl) {
       this.rendererCtrl.instance.mode = value
@@ -457,6 +462,14 @@ export class ChromeTranslateBall extends LitElement {
     GM_setValue(STORAGE_CONFIG_KEY, {
       ...this.config,
       batchSize: value,
+    })
+  }
+
+  private onSelectionTranslateChange(value: boolean): void {
+    this.selectionTranslate = value
+    GM_setValue(STORAGE_CONFIG_KEY, {
+      ...this.config,
+      selectionTranslate: value,
     })
   }
 
@@ -484,6 +497,7 @@ export class ChromeTranslateBall extends LitElement {
     this.provider = DEFAULT_CONFIG.provider
     this.mode = DEFAULT_CONFIG.mode
     this.displayMode = DEFAULT_CONFIG.displayMode
+    this.selectionTranslate = DEFAULT_CONFIG.selectionTranslate
     this.batchSize = DEFAULT_CONFIG.batchSize
     this.openaiApiKey = DEFAULT_CONFIG.openai.apiKey
     this.openaiBaseUrl = DEFAULT_CONFIG.openai.baseUrl
@@ -530,6 +544,9 @@ export class ChromeTranslateBall extends LitElement {
         break
       case 'batch-size-change':
         this.onBatchSizeChange(detail.value)
+        break
+      case 'selection-translate-change':
+        this.onSelectionTranslateChange(detail.value)
         break
       case 'provider-change':
         this.onProviderChange(detail.value)
@@ -578,6 +595,7 @@ export class ChromeTranslateBall extends LitElement {
           .mode=${this.mode}
           .displayMode=${this.displayMode}
           .batchSize=${this.batchSize}
+          .selectionTranslate=${this.selectionTranslate}
           .openaiApiKey=${this.openaiApiKey}
           .openaiBaseUrl=${this.openaiBaseUrl}
           .openaiModel=${this.openaiModel}
@@ -592,6 +610,7 @@ export class ChromeTranslateBall extends LitElement {
           @mode-change=${this.onSettingsEvent}
           @display-mode-change=${this.onSettingsEvent}
           @batch-size-change=${this.onSettingsEvent}
+          @selection-translate-change=${this.onSettingsEvent}
           @provider-change=${this.onSettingsEvent}
           @openai-config-change=${this.onSettingsEvent}
           @fetch-models=${this.onSettingsEvent}
